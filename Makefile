@@ -1,66 +1,68 @@
+# ------------------------------------------------
 #originates from stackoverflow user 'qroberts' post
 #http://stackoverflow.com/a/27794283
+#http://ubuntuforums.org/showthread.php?t=1879827
+# ------------------------------------------------
 
-#Compiler and Linker
+# Compiler
 CC			:= g++
-
-#The Target Binary Program
+# The Target Binary Program
 TARGET      := program
-
-#The Directories, Source, Includes, Objects, Binary and Resources
+# The Directories, Source, Includes, Objects, Binary and Resources
 SRCDIR      := src
 INCDIR      := inc
 BUILDDIR    := obj
 TARGETDIR   := bin
 RESDIR      := res
+# Extensions
 SRCEXT      := cpp
 DEPEXT      := d
 OBJEXT      := o
 
-#Flags, Libraries and Includes
-CFLAGS      := -fopenmp -Wall -O3 -g
-LIB         := -lSDL2
-INC         := -I$(INCDIR) -I/usr/local/include
+# Flags, Libraries and Includes
+CFLAGS      := -Wall -w -std=c++11 -O
+LIB         := -lSDL2 -lSDL2main -lSDL2_mixer -lSDL2_ttf
+INC         := -I$(INCDIR) -I/usr/include
 INCDEP      := -I$(INCDIR)
 
-#---------------------------------------------------------------------------------
-#DO NOT EDIT BELOW THIS LINE
-#---------------------------------------------------------------------------------
-SOURCES     := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+SOURCES		:=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+#SOURCES		:= $(wildcard $(addsuffix /*.$(SRCEXT), $(SRCDIR)))
 OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
-#Defauilt Make
+# Defauilt Make
 all: resources $(TARGET)
 
-#Remake
+run: all
+	$(TARGETDIR)/$(TARGET)
+# Remake
 remake: cleaner all
 
-#Copy Resources from Resources Directory to Target Directory
+# Copy Resources from Resources Directory to Target Directory
 resources: directories
 	@cp -r $(RESDIR)/ $(TARGETDIR)/
 
-#Make the Directories
+# Make the Directories
 directories:
 	#rm -R $(TARGETDIR)
 	@mkdir -p $(TARGETDIR)
 	@mkdir -p $(BUILDDIR)
 
-#Clean only Objecst
+# Clean only Objecst
 clean:
 	@$(RM) -rf $(BUILDDIR)
 
-#Full Clean, Objects and Binaries
+# Full Clean, Objects and Binaries
 cleaner: clean
 	@$(RM) -rf $(TARGETDIR)
 
-#Pull in dependency info for *existing* .o files
+# Pull in dependency info for *existing* .o files
 -include $(OBJECTS:.$(OBJEXT)=.$(DEPEXT))
 
-#Link
+# Link
 $(TARGET): $(OBJECTS)
-	$(CC) $(LIB) -o $(TARGETDIR)/$(TARGET) $^
+	$(CC) -o $(TARGETDIR)/$(TARGET) $^ $(LIB)
 
-#Compile
+# Compile
 $(BUILDDIR)/%.$(OBJEXT): $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<

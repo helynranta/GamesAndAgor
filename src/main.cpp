@@ -1,8 +1,9 @@
-#include <stdio.h>
-
-#include "class.hpp"
+#include "Game.hpp"
 
 int main(void)
 {
-    return 1;
+    Game game;
+    game.run();
+    
+    return 0;
 }
