@@ -6,6 +6,8 @@
 #include <SDL2/SDL.h>
 #include "SDL2/SDL_events.h"
 
+#include "Circle.hpp"
+
 enum GameState { PLAY, PAUSE, EXIT };
 
 class Game {
@@ -16,8 +18,13 @@ private:
     void init();
     // gameloop
     void update();
+    // generic drawing function
+    void draw();
     // move this to input manager
     void processInput();
+
+    Circle player;
+    Camera m_camera = Camera(800, 640);
 public:
     SDL_Texture* m_circle = nullptr;
     Game ();

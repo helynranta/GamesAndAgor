@@ -20,7 +20,7 @@ DEPEXT      := d
 OBJEXT      := o
 
 # Flags, Libraries and Includes
-CFLAGS      := -Wall -pedantic -std=c++11 -O3
+CFLAGS      := -Wall -pedantic -std=c++11 #-O3
 LIB         := -lSDL2 -lSDL2main -lSDL2_image -lSDL2_ttf -Llib
 INC         := -I$(INCDIR)
 INCDEP      := -I$(INCDIR)

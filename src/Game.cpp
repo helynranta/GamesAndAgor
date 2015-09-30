@@ -5,7 +5,6 @@
 
 #include "Game.hpp"
 
-#include "Circle.hpp"
 #include "SDL2/SDL_image.h"
 
 Game::Game () {}
@@ -38,17 +37,14 @@ void Game::init() {
 
 }
 void Game::update() {
-
-    Circle player;
-
     while(m_gameState == GameState::PLAY) {
         // clear screen
         SDL_RenderClear(m_renderer);
         // process inputs, put this in own class
         processInput();
-        // render circle to screen
-        SDL_RenderCopy(m_renderer, m_circle, NULL, &player.getDestRect() );
-
+        player.update(m_camera);
+        // draw
+        draw();
         // render buffer to screen
         SDL_RenderPresent(m_renderer);
     }
@@ -66,6 +62,10 @@ void Game::processInput() {
             case SDL_KEYDOWN: // key is down
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
                     m_gameState = GameState::EXIT;
+                else if(e.key.keysym.sym == SDLK_q)
+                    m_camera.setScale(-0.01);
+                else if(e.key.keysym.sym == SDLK_e)
+                    m_camera.setScale(0.01);
                 break;
         }
     }
@@ -78,7 +78,7 @@ void Game::run() {
     // create window
     m_window = SDL_CreateWindow("Agor and Gamus",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        640, 480, 0);
+        m_camera.getW(), m_camera.getH(), 0);
     // check if window creation failed
     if(m_window == nullptr) {
         std::cout << "Could not create window " << std::string(SDL_GetError()) << std::endl;
@@ -101,5 +101,12 @@ void Game::run() {
     }
     init();
     // if everyhing is ok, start gameloop
-    if(m_gameState == GameState::PLAY) update();
+    if(m_gameState == GameState::PLAY) {
+        std::cout << "Init Successful!" << std::endl;
+        update();
+    }
+}
+void Game::draw() {
+    // render circle to screen
+    SDL_RenderCopy(m_renderer, m_circle, NULL, &player.getDestRect() );
 }
