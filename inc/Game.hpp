@@ -13,11 +13,13 @@ private:
     GameState m_gameState = GameState::EXIT;
     SDL_Window* m_window    = nullptr; // put this in own class
     SDL_Renderer* m_renderer = nullptr; // put this in window class
+    void init();
     // gameloop
     void update();
     // move this to input manager
     void processInput();
 public:
+    SDL_Texture* m_circle = nullptr;
     Game ();
     ~Game ();
     // same as start game, extend separate init if needed
