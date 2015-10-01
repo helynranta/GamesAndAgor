@@ -6,24 +6,16 @@ Course assigment at Lappeenranta University of Technology, course CT30A5002 Game
 DEPENDENCES
 --------------------------------
 
-<b>if we use sdl</b> SDL2 SDL2_tff
-
-install on ubuntus
+SDL2 SDL2_tff SDL2_image
 
 Game Architecture
 -------------------------------
 write something about engine here
 
-<i>SDL_Renderer vs OpenGL wrappers?</i>
-
 classes we need:
  * Camera
  * Circle
- * ResourceManager ? nobe
  * InputManager
- * AudioEngine
+ * AudioEngine (not necessary)
  * network stuff (depends on what technique we implement)
-    * server class
-    * client class
  * ParticleEngine (not necessary)
-=======
