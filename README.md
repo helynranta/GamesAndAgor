@@ -18,8 +18,8 @@ write something about engine here
 
 classes we need:
  * Camera
- * Sphere
- * ResourceManager ?
+ * Circle
+ * ResourceManager ? nobe
  * InputManager
  * AudioEngine
  * network stuff (depends on what technique we implement)

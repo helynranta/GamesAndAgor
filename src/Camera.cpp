@@ -11,6 +11,7 @@ void Camera::setScale(float scale) {
     m_scale -= scale;
 }
 SDL_Rect Camera::transformToWorldCordinates(SDL_Rect rect) {
+    // flip y axis to move up
     rect.y = -rect.y;
     // make center of screen to be zero
     rect.x += float(m_width)/2.0f;
