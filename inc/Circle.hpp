@@ -6,9 +6,9 @@
 
 class Circle {
 private:
-    int m_x = 0;
-    int m_y = 0;
-    unsigned int m_r = 200;
+    float m_x = 0;
+    float m_y = 0;
+    float m_r = 100;
     SDL_Rect m_destRect = {(int)m_x, (int)m_y, (int)m_r*2, (int)m_r*2};
 public:
     inline Circle () {;}

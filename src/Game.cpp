@@ -51,7 +51,8 @@ void Game::update() {
 }
 void Game::processInput() {
     SDL_Event e;
-    /* Poll all events
+    /*
+    Poll all events
     Keycodes: https://wiki.libsdl.org/SDL_Keycode
     */
     while (SDL_PollEvent(&e)) {
@@ -62,10 +63,19 @@ void Game::processInput() {
             case SDL_KEYDOWN: // key is down
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
                     m_gameState = GameState::EXIT;
+                /*  CAMERA TESTING */
                 else if(e.key.keysym.sym == SDLK_q)
-                    m_camera.setScale(-0.01);
+                    m_camera.setScale(-.1f);
                 else if(e.key.keysym.sym == SDLK_e)
-                    m_camera.setScale(0.01);
+                    m_camera.setScale(.1f);
+                else if(e.key.keysym.sym == SDLK_a)
+                    m_camera.setX(-10);
+                else if(e.key.keysym.sym == SDLK_d)
+                    m_camera.setX(10);
+                else if(e.key.keysym.sym == SDLK_w)
+                    m_camera.setY(-10);
+                else if(e.key.keysym.sym == SDLK_s)
+                    m_camera.setY(10);
                 break;
         }
     }
@@ -78,7 +88,7 @@ void Game::run() {
     // create window
     m_window = SDL_CreateWindow("Agor and Gamus",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        m_camera.getW(), m_camera.getH(), 0);
+        m_camera.getWidth(), m_camera.getHeight(), 0);
     // check if window creation failed
     if(m_window == nullptr) {
         std::cout << "Could not create window " << std::string(SDL_GetError()) << std::endl;
@@ -108,5 +118,6 @@ void Game::run() {
 }
 void Game::draw() {
     // render circle to screen
-    SDL_RenderCopy(m_renderer, m_circle, NULL, &player.getDestRect() );
+    SDL_Rect player_position = m_camera.transformToWorldCordinates(player.getDestRect());
+    SDL_RenderCopy(m_renderer, m_circle, NULL, &player_position );
 }
