@@ -1,7 +1,7 @@
 Gamus and Agor
 ================================
 
-Gamus and Agor project template
+Course assigment at Lappeenranta University of Technology, course CT30A5002 Games and Networking (7 cr)
 
 DEPENDENCES
 --------------------------------
@@ -26,3 +26,4 @@ classes we need:
     * server class
     * client class
  * ParticleEngine (not necessary)
+=======
