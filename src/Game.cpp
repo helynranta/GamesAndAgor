@@ -9,6 +9,8 @@
 
 Game::Game () {}
 Game::~Game () {
+    delete m_inputManager;
+
     SDL_DestroyTexture(m_circle);
     m_circle = nullptr;
     // clear sdl
@@ -34,7 +36,9 @@ void Game::init() {
         }
         SDL_FreeSurface(loadSurface);
     }
-
+    m_inputManager = new InputManager();
+    // give player inputManager
+    player.init(m_inputManager);
 }
 void Game::update() {
     while(m_gameState == GameState::PLAY) {
@@ -42,7 +46,20 @@ void Game::update() {
         SDL_RenderClear(m_renderer);
         // process inputs, put this in own class
         processInput();
-        player.update(m_camera);
+        player.update();
+        // CAMERA TESTING
+        if(m_inputManager->isKeyDown(SDLK_q))
+            m_camera.scale(-.1f);
+        if(m_inputManager->isKeyDown(SDLK_e))
+            m_camera.scale(.1f);
+        if(m_inputManager->isKeyDown(SDLK_a))
+            m_camera.moveX(-.1f);
+        if(m_inputManager->isKeyDown(SDLK_d))
+            m_camera.moveX(.1f);
+        if(m_inputManager->isKeyDown(SDLK_w))
+            m_camera.moveY(-.1f);
+        if(m_inputManager->isKeyDown(SDLK_s))
+            m_camera.moveY(.1f);
         // draw
         draw();
         // render buffer to screen
@@ -50,35 +67,28 @@ void Game::update() {
     }
 }
 void Game::processInput() {
-    SDL_Event e;
+    // update input manager
+    m_inputManager->update();
     /*
     Poll all events
     Keycodes: https://wiki.libsdl.org/SDL_Keycode
     */
+    SDL_Event e;
     while (SDL_PollEvent(&e)) {
         switch(e.type) {
             case SDL_QUIT: // user quits window
                 m_gameState = GameState::EXIT;
                 break;
             case SDL_KEYDOWN: // key is down
+                m_inputManager->pressKey(e.key.keysym.sym);
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
                     m_gameState = GameState::EXIT;
-                /*  CAMERA TESTING */
-                else if(e.key.keysym.sym == SDLK_q)
-                    m_camera.setScale(-.1f);
-                else if(e.key.keysym.sym == SDLK_e)
-                    m_camera.setScale(.1f);
-                else if(e.key.keysym.sym == SDLK_a)
-                    m_camera.setX(-10);
-                else if(e.key.keysym.sym == SDLK_d)
-                    m_camera.setX(10);
-                else if(e.key.keysym.sym == SDLK_w)
-                    m_camera.setY(-10);
-                else if(e.key.keysym.sym == SDLK_s)
-                    m_camera.setY(10);
                 break;
+            case SDL_KEYUP:
+                m_inputManager->releaseKey(e.key.keysym.sym);
         }
     }
+
 }
 void Game::run() {
     // set gamestate

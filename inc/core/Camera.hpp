@@ -30,8 +30,15 @@ public:
 
     inline const float getScaleX() const { return m_width/m_vw; }
     /* SETTERS */
-    inline void setX(int x) { m_x += x; }
-    inline void setY(int y) { m_y += y; }
-    inline void setPos( int x, int y ) { m_x = x; m_y = y; }
-    void setScale(float scale);
+    // move x amout
+    inline void moveX(float x) { m_x += x; }
+    inline void moveY(float y) { m_y += y; }
+    inline void movePos( float x, float y ) { m_x += x; m_y += y; }
+    // set to point
+    inline void setX(float x) { m_x = x; }
+    inline void setY(float y) { m_y = y; }
+    inline void setPos( float x, float y ) { m_x = x; m_y = y; }
+    // scale
+    inline void scale(float scale) { m_scale -= scale; }
+    inline void setScale(float scale) { m_scale = scale; }
 };

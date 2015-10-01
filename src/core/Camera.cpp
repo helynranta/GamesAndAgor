@@ -1,4 +1,4 @@
-#include "Camera.hpp"
+#include "core/Camera.hpp"
 
 #include <iostream>
 #include <string>
@@ -7,9 +7,6 @@ int Camera::init() {
     return 0;
 }
 void Camera::destroy() {}
-void Camera::setScale(float scale) {
-    m_scale -= scale;
-}
 SDL_Rect Camera::transformToWorldCordinates(SDL_Rect rect) {
     // flip y axis to move up
     rect.y = -rect.y;
@@ -25,7 +22,7 @@ SDL_Rect Camera::transformToWorldCordinates(SDL_Rect rect) {
     };
     //add camera position
     rect = {
-        int(rect.x+m_x), int(rect.y+m_y),
+        int(float(rect.x)+m_x), int(float(rect.y)+m_y),
         int(rect.w), int(rect.h)
     };
     return rect;

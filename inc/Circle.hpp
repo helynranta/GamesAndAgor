@@ -2,10 +2,10 @@
 
 #include "SDL2/SDL.h"
 
-#include "Camera.hpp"
+#include "core/Camera.hpp"
 
 class Circle {
-private:
+protected:
     float m_x = 0;
     float m_y = 0;
     float m_r = 100;
@@ -16,7 +16,7 @@ public:
     virtual ~Circle () {;}
 
     void init();
-    void update(Camera cam);
+    void update();
     void move(int x, int y); // for testing
     /* GETTERS */
     inline const int getX () const { return m_x; }

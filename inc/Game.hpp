@@ -3,10 +3,12 @@
 #include <iostream>
 #include <string>
 
-#include <SDL2/SDL.h>
+#include "SDL2/SDL.h"
 #include "SDL2/SDL_events.h"
 
-#include "Circle.hpp"
+#include "core/InputManager.hpp"
+
+#include "Player.hpp"
 
 enum GameState { PLAY, PAUSE, EXIT };
 
@@ -15,6 +17,8 @@ private:
     GameState m_gameState = GameState::EXIT;
     SDL_Window* m_window    = nullptr; // put this in own class
     SDL_Renderer* m_renderer = nullptr; // put this in window class
+    InputManager* m_inputManager = nullptr; // put all inputs to one place (much wow)
+
     void init();
     // gameloop
     void update();
@@ -23,7 +27,7 @@ private:
     // move this to input manager
     void processInput();
 
-    Circle player;
+    Player player;
     Camera m_camera = Camera(800, 640);
 public:
     SDL_Texture* m_circle = nullptr;
