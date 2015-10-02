@@ -27,16 +27,12 @@ private:
     int init();
     // this runs game
     void gameLoop();
-    // calculate and show fps
-    void calculateFPS();
     // this does game update
     void update();
     // generic drawing function
     void draw();
     // updates input manager, reads ALL sdl input events
     void processInput();
-    // does nothing atm
-    void updateGUI();
     // player circle
     Player player;
     // camera whee

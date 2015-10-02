@@ -135,9 +135,6 @@ void Game::gameLoop() {
         m_fps = (1000.0f / (SDL_GetTicks() - l_startTicks));
     }
 }
-void Game::calculateFPS() {
-
-}
 void Game::update() {
 
     player.update(m_deltaTime);
@@ -200,8 +197,5 @@ void Game::draw() {
     if(lastUpdate < 10000) {
         m_fpsText->renderText(10,10, std::string("FPS: ")+std::to_string(int(m_fps)) , *m_renderer, *m_font);
     }
-
-}
-void Game::updateGUI() {
 
 }

@@ -20,8 +20,12 @@ DEPEXT      := d
 OBJEXT      := o
 
 # Flags, Libraries and Includes
-CFLAGS      := -Wall -pedantic -std=c++11 #-O3
-LIB         := -lSDL2 -lSDL2main -lSDL2_image -lSDL2_ttf -Llib
+CFLAGS      := -Wall -pedantic -std=c++11 -O3
+#this links against shared libraries
+#LIB			:= -lSDL2 -lSDL2_image -lSDL2_ttf -Llib/shared
+#this makes links against static libraries, a.k.a creates program with no need of .so files
+LIB         := -Llib/static -Wl,-rpath,./lib/static -lSDL2 -lSDL2_image -lSDL2_ttf -lfreetype -lz -lpng12 -lpthread -Wl,--no-undefined -lm -ldl -lpthread -lrt -Llib
+#if use static linking, remember include lib/static 
 INC         := -I$(INCDIR)
 INCDEP      := -I$(INCDIR)
 
