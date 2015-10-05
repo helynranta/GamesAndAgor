@@ -66,7 +66,7 @@ int Game::init() {
         std::cout << "Could not initialize SDL_ttf. Error: " << std::string(TTF_GetError()) << std::endl;
         success = 0;
     } else {
-        m_font = TTF_OpenFont("res/Fonts/OpenSans.ttf", 42);
+        m_font = TTF_OpenFont("res/fonts/OpenSans.ttf", 42);
         if(m_font == nullptr)
         {
             std::cout << "Could not load OpenSans font. Error: " << std::string(TTF_GetError()) << std::endl;
@@ -129,6 +129,7 @@ void Game::gameLoop() {
         // process SDL events
         processInput();
         // everything draw related
+        m_camera->update();
         draw();
         // render buffer to screen
         SDL_RenderPresent(m_renderer);
@@ -143,9 +144,8 @@ void Game::gameLoop() {
 void Game::update() {
 
     m_player.update(m_deltaTime);
-    m_camera->update();
     // CAMERA TESTING
-    
+
     if(m_inputManager->isKeyDown(SDLK_q))
         m_camera->scale(-0.01f);
     if(m_inputManager->isKeyDown(SDLK_e))
@@ -158,7 +158,7 @@ void Game::update() {
         m_camera->moveY(1);
     if(m_inputManager->isKeyDown(SDLK_s))
         m_camera->moveY(-1);
-    
+
 }
 void Game::processInput() {
     // update input manager
@@ -202,14 +202,14 @@ void Game::draw() {
     static int lastUpdate = 0;
     if(lastUpdate < 10000) {
         m_fpsText->renderText(10,10, std::string("")+std::to_string(m_camera->getScale()) , *m_renderer, *m_font);
-        
+
         m_fpsText->renderText(10,30, std::string("Camera pos:")+std::to_string(m_camera->getX())+std::string(",")+std::to_string(m_camera->getY()) , *m_renderer, *m_font);
-        
+
         m_fpsText->renderText(10,50, std::string("Player pos: ")+std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()) , *m_renderer, *m_font);
-        
+
         SDL_Rect vw = m_camera->getViewport();
         std::string viewport = std::string("Viewport dims: ")+std::to_string(vw.x) + std::string(",")+std::to_string(vw.y) + std::string(",")+std::to_string(vw.w) + std::string(",")+std::to_string(vw.h) + std::string(",");
         m_fpsText->renderText(10,70, viewport, *m_renderer, *m_font);
     }
-    
+
 }
