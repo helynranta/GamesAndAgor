@@ -11,6 +11,9 @@ Game::~Game () {
     m_font = nullptr;
 
     delete m_inputManager;
+    m_inputManager = nullptr;
+    delete m_camera;
+    m_camera = nullptr;
 
     SDL_DestroyTexture(m_circle);
     m_circle = nullptr;
@@ -31,10 +34,12 @@ int Game::init() {
     m_gameState = GameState::PLAY;
     // init whole sdl
     SDL_Init(SDL_INIT_EVERYTHING);
+    //
+    m_camera = new Camera(500, 500);
     // create window
     m_window = SDL_CreateWindow("Agor and Gamus",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        m_camera.getWidth(), m_camera.getHeight(), 0);
+        m_camera->getWidth(), m_camera->getHeight(), 0);
     // check if window creation failed
     if(m_window == nullptr) {
         std::cout << "Could not create window " << std::string(SDL_GetError()) << std::endl;
@@ -61,7 +66,7 @@ int Game::init() {
         std::cout << "Could not initialize SDL_ttf. Error: " << std::string(TTF_GetError()) << std::endl;
         success = 0;
     } else {
-        m_font = TTF_OpenFont("res/Fonts/OpenSans.ttf", 64);
+        m_font = TTF_OpenFont("res/Fonts/OpenSans.ttf", 42);
         if(m_font == nullptr)
         {
             std::cout << "Could not load OpenSans font. Error: " << std::string(TTF_GetError()) << std::endl;
@@ -87,7 +92,7 @@ int Game::init() {
     }
     m_inputManager = new InputManager();
     // give player inputManager
-    player.init(m_inputManager);
+    m_player.init(m_inputManager);
     // create gui text for fps counter
     m_fpsText = new GUIText();
     m_fpsText->setColor({200,200,200});
@@ -137,22 +142,23 @@ void Game::gameLoop() {
 }
 void Game::update() {
 
-    player.update(m_deltaTime);
+    m_player.update(m_deltaTime);
+    m_camera->update();
     // CAMERA TESTING
-    /*
+    
     if(m_inputManager->isKeyDown(SDLK_q))
-        m_camera.scale(-.1f);
+        m_camera->scale(-0.01f);
     if(m_inputManager->isKeyDown(SDLK_e))
-        m_camera.scale(.1f);
+        m_camera->scale(0.01f);
     if(m_inputManager->isKeyDown(SDLK_a))
-        m_camera.moveX(-.1f);
+        m_camera->moveX(-1);
     if(m_inputManager->isKeyDown(SDLK_d))
-        m_camera.moveX(.1f);
+        m_camera->moveX(1);
     if(m_inputManager->isKeyDown(SDLK_w))
-        m_camera.moveY(-.1f);
+        m_camera->moveY(1);
     if(m_inputManager->isKeyDown(SDLK_s))
-        m_camera.moveY(.1f);
-    */
+        m_camera->moveY(-1);
+    
 }
 void Game::processInput() {
     // update input manager
@@ -190,12 +196,20 @@ void Game::run() {
 void Game::draw() {
     // render circle to screen
     // m_fpsText.renderText("FPS:", {0,0,0}, {0,0,0});
-    SDL_Rect player_position = m_camera.transformToWorldCordinates(player.getDestRect());
-    SDL_RenderCopy(m_renderer, m_circle, NULL, &player_position );
+    SDL_Rect l_player_position = m_camera->transformToWorldCordinates(m_player.getDestRect());
+    SDL_RenderCopy(m_renderer, m_circle, NULL, &l_player_position );
 
     static int lastUpdate = 0;
     if(lastUpdate < 10000) {
-        m_fpsText->renderText(10,10, std::string("FPS: ")+std::to_string(int(m_fps)) , *m_renderer, *m_font);
+        m_fpsText->renderText(10,10, std::string("")+std::to_string(m_camera->getScale()) , *m_renderer, *m_font);
+        
+        m_fpsText->renderText(10,30, std::string("Camera pos:")+std::to_string(m_camera->getX())+std::string(",")+std::to_string(m_camera->getY()) , *m_renderer, *m_font);
+        
+        m_fpsText->renderText(10,50, std::string("Player pos: ")+std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()) , *m_renderer, *m_font);
+        
+        SDL_Rect vw = m_camera->getViewport();
+        std::string viewport = std::string("Viewport dims: ")+std::to_string(vw.x) + std::string(",")+std::to_string(vw.y) + std::string(",")+std::to_string(vw.w) + std::string(",")+std::to_string(vw.h) + std::string(",");
+        m_fpsText->renderText(10,70, viewport, *m_renderer, *m_font);
     }
-
+    
 }

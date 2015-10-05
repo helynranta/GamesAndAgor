@@ -23,6 +23,10 @@ private:
     InputManager* m_inputManager = nullptr; // put all inputs to one place (much wow)
     TTF_Font* m_font = nullptr;
     GUIText* m_fpsText = nullptr;
+    // player circle
+    Player m_player;
+    // camera whee
+    Camera* m_camera = nullptr;
     // whole fucking game init
     int init();
     // this runs game
@@ -33,10 +37,6 @@ private:
     void draw();
     // updates input manager, reads ALL sdl input events
     void processInput();
-    // player circle
-    Player player;
-    // camera whee
-    Camera m_camera = Camera(800, 640);
     // time related
     float m_fps;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/

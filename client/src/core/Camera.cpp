@@ -16,14 +16,23 @@ SDL_Rect Camera::transformToWorldCordinates(SDL_Rect rect) {
     // add scale
     rect = {
         // this line makes center of texture the actual x and y
-        int(rect.x-rect.w*0.5f/m_scale), int(rect.y-rect.h*0.5f/m_scale),
+        int(rect.x - m_x * m_scale), int(rect.y + m_y*m_scale),
         // and this scales texture compared to viewport scale
-        int(rect.w / m_scale), int(rect.h / m_scale)
-    };
-    //add camera position
-    rect = {
-        int(float(rect.x)+m_x), int(float(rect.y)+m_y),
         int(rect.w), int(rect.h)
     };
+    //add camera position
+    /*
+    rect = {
+        int(rect.x-m_x / m_scale), int(rect.y+m_y / m_scale),
+        int(rect.w), int(rect.h)
+    };
+    */
     return rect;
+}
+void Camera::update() {
+  m_viewport = {
+      int(m_x - m_width * 0.5f * m_scale), int(m_y - m_height * 0.5f * m_scale),
+      int(m_x + m_width * 0.5f * m_scale), int(m_y + m_height * 0.5f * m_scale)
+  };
+  
 }
