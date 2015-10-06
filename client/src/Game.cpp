@@ -40,7 +40,7 @@ int Game::init() {
     m_window = SDL_CreateWindow("Agor and Gamus",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         m_camera->getWidth(), m_camera->getHeight(), 0);
-    // check if window creation failed
+    // check if window creat>ion failed
     if(m_window == nullptr) {
         std::cout << "Could not create window " << std::string(SDL_GetError()) << std::endl;
         success = 0;
@@ -99,84 +99,70 @@ int Game::init() {
     // return what ever happened
     return success;
 }
-void Game::askNick() {
-    // ask for nickname
-    // ----------------
-    std::string l_nickname = "";
-    std::string tmp = "";
-    int x1, y1;
-    while(!m_inputManager->isKeyPressed(SDLK_RETURN) && m_gameState != GameState::EXIT) {
-        processInput();
-        SDL_RenderClear(m_renderer);
-        // create "gibe nickname text"
-        m_guiText->createTexture("GIVE NICKNAME (max 10 characters):" , *m_renderer, *m_font);
-        x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-        y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-        m_guiText->renderText(x1,y1-30, *m_renderer);
-        // ask for input
-        int key = m_inputManager->getchar();
-        if(key != -1)
-        {
-            std::string tmp = SDL_GetKeyName(key);
-            if(tmp == "Backspace" && l_nickname.length() > 0)
-                l_nickname.pop_back();
-            else if(tmp.length() == 1 && l_nickname.length() < 10)
-                l_nickname += tmp;
-        }
-        if(l_nickname.length() != 0){
-            m_guiText->createTexture(l_nickname , *m_renderer, *m_font);
-            x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-            y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-            m_guiText->renderText(x1,y1+30, *m_renderer);
-        }
-        SDL_RenderPresent(m_renderer);
-    }
-    /* DO NICKNAME VALIDATION IF NEEDED!*/
-    m_nickname = l_nickname;
-}
-void Game::askForIP() {
-    m_inputManager->update();
-    // ask for ip address
-    // ----------------
-    std::string l_ip = "";
-    std::string tmp =  "";
-    int x1, y1, key;
-    while(!m_inputManager->isKeyPressed(SDLK_RETURN) && m_gameState != GameState::EXIT) {
-        processInput();
-        SDL_RenderClear(m_renderer);
-        // create "gibe nickname text"
-        m_guiText->createTexture("GIVE HOST IP:" , *m_renderer, *m_font);
-        x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-        y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-        m_guiText->renderText(x1,y1-30, *m_renderer);
-        // ask for input
-        key = m_inputManager->getchar();
-        if(key != -1)
-        {
-            tmp = SDL_GetKeyName(key);
-            if(tmp == "Backspace" && l_ip.length() > 0)
-                l_ip.pop_back();
-            else if(tmp.length() == 1 && l_ip.length() < 50)
-                l_ip += tmp;
-        }
-        if(l_ip.length() != 0){
-            m_guiText->createTexture(l_ip , *m_renderer, *m_font);
-            x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-            y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-            m_guiText->renderText(x1,y1+30, *m_renderer);
-        }
-        SDL_RenderPresent(m_renderer);
-    }
-    /* DO IP VALIDATION IF NEEDED!*/
-    m_ip = l_ip;
-}
 void Game::menu() {
-    askNick();
+    int x, y; // these are for info text location
+    GUIInput* l_input = new GUIInput(m_inputManager); // input field
+    bool isConnected = false;   // for connection check
+    while(m_gameState!= GameState::EXIT && (m_nickname.length() == 0 || !isConnected))
+    {
+        // clear screen
+        SDL_RenderClear(m_renderer);
+        // process events
+        processInput();
+        // as long as we dont have proper nickname
+        if(m_nickname.length() == 0)
+        {
+            // create info text, centered to screen
+            m_guiText->createTexture("Give nickname: (3-8 characters)" , *m_renderer, *m_font);
+            x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+            y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+            m_guiText->renderText(x,y-30, *m_renderer);
+            // wait for return to be pressed
+            if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
+            {
+                if((l_input->getText()).length() > 2 ) {
+                    m_nickname = l_input->getText();
+                    l_input->empty();
+                }
+            }
+            l_input->draw(*m_renderer, *m_camera, *m_font);
+        }
+        // test connection screen if nickname is given
+        else if (!isConnected) {
+            // create info text, centered to screen
+            m_guiText->createTexture("Give host IP address:" , *m_renderer, *m_font);
+            x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+            y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+            m_guiText->renderText(x,y-30, *m_renderer);
+            // wait for return to be pressed
+            if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
+            {
+                // finished condition is that we have connected to server
+                // TMP TMP
+                SDL_RenderClear(m_renderer);
+                m_guiText->createTexture("Connecting to server..." , *m_renderer, *m_font);
+                x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+                y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+                m_guiText->renderText(x,y, *m_renderer);
+                SDL_RenderPresent(m_renderer);
+                SDL_Delay(1500);
+                // TMTP TMP
+                isConnected = true;
+            }
+            l_input->draw(*m_renderer, *m_camera, *m_font);
+        }
+        // render screen
+        SDL_RenderPresent(m_renderer);
+        // have a little break
+        SDL_Delay(50);
+    }
+
+    /*
     bool isConnected = false;
     int x1, y1;
     while(!isConnected) {
-        processInput();
-        askForIP();
+
+        //askForIP();
         SDL_RenderClear(m_renderer);
         // tell to user what client is doing
         m_guiText->createTexture("Connecting to server..." , *m_renderer, *m_font);
@@ -185,13 +171,14 @@ void Game::menu() {
         m_guiText->renderText(x1,y1-30, *m_renderer);
         SDL_RenderPresent(m_renderer);
 
-        /*  can put blocking connecting function here! */
+        // can put blocking connecting function here!
         SDL_Delay(1500); // test test
-        /*  if can connect give some message, othwise ask for new IP */
+        // if can connect give some message, othwise ask for new IP
         isConnected = false;
         if(m_gameState == GameState::EXIT) // in case user decided to exit while connecting
             break;
     }
+    */
 }
 void Game::gameLoop() {
 
@@ -305,9 +292,17 @@ void Game::draw() {
     m_guiText->renderText(m_camera->getWidth()/2-100,40, "Camera pos: ("+std::to_string(m_camera->getX())+","+std::to_string(m_camera->getY())+")" , *m_renderer, *m_font);
 
     SDL_Rect vw = m_camera->getViewport();
-    m_guiText->renderText(10,10, "x= " + std::to_string(vw.w), *m_renderer, *m_font);
-    m_guiText->renderText(10,m_camera->getHeight() - 50, "y= " + std::to_string(vw.h), *m_renderer, *m_font);
-    m_guiText->renderText(m_camera->getWidth() - 80,10, "x= " + std::to_string(vw.x), *m_renderer, *m_font);
-    m_guiText->renderText(m_camera->getWidth() - 80, m_camera->getHeight()-50, "y= " + std::to_string(vw.y), *m_renderer, *m_font);
+    m_guiText->renderText(10,10,
+        "("+std::to_string(vw.w)+","+std::to_string(vw.y)+")",
+        *m_renderer, *m_font);
+    m_guiText->renderText(10,m_camera->getHeight() - 50,
+        "("+std::to_string(vw.w)+","+std::to_string(vw.h)+")",
+        *m_renderer, *m_font);
+    m_guiText->renderText(m_camera->getWidth() - 110,10,
+        "("+std::to_string(vw.x)+","+std::to_string(vw.y)+")",
+        *m_renderer, *m_font);
+    m_guiText->renderText(m_camera->getWidth()-110, m_camera->getHeight()-50,
+        "("+std::to_string(vw.x)+","+std::to_string(vw.h)+")",
+        *m_renderer, *m_font);
 
 }

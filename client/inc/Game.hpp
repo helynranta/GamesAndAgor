@@ -11,6 +11,7 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
+#include "core/GUIInput.hpp"
 #include "core/InputManager.hpp"
 #include "core/GUIText.hpp"
 
@@ -34,8 +35,6 @@ private:
     int init();
     // ask for nickname and ip
     void menu();
-    void askNick(); // need refactoring
-    void askForIP();
     // this runs game
     void gameLoop();
     // this does game update

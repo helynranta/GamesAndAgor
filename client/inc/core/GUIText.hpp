@@ -13,7 +13,7 @@ private:
     int m_width = 0.0f;
     int m_height = 0.0f;
     std::string m_text = "";
-    SDL_Color m_color;
+    SDL_Color m_color = {200, 200, 200};
     bool m_shouldUpdate = false;
     float m_scale = 0.5f;
 public:
@@ -24,9 +24,9 @@ public:
     void renderText(int x, int y, SDL_Renderer& renderer);
     void free();
     /* GETTERS */
-    inline const int getWidth() const { return m_width; }
-    inline const int getHeight() const { return m_height; }
-    inline const float getScale() const { return m_scale; }
+    inline const int& getWidth() const { return m_width; }
+    inline const int& getHeight() const { return m_height; }
+    inline const float& getScale() const { return m_scale; }
     inline const SDL_Texture* getTexture() const { return m_texture; }
     /* SETTERS */
     inline void setColor(SDL_Color color) { m_color = color; m_shouldUpdate = true;}
