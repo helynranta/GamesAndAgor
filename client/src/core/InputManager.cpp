@@ -10,6 +10,7 @@ bool InputManager::wasKeyDown(unsigned int key) {
 }
 void InputManager::pressKey(unsigned int key) {
     m_keys[key] = true; // set true for this key
+    m_lastCharacter = key;
 }
 void InputManager::releaseKey(unsigned int key) {
     m_keys[key] = false; // set false for this key

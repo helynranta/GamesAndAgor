@@ -94,10 +94,42 @@ int Game::init() {
     // give player inputManager
     m_player.init(m_inputManager);
     // create gui text for fps counter
-    m_fpsText = new GUIText();
-    m_fpsText->setColor({200,200,200});
+    m_guiText = new GUIText();
+    m_guiText->setColor({200,200,200});
     // return what ever happened
     return success;
+}
+void Game::menu() {
+    // ask for nickname
+    std::string l_nickname = "";
+    std::string tmp = "";
+    int x1, y1;
+    while(!m_inputManager->isKeyPressed(SDLK_RETURN) && m_gameState != GameState::EXIT) {
+        processInput();
+        SDL_RenderClear(m_renderer);
+        // create "gibe nickname text"
+        m_guiText->createTexture("GIVE NICKNAME (max 10 characters):" , *m_renderer, *m_font);
+        x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+        y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+        m_guiText->renderText(x1,y1-30, *m_renderer);
+        // ask for input
+        int key = m_inputManager->getchar();
+        if(key != -1)
+        {
+            std::string tmp = SDL_GetKeyName(key);
+            if(tmp == "Backspace" && l_nickname.length() > 0)
+                l_nickname.pop_back();
+            else if(tmp.length() == 1 && l_nickname.length() < 10)
+                l_nickname += tmp;
+        }
+        if(l_nickname.length() != 0){
+            m_guiText->createTexture(l_nickname , *m_renderer, *m_font);
+            x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+            y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+            m_guiText->renderText(x1,y1+30, *m_renderer);
+        }
+        SDL_RenderPresent(m_renderer);
+    }
 }
 void Game::gameLoop() {
 
@@ -188,6 +220,7 @@ void Game::run() {
     // if everyhing is ok, start gameloop
     if(init()) {
         std::cout << "Init Successful!" << std::endl;
+        menu();
         gameLoop();
     } else {
         std::cout << "Something happened during game initialization, stop game..." << std::endl;
@@ -195,21 +228,21 @@ void Game::run() {
 }
 void Game::draw() {
     // render circle to screen
-    // m_fpsText.renderText("FPS:", {0,0,0}, {0,0,0});
+    // m_guiText.renderText("FPS:", {0,0,0}, {0,0,0});
     SDL_Rect l_player_position = m_camera->transformToWorldCordinates(m_player.getDestRect());
     SDL_RenderCopy(m_renderer, m_circle, NULL, &l_player_position );
 
     static int lastUpdate = 0;
     if(lastUpdate < 10000) {
-        m_fpsText->renderText(10,10, std::string("")+std::to_string(m_camera->getScale()) , *m_renderer, *m_font);
+        m_guiText->renderText(10,10, std::string("")+std::to_string(m_camera->getScale()) , *m_renderer, *m_font);
 
-        m_fpsText->renderText(10,30, std::string("Camera pos:")+std::to_string(m_camera->getX())+std::string(",")+std::to_string(m_camera->getY()) , *m_renderer, *m_font);
+        m_guiText->renderText(10,30, std::string("Camera pos:")+std::to_string(m_camera->getX())+std::string(",")+std::to_string(m_camera->getY()) , *m_renderer, *m_font);
 
-        m_fpsText->renderText(10,50, std::string("Player pos: ")+std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()) , *m_renderer, *m_font);
+        m_guiText->renderText(10,50, std::string("Player pos: ")+std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()) , *m_renderer, *m_font);
 
         SDL_Rect vw = m_camera->getViewport();
         std::string viewport = std::string("Viewport dims: ")+std::to_string(vw.x) + std::string(",")+std::to_string(vw.y) + std::string(",")+std::to_string(vw.w) + std::string(",")+std::to_string(vw.h) + std::string(",");
-        m_fpsText->renderText(10,70, viewport, *m_renderer, *m_font);
+        m_guiText->renderText(10,70, viewport, *m_renderer, *m_font);
     }
 
 }

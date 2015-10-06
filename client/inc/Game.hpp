@@ -22,13 +22,15 @@ private:
     SDL_Renderer* m_renderer = nullptr; // put this in window class
     InputManager* m_inputManager = nullptr; // put all inputs to one place (much wow)
     TTF_Font* m_font = nullptr;
-    GUIText* m_fpsText = nullptr;
+    GUIText* m_guiText = nullptr;
     // player circle
     Player m_player;
     // camera whee
     Camera* m_camera = nullptr;
     // whole fucking game init
     int init();
+    // ask for nickname and ip
+    void menu();
     // this runs game
     void gameLoop();
     // this does game update
