@@ -24,9 +24,9 @@ public:
     void renderText(int x, int y, SDL_Renderer& renderer);
     void free();
     /* GETTERS */
-    inline const int getWidth() const { return m_width; }
-    inline const int getHeight() const { return m_height; }
-    inline const float getScale() const { return m_scale; }
+    inline const int& getWidth() const { return m_width; }
+    inline const int& getHeight() const { return m_height; }
+    inline const float& getScale() const { return m_scale; }
     inline const SDL_Texture* getTexture() const { return m_texture; }
     /* SETTERS */
     inline void setColor(SDL_Color color) { m_color = color; m_shouldUpdate = true;}

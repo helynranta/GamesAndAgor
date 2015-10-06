@@ -105,6 +105,7 @@ void Game::menu() {
     std::string l_nickname = "";
     std::string tmp = "";
     int x1, y1;
+    GUIInput* input;
     while(!m_inputManager->isKeyPressed(SDLK_RETURN) && m_gameState != GameState::EXIT) {
         processInput();
         SDL_RenderClear(m_renderer);
@@ -113,16 +114,7 @@ void Game::menu() {
         x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
         y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
         m_guiText->renderText(x1,y1-30, *m_renderer);
-        // ask for input
-        int key = m_inputManager->getchar();
-        if(key != -1)
-        {
-            std::string tmp = SDL_GetKeyName(key);
-            if(tmp == "Backspace" && l_nickname.length() > 0)
-                l_nickname.pop_back();
-            else if(tmp.length() == 1 && l_nickname.length() < 10)
-                l_nickname += tmp;
-        }
+        
         if(l_nickname.length() != 0){
             m_guiText->createTexture(l_nickname , *m_renderer, *m_font);
             x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
