@@ -1,7 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <string>
+#include <vector>
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_events.h"
@@ -43,6 +46,9 @@ private:
     float m_fps;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/
     float m_deltaTime;
+    // player name
+    std::string m_nickname = "";
+    std::string m_ip = "";
 public:
     SDL_Texture* m_circle = nullptr;
     Game ();

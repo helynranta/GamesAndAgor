@@ -30,5 +30,8 @@ public:
     inline const SDL_Texture* getTexture() const { return m_texture; }
     /* SETTERS */
     inline void setColor(SDL_Color color) { m_color = color; m_shouldUpdate = true;}
+    inline void setColor(Uint8 r, Uint8 g, Uint8 b) {
+        m_color = { r, g, b };
+    }
     inline void setScale(float scale) { m_scale = scale; }
 };

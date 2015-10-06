@@ -35,7 +35,7 @@ int Game::init() {
     // init whole sdl
     SDL_Init(SDL_INIT_EVERYTHING);
     //
-    m_camera = new Camera(500, 500);
+    m_camera = new Camera(800, 640);
     // create window
     m_window = SDL_CreateWindow("Agor and Gamus",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -101,6 +101,7 @@ int Game::init() {
 }
 void Game::menu() {
     // ask for nickname
+    // ----------------
     std::string l_nickname = "";
     std::string tmp = "";
     int x1, y1;
@@ -130,6 +131,40 @@ void Game::menu() {
         }
         SDL_RenderPresent(m_renderer);
     }
+    /* DO NICKNAME VALIDATION IF NEEDED!*/
+    m_nickname = l_nickname;
+    m_inputManager->update();
+    // ask for ip address
+    // ----------------
+    std::string l_ip = "";
+    while(!m_inputManager->isKeyPressed(SDLK_RETURN) && m_gameState != GameState::EXIT) {
+        processInput();
+        SDL_RenderClear(m_renderer);
+        // create "gibe nickname text"
+        m_guiText->createTexture("GIVE HOST IP:" , *m_renderer, *m_font);
+        x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+        y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+        m_guiText->renderText(x1,y1-30, *m_renderer);
+        // ask for input
+        int key = m_inputManager->getchar();
+        if(key != -1)
+        {
+            std::string tmp = SDL_GetKeyName(key);
+            if(tmp == "Backspace" && l_ip.length() > 0)
+                l_ip.pop_back();
+            else if(tmp.length() == 1 && l_ip.length() < 50)
+                l_ip += tmp;
+        }
+        if(l_ip.length() != 0){
+            m_guiText->createTexture(l_ip , *m_renderer, *m_font);
+            x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+            y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+            m_guiText->renderText(x1,y1+30, *m_renderer);
+        }
+        SDL_RenderPresent(m_renderer);
+    }
+    /* DO IP VALIDATION IF NEEDED!*/
+    m_ip = l_ip;
 }
 void Game::gameLoop() {
 
@@ -229,20 +264,23 @@ void Game::run() {
 void Game::draw() {
     // render circle to screen
     // m_guiText.renderText("FPS:", {0,0,0}, {0,0,0});
-    SDL_Rect l_player_position = m_camera->transformToWorldCordinates(m_player.getDestRect());
-    SDL_RenderCopy(m_renderer, m_circle, NULL, &l_player_position );
+    SDL_Rect l_ppos = m_camera->transformToWorldCordinates(m_player.getDestRect());
+    SDL_RenderCopy(m_renderer, m_circle, NULL, &l_ppos );
+    m_guiText->setColor(0,0,0);
+    m_guiText->renderText(l_ppos.x+l_ppos.w/2-10,l_ppos.y+l_ppos.h/2-10, std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()) , *m_renderer, *m_font);
 
-    static int lastUpdate = 0;
-    if(lastUpdate < 10000) {
-        m_guiText->renderText(10,10, std::string("")+std::to_string(m_camera->getScale()) , *m_renderer, *m_font);
+    m_guiText->setColor({200,200,200});
 
-        m_guiText->renderText(10,30, std::string("Camera pos:")+std::to_string(m_camera->getX())+std::string(",")+std::to_string(m_camera->getY()) , *m_renderer, *m_font);
+    std::stringstream l_scale;
+    l_scale << std::fixed << std::setprecision(2) << float(m_camera->getScale());
+    m_guiText->renderText(m_camera->getWidth()/2-100,10, "Camera scale: "+l_scale.str() , *m_renderer, *m_font);
 
-        m_guiText->renderText(10,50, std::string("Player pos: ")+std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()) , *m_renderer, *m_font);
+    m_guiText->renderText(m_camera->getWidth()/2-100,40, "Camera pos: ("+std::to_string(m_camera->getX())+","+std::to_string(m_camera->getY())+")" , *m_renderer, *m_font);
 
-        SDL_Rect vw = m_camera->getViewport();
-        std::string viewport = std::string("Viewport dims: ")+std::to_string(vw.x) + std::string(",")+std::to_string(vw.y) + std::string(",")+std::to_string(vw.w) + std::string(",")+std::to_string(vw.h) + std::string(",");
-        m_guiText->renderText(10,70, viewport, *m_renderer, *m_font);
-    }
+    SDL_Rect vw = m_camera->getViewport();
+    m_guiText->renderText(10,10, "x= " + std::to_string(vw.w), *m_renderer, *m_font);
+    m_guiText->renderText(10,m_camera->getHeight() - 50, "y= " + std::to_string(vw.h), *m_renderer, *m_font);
+    m_guiText->renderText(m_camera->getWidth() - 80,10, "x= " + std::to_string(vw.x), *m_renderer, *m_font);
+    m_guiText->renderText(m_camera->getWidth() - 80, m_camera->getHeight()-50, "y= " + std::to_string(vw.y), *m_renderer, *m_font);
 
 }
