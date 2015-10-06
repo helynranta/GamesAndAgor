@@ -99,7 +99,7 @@ int Game::init() {
     // return what ever happened
     return success;
 }
-void Game::menu() {
+void Game::askNick() {
     // ask for nickname
     // ----------------
     std::string l_nickname = "";
@@ -133,10 +133,14 @@ void Game::menu() {
     }
     /* DO NICKNAME VALIDATION IF NEEDED!*/
     m_nickname = l_nickname;
+}
+void Game::askForIP() {
     m_inputManager->update();
     // ask for ip address
     // ----------------
     std::string l_ip = "";
+    std::string tmp =  "";
+    int x1, y1, key;
     while(!m_inputManager->isKeyPressed(SDLK_RETURN) && m_gameState != GameState::EXIT) {
         processInput();
         SDL_RenderClear(m_renderer);
@@ -146,10 +150,10 @@ void Game::menu() {
         y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
         m_guiText->renderText(x1,y1-30, *m_renderer);
         // ask for input
-        int key = m_inputManager->getchar();
+        key = m_inputManager->getchar();
         if(key != -1)
         {
-            std::string tmp = SDL_GetKeyName(key);
+            tmp = SDL_GetKeyName(key);
             if(tmp == "Backspace" && l_ip.length() > 0)
                 l_ip.pop_back();
             else if(tmp.length() == 1 && l_ip.length() < 50)
@@ -165,6 +169,29 @@ void Game::menu() {
     }
     /* DO IP VALIDATION IF NEEDED!*/
     m_ip = l_ip;
+}
+void Game::menu() {
+    askNick();
+    bool isConnected = false;
+    int x1, y1;
+    while(!isConnected) {
+        processInput();
+        askForIP();
+        SDL_RenderClear(m_renderer);
+        // tell to user what client is doing
+        m_guiText->createTexture("Connecting to server..." , *m_renderer, *m_font);
+        x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+        y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+        m_guiText->renderText(x1,y1-30, *m_renderer);
+        SDL_RenderPresent(m_renderer);
+
+        /*  can put blocking connecting function here! */
+        SDL_Delay(1500); // test test
+        /*  if can connect give some message, othwise ask for new IP */
+        isConnected = false;
+        if(m_gameState == GameState::EXIT) // in case user decided to exit while connecting
+            break;
+    }
 }
 void Game::gameLoop() {
 

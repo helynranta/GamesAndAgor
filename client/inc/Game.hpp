@@ -34,6 +34,8 @@ private:
     int init();
     // ask for nickname and ip
     void menu();
+    void askNick(); // need refactoring
+    void askForIP();
     // this runs game
     void gameLoop();
     // this does game update
