@@ -26,7 +26,7 @@ private:
     SDL_Renderer* m_renderer = nullptr; // put this in window class
     InputManager* m_inputManager = nullptr; // put all inputs to one place (much wow)
     TTF_Font* m_font = nullptr;
-    GUIText* m_guiText = nullptr;
+    GUIText* m_guiText = new GUIText();
     // player circle
     Player m_player;
     // camera whee

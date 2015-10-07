@@ -2,14 +2,7 @@
 
 #include "SDL2/SDL.h"
 
-// replace this shit with glm::vec2
-struct Vector2d {
-    float x = 0.0f;
-    float y = 0.0f;
-    Vector2d() {;}
-    Vector2d(float x_, float y_) : x(x_), y(y_) {;}
-    void setPosition (float x_, float y_) { x = x_; y = y_; }
-};
+#include "core/Vector2d.hpp"
 
 void Player::update(float dT) {
     Circle::update();
@@ -25,4 +18,6 @@ void Player::update(float dT) {
         l_movementVector.y -= dT * m_speed;
     m_x += l_movementVector.x;
     m_y += l_movementVector.y;
+    
+    l_movementVector.normalize();
 }

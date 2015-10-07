@@ -23,4 +23,9 @@ public:
     inline const int getY () const { return m_y; }
     inline const int getR () const { return m_r; }
     inline const SDL_Rect& getDestRect() const { return m_destRect; }
+
+    inline void scale(float x) {
+        m_r += x;
+        if(m_r < 10) m_r = 10;
+    }
 };

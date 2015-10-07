@@ -7,6 +7,9 @@
 
 Game::Game () {}
 Game::~Game () {
+  
+    delete m_guiText;
+  
     TTF_CloseFont(m_font);
     m_font = nullptr;
 
@@ -93,9 +96,6 @@ int Game::init() {
     m_inputManager = new InputManager();
     // give player inputManager
     m_player.init(m_inputManager);
-    // create gui text for fps counter
-    m_guiText = new GUIText();
-    m_guiText->setColor({200,200,200});
     // return what ever happened
     return success;
 }
@@ -109,26 +109,9 @@ void Game::menu() {
         SDL_RenderClear(m_renderer);
         // process events
         processInput();
-        // as long as we dont have proper nickname
-        if(m_nickname.length() == 0)
-        {
-            // create info text, centered to screen
-            m_guiText->createTexture("Give nickname: (3-8 characters)" , *m_renderer, *m_font);
-            x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-            y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-            m_guiText->renderText(x,y-30, *m_renderer);
-            // wait for return to be pressed
-            if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
-            {
-                if((l_input->getText()).length() > 2 ) {
-                    m_nickname = l_input->getText();
-                    l_input->empty();
-                }
-            }
-            l_input->draw(*m_renderer, *m_camera, *m_font);
-        }
         // test connection screen if nickname is given
-        else if (!isConnected) {
+        if (!isConnected) {
+            l_input->setMaxLength(50);
             // create info text, centered to screen
             m_guiText->createTexture("Give host IP address:" , *m_renderer, *m_font);
             x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
@@ -148,37 +131,34 @@ void Game::menu() {
                 SDL_Delay(1500);
                 // TMTP TMP
                 isConnected = true;
+                l_input->empty();
+            }
+            l_input->draw(*m_renderer, *m_camera, *m_font);
+        }
+        // as long as we dont have proper nickname
+        else if(m_nickname.length() == 0)
+        {
+            l_input->setMaxLength(8);
+            // create info text, centered to screen
+            m_guiText->createTexture("Give nickname: (3-8 characters)" , *m_renderer, *m_font);
+            x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
+            y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
+            m_guiText->renderText(x,y-30, *m_renderer);
+            // wait for return to be pressed
+            if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
+            {
+                if((l_input->getText()).length() > 2) {
+                    m_nickname = l_input->getText();
+                }
             }
             l_input->draw(*m_renderer, *m_camera, *m_font);
         }
         // render screen
         SDL_RenderPresent(m_renderer);
         // have a little break
-        SDL_Delay(50);
     }
-
-    /*
-    bool isConnected = false;
-    int x1, y1;
-    while(!isConnected) {
-
-        //askForIP();
-        SDL_RenderClear(m_renderer);
-        // tell to user what client is doing
-        m_guiText->createTexture("Connecting to server..." , *m_renderer, *m_font);
-        x1 = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-        y1 = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-        m_guiText->renderText(x1,y1-30, *m_renderer);
-        SDL_RenderPresent(m_renderer);
-
-        // can put blocking connecting function here!
-        SDL_Delay(1500); // test test
-        // if can connect give some message, othwise ask for new IP
-        isConnected = false;
-        if(m_gameState == GameState::EXIT) // in case user decided to exit while connecting
-            break;
-    }
-    */
+    // clean up the inputs
+    delete l_input;
 }
 void Game::gameLoop() {
 
@@ -226,11 +206,12 @@ void Game::update() {
 
     m_player.update(m_deltaTime);
     // CAMERA TESTING
-
+    
     if(m_inputManager->isKeyDown(SDLK_q))
-        m_camera->scale(-0.01f);
+        m_player.scale(-1.0f);
     if(m_inputManager->isKeyDown(SDLK_e))
-        m_camera->scale(0.01f);
+        m_player.scale(1.0f);
+    /*
     if(m_inputManager->isKeyDown(SDLK_a))
         m_camera->moveX(-1);
     if(m_inputManager->isKeyDown(SDLK_d))
@@ -239,6 +220,9 @@ void Game::update() {
         m_camera->moveY(1);
     if(m_inputManager->isKeyDown(SDLK_s))
         m_camera->moveY(-1);
+    */
+    m_camera->setPos(m_player.getX(), m_player.getY());
+    m_camera->setScale(float(m_player.getR())/100);
 
 }
 void Game::processInput() {

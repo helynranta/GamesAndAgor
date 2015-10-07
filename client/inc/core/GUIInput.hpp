@@ -20,7 +20,7 @@ private:
   unsigned int m_maxInputLength = 10;
 public:
   inline GUIInput(InputManager* i) : m_inputManager(i) {;}
-  inline virtual ~GUIInput() {;}
+  inline virtual ~GUIInput() { delete m_text; }
   bool update();
   bool update(int x, int y);
   void draw(SDL_Renderer& renderer, Camera& camera, TTF_Font& font);

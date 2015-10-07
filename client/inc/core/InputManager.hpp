@@ -23,7 +23,7 @@ public:
     bool isKeyPressed(unsigned int key);
     void update();
 
-    inline int getchar() {
+    inline const int getchar() {
         if(m_lastCharacter == -1) return m_lastCharacter;
         int tmp = m_lastCharacter;
         m_lastCharacter = -1;
