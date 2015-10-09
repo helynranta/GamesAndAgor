@@ -14,6 +14,8 @@
 #include "core/GUIInput.hpp"
 #include "core/InputManager.hpp"
 #include "core/GUIText.hpp"
+#include "core/InetConnection.hpp"
+#include "core/ResourceManager.hpp"
 
 #include "Player.hpp"
 
@@ -25,8 +27,9 @@ private:
     SDL_Window* m_window    = nullptr; // put this in own class
     SDL_Renderer* m_renderer = nullptr; // put this in window class
     InputManager* m_inputManager = nullptr; // put all inputs to one place (much wow)
-    TTF_Font* m_font = nullptr;
-    GUIText* m_guiText = new GUIText();
+    GUIText* m_guiText = nullptr;
+    InetConnection* m_connection = new InetConnection();
+    ResourceManager* R = nullptr;
     // player circle
     Player m_player;
     // camera whee

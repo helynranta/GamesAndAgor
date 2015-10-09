@@ -7,11 +7,9 @@
 
 Game::Game () {}
 Game::~Game () {
-  
+    delete R;
+    delete m_connection;
     delete m_guiText;
-  
-    TTF_CloseFont(m_font);
-    m_font = nullptr;
 
     delete m_inputManager;
     m_inputManager = nullptr;
@@ -68,31 +66,12 @@ int Game::init() {
     {
         std::cout << "Could not initialize SDL_ttf. Error: " << std::string(TTF_GetError()) << std::endl;
         success = 0;
-    } else {
-        m_font = TTF_OpenFont("res/fonts/OpenSans.ttf", 42);
-        if(m_font == nullptr)
-        {
-            std::cout << "Could not load OpenSans font. Error: " << std::string(TTF_GetError()) << std::endl;
-            success = 0;
-        } else {
-            // tmp test init fps counter
-
-        }
     }
+    R = new ResourceManager(m_renderer);
+    m_guiText = new GUIText(m_renderer, R->getFont("res/fonts/OpenSans.ttf"));
     // load texture
     // http://lazyfoo.net/tutorials/SDL/07_texture_loading_and_rendering/index.php
-    SDL_Surface* loadSurface = IMG_Load("res/circle.png"); // load pixels to surface
-    if(loadSurface == nullptr) {
-        std::cout << "Unable to load circle texture. Error: " << std::string(IMG_GetError()) << std::endl;
-        success = 0;
-    } else {
-        m_circle = SDL_CreateTextureFromSurface(m_renderer, loadSurface);
-        if(m_circle == nullptr) {
-            std::cout << "Unable to create texture from circle.png" << std::string(SDL_GetError()) << std::endl;
-            success = 0;
-        }
-        SDL_FreeSurface(loadSurface);
-    }
+    m_circle = R->getTexture("res/circle.png");
     m_inputManager = new InputManager();
     // give player inputManager
     m_player.init(m_inputManager);
@@ -101,7 +80,7 @@ int Game::init() {
 }
 void Game::menu() {
     int x, y; // these are for info text location
-    GUIInput* l_input = new GUIInput(m_inputManager); // input field
+    GUIInput* l_input = new GUIInput(m_inputManager, m_renderer, R->getFont("res/fonts/OpenSans.ttf")); // input field
     bool isConnected = false;   // for connection check
     while(m_gameState!= GameState::EXIT && (m_nickname.length() == 0 || !isConnected))
     {
@@ -113,37 +92,36 @@ void Game::menu() {
         if (!isConnected) {
             l_input->setMaxLength(50);
             // create info text, centered to screen
-            m_guiText->createTexture("Give host IP address:" , *m_renderer, *m_font);
+            m_guiText->createTexture("Give host IP address:" );
             x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
             y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-            m_guiText->renderText(x,y-30, *m_renderer);
+            m_guiText->renderText(x,y-30);
             // wait for return to be pressed
             if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
             {
                 // finished condition is that we have connected to server
                 // TMP TMP
                 SDL_RenderClear(m_renderer);
-                m_guiText->createTexture("Connecting to server..." , *m_renderer, *m_font);
+                m_guiText->createTexture("Connecting to server...");
                 x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
                 y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-                m_guiText->renderText(x,y, *m_renderer);
+                m_guiText->renderText(x,y);
                 SDL_RenderPresent(m_renderer);
-                SDL_Delay(1500);
                 // TMTP TMP
-                isConnected = true;
+                isConnected = m_connection->connect();
                 l_input->empty();
             }
-            l_input->draw(*m_renderer, *m_camera, *m_font);
+            l_input->draw(*m_renderer, *m_camera);
         }
         // as long as we dont have proper nickname
         else if(m_nickname.length() == 0)
         {
             l_input->setMaxLength(8);
             // create info text, centered to screen
-            m_guiText->createTexture("Give nickname: (3-8 characters)" , *m_renderer, *m_font);
+            m_guiText->createTexture("Give nickname: (3-8 characters)");
             x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
             y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-            m_guiText->renderText(x,y-30, *m_renderer);
+            m_guiText->renderText(x,y-30);
             // wait for return to be pressed
             if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
             {
@@ -151,7 +129,7 @@ void Game::menu() {
                     m_nickname = l_input->getText();
                 }
             }
-            l_input->draw(*m_renderer, *m_camera, *m_font);
+            l_input->draw(*m_renderer, *m_camera);
         }
         // render screen
         SDL_RenderPresent(m_renderer);
@@ -206,7 +184,7 @@ void Game::update() {
 
     m_player.update(m_deltaTime);
     // CAMERA TESTING
-    
+
     if(m_inputManager->isKeyDown(SDLK_q))
         m_player.scale(-1.0f);
     if(m_inputManager->isKeyDown(SDLK_e))
@@ -265,28 +243,28 @@ void Game::draw() {
     SDL_Rect l_ppos = m_camera->transformToWorldCordinates(m_player.getDestRect());
     SDL_RenderCopy(m_renderer, m_circle, NULL, &l_ppos );
     m_guiText->setColor(0,0,0);
-    m_guiText->renderText(l_ppos.x+l_ppos.w/2-10,l_ppos.y+l_ppos.h/2-10, std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()) , *m_renderer, *m_font);
+    m_guiText->renderText(l_ppos.x+l_ppos.w/2-10,l_ppos.y+l_ppos.h/2-10, std::to_string(m_player.getX())+std::string(",")+std::to_string(m_player.getY()));
 
     m_guiText->setColor({200,200,200});
 
     std::stringstream l_scale;
     l_scale << std::fixed << std::setprecision(2) << float(m_camera->getScale());
-    m_guiText->renderText(m_camera->getWidth()/2-100,10, "Camera scale: "+l_scale.str() , *m_renderer, *m_font);
+    m_guiText->renderText(m_camera->getWidth()/2-100,10, "Camera scale: "+l_scale.str());
 
-    m_guiText->renderText(m_camera->getWidth()/2-100,40, "Camera pos: ("+std::to_string(m_camera->getX())+","+std::to_string(m_camera->getY())+")" , *m_renderer, *m_font);
+    m_guiText->renderText(m_camera->getWidth()/2-100,40, "Camera pos: ("+std::to_string(m_camera->getX())+","+std::to_string(m_camera->getY())+")");
 
     SDL_Rect vw = m_camera->getViewport();
     m_guiText->renderText(10,10,
-        "("+std::to_string(vw.w)+","+std::to_string(vw.y)+")",
-        *m_renderer, *m_font);
+        "("+std::to_string(vw.w)+","+std::to_string(vw.y)+")"
+        );
     m_guiText->renderText(10,m_camera->getHeight() - 50,
-        "("+std::to_string(vw.w)+","+std::to_string(vw.h)+")",
-        *m_renderer, *m_font);
+        "("+std::to_string(vw.w)+","+std::to_string(vw.h)+")"
+        );
     m_guiText->renderText(m_camera->getWidth() - 110,10,
-        "("+std::to_string(vw.x)+","+std::to_string(vw.y)+")",
-        *m_renderer, *m_font);
+        "("+std::to_string(vw.x)+","+std::to_string(vw.y)+")"
+        );
     m_guiText->renderText(m_camera->getWidth()-110, m_camera->getHeight()-50,
-        "("+std::to_string(vw.x)+","+std::to_string(vw.h)+")",
-        *m_renderer, *m_font);
+        "("+std::to_string(vw.x)+","+std::to_string(vw.h)+")"
+        );
 
 }

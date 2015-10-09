@@ -1,17 +1,27 @@
 #include "core/GUIText.hpp"
 
-void GUIText::createTexture(const std::string& text, SDL_Renderer& renderer, TTF_Font& font) {
+void GUIText::createTexture(const std::string& text) {
     // rebuild texture if needed
+    if(m_renderer == nullptr) {
+        std::cout << "Renderer not defined in GUIText" << std::endl;
+        std::cout << "intention: createTexture("<< text <<")" << std::endl;
+        return;
+    }
+    if (m_font == nullptr) {
+        std::cout << "Font not defined in GUIText" << std::endl;
+        std::cout << "intention: createTexture("<< text <<")" << std::endl;
+        return;
+    }
     if(text.length() == 0) return;
     if(m_text != text || m_texture == nullptr || m_shouldUpdate)
     {
         m_text = text;
         free();
-        SDL_Surface* surface = TTF_RenderText_Solid(&font, m_text.c_str(), m_color);
+        SDL_Surface* surface = TTF_RenderText_Solid(m_font, m_text.c_str(), m_color);
         if( surface == nullptr) {
                 std::cout << "Unable to render text surface. Error: " << std::string(TTF_GetError()) << std::endl;
         } else {
-            m_texture = SDL_CreateTextureFromSurface(&renderer, surface);
+            m_texture = SDL_CreateTextureFromSurface(m_renderer, surface);
             if ( m_texture == nullptr ) {
                 std::cout << "Unable to create texture from rendered text. Error: " << std::string(SDL_GetError()) << std::endl;
             } else {
@@ -23,18 +33,18 @@ void GUIText::createTexture(const std::string& text, SDL_Renderer& renderer, TTF
         }
     }
 }
-void GUIText::renderText(int x, int y, const std::string& text, SDL_Renderer& renderer, TTF_Font& font) {
-    createTexture(text, renderer, font);
+void GUIText::renderText(int x, int y, const std::string& text) {
+    createTexture(text);
     // draw to renderer
     if(m_texture != nullptr) {
         SDL_Rect renderQuad = {x, y, int(m_width*m_scale), int(m_height*m_scale)};
-        SDL_RenderCopy(&renderer, m_texture, NULL, &renderQuad);
+        SDL_RenderCopy(m_renderer, m_texture, NULL, &renderQuad);
     }
 }
-void GUIText::renderText(int x, int y, SDL_Renderer& renderer) {
+void GUIText::renderText(int x, int y) {
     if(m_texture != nullptr) {
         SDL_Rect renderQuad = {x, y, int(m_width*m_scale), int(m_height*m_scale)};
-        SDL_RenderCopy(&renderer, m_texture, NULL, &renderQuad);
+        SDL_RenderCopy(m_renderer, m_texture, NULL, &renderQuad);
     }
 }
 void GUIText::free() {

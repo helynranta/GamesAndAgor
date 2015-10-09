@@ -10,6 +10,8 @@
 class GUIText {
 private:
     SDL_Texture* m_texture = nullptr;
+    SDL_Renderer* m_renderer = nullptr;
+    TTF_Font* m_font = nullptr;
     int m_width = 0.0f;
     int m_height = 0.0f;
     std::string m_text = "";
@@ -17,11 +19,11 @@ private:
     bool m_shouldUpdate = false;
     float m_scale = 0.5f;
 public:
-    inline GUIText () {;}
+    inline GUIText (SDL_Renderer* r, TTF_Font* f) : m_renderer(r), m_font(f){;}
     inline ~GUIText () { free(); }
-    void createTexture(const std::string& text, SDL_Renderer& renderer, TTF_Font& font);
-    void renderText(int x, int y, const std::string& text, SDL_Renderer& renderer, TTF_Font& font);
-    void renderText(int x, int y, SDL_Renderer& renderer);
+    void createTexture(const std::string& text);
+    void renderText(int x, int y, const std::string& text);
+    void renderText(int x, int y);
     void free();
     /* GETTERS */
     inline const int& getWidth() const { return m_width; }

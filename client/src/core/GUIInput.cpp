@@ -30,12 +30,12 @@ bool GUIInput::update(int x, int y) {
     }
     return false;
 }
-void GUIInput::draw(SDL_Renderer& renderer, Camera& camera, TTF_Font& font) {
+void GUIInput::draw(SDL_Renderer& renderer, Camera& camera) {
     if(m_text == nullptr) {
         std::cout << "Could not allocate memory for input text" << std::endl;
     }
     else if(m_inputText.length() != 0){
-        m_text->createTexture(m_inputText , renderer, font);
-        m_text->renderText(m_x, m_y, renderer);
+        m_text->createTexture(m_inputText);
+        m_text->renderText(m_x, m_y);
     }
 }
