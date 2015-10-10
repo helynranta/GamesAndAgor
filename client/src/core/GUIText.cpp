@@ -33,17 +33,24 @@ void GUIText::createTexture(const std::string& text) {
         }
     }
 }
-void GUIText::renderText(int x, int y, const std::string& text) {
+void GUIText::renderText(int x, int y, const std::string& text, TEXT_ALIGN text_align /*= TEXT_ALIGN::LEFT*/) {
     createTexture(text);
-    // draw to renderer
-    if(m_texture != nullptr) {
-        SDL_Rect renderQuad = {x, y, int(m_width*m_scale), int(m_height*m_scale)};
-        SDL_RenderCopy(m_renderer, m_texture, NULL, &renderQuad);
-    }
+    renderText(x, y, text_align);
 }
-void GUIText::renderText(int x, int y) {
+void GUIText::renderText(int x, int y, TEXT_ALIGN text_align /*= TEXT_ALIGN::LEFT*/) {
+    createTexture(m_text);
+    m_x = x;
+    m_y = y;
+    if(text_align == TEXT_ALIGN::CENTER) {
+        m_x -= m_width/4;
+    } else if(text_align == TEXT_ALIGN::CENTER_XY) {
+        m_x -= m_width/4;
+        m_y -= m_height/4;
+    } else if(text_align == TEXT_ALIGN::RIGHT) {
+        m_x -= m_width/2;
+    }
     if(m_texture != nullptr) {
-        SDL_Rect renderQuad = {x, y, int(m_width*m_scale), int(m_height*m_scale)};
+        SDL_Rect renderQuad = {m_x, m_y, int(m_width*m_scale), int(m_height*m_scale)};
         SDL_RenderCopy(m_renderer, m_texture, NULL, &renderQuad);
     }
 }

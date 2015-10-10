@@ -39,6 +39,6 @@ public:
     inline void setY(float y) { m_y = y; }
     inline void setPos( float x, float y ) { m_x = x; m_y = y; }
     // set camera zoom scale
-    inline void scale(float scale) { m_scale -= scale; }
+    inline void scale(float scale) { m_scale -= scale/10.0f; } // divide by 10, so we dont use numbers like 0.001f
     inline void setScale(float scale) { m_scale = scale; }
 };

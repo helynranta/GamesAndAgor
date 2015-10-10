@@ -79,7 +79,6 @@ int Game::init() {
     return success;
 }
 void Game::menu() {
-    int x, y; // these are for info text location
     GUIInput* l_input = new GUIInput(m_inputManager, m_renderer, R->getFont("res/fonts/OpenSans.ttf")); // input field
     bool isConnected = false;   // for connection check
     while(m_gameState!= GameState::EXIT && (m_nickname.length() == 0 || !isConnected))
@@ -92,44 +91,35 @@ void Game::menu() {
         if (!isConnected) {
             l_input->setMaxLength(50);
             // create info text, centered to screen
-            m_guiText->createTexture("Give host IP address:" );
-            x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-            y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-            m_guiText->renderText(x,y-30);
+            m_guiText->renderText(m_camera->getWidth()/2,m_camera->getHeight()/2-80, "Give host IP address:", TEXT_ALIGN::CENTER_XY);
             // wait for return to be pressed
-            if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
+            if(l_input->update(m_camera->getWidth()/2, m_camera->getHeight()/2))
             {
                 // finished condition is that we have connected to server
                 // TMP TMP
                 SDL_RenderClear(m_renderer);
-                m_guiText->createTexture("Connecting to server...");
-                x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-                y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-                m_guiText->renderText(x,y);
+                m_guiText->renderText(m_camera->getWidth()/2,m_camera->getHeight()/2, "Connecting to server...", TEXT_ALIGN::CENTER_XY);
                 SDL_RenderPresent(m_renderer);
                 // TMTP TMP
                 isConnected = m_connection->connect();
                 l_input->empty();
             }
-            l_input->draw(*m_renderer, *m_camera);
+            l_input->draw(TEXT_ALIGN::CENTER_XY);
         }
         // as long as we dont have proper nickname
         else if(m_nickname.length() == 0)
         {
             l_input->setMaxLength(8);
             // create info text, centered to screen
-            m_guiText->createTexture("Give nickname: (3-8 characters)");
-            x = m_camera->getWidth()/2- m_guiText->getWidth()/4;
-            y = m_camera->getHeight()/2 - m_guiText->getHeight()/4;
-            m_guiText->renderText(x,y-30);
+            m_guiText->renderText(m_camera->getWidth()/2,m_camera->getHeight()/2-80, "Give nickname: (3-8 characters)", TEXT_ALIGN::CENTER_XY);
             // wait for return to be pressed
-            if(l_input->update(m_camera->getWidth()/2 - l_input->getWidth()/4, m_camera->getHeight()/2 - l_input->getHeight()/4))
+            if(l_input->update(m_camera->getWidth()/2, m_camera->getHeight()/2))
             {
                 if((l_input->getText()).length() > 2) {
                     m_nickname = l_input->getText();
                 }
             }
-            l_input->draw(*m_renderer, *m_camera);
+            l_input->draw(TEXT_ALIGN::CENTER_XY);
         }
         // render screen
         SDL_RenderPresent(m_renderer);
@@ -183,13 +173,20 @@ void Game::gameLoop() {
 void Game::update() {
 
     m_player.update(m_deltaTime);
-    // CAMERA TESTING
-
+    // this is how camera behaves in real gameplay
+/*
     if(m_inputManager->isKeyDown(SDLK_q))
         m_player.scale(-1.0f);
     if(m_inputManager->isKeyDown(SDLK_e))
         m_player.scale(1.0f);
-    /*
+    m_camera->setPos(m_player.getX(), m_player.getY());
+    m_camera->setScale(float(m_player.getR())/100);
+*/
+    // CAMERA TESTING
+    if(m_inputManager->isKeyDown(SDLK_q))
+        m_camera->scale(-0.5f);
+    if(m_inputManager->isKeyDown(SDLK_e))
+        m_camera->scale(0.5f);
     if(m_inputManager->isKeyDown(SDLK_a))
         m_camera->moveX(-1);
     if(m_inputManager->isKeyDown(SDLK_d))
@@ -198,9 +195,8 @@ void Game::update() {
         m_camera->moveY(1);
     if(m_inputManager->isKeyDown(SDLK_s))
         m_camera->moveY(-1);
-    */
-    m_camera->setPos(m_player.getX(), m_player.getY());
-    m_camera->setScale(float(m_player.getR())/100);
+
+
 
 }
 void Game::processInput() {
