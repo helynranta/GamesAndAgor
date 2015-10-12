@@ -6,7 +6,7 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
-#include "core/GUIElement.hpp"
+#include "GUI/GUIElement.hpp"
 
 class GUIText : public GUIElement {
 private:
@@ -23,7 +23,10 @@ public:
     void renderText(int x, int y, const std::string& text, TEXT_ALIGN text_align = TEXT_ALIGN::LEFT);
     void renderText(int x, int y, TEXT_ALIGN text_align = TEXT_ALIGN::LEFT);
     void free();
-    inline bool update() { return true; }
+    inline bool update() {
+        return true;
+    }
+    void draw();
     /* GETTERS */
     inline const int& getWidth() const { return m_width; }
     inline const int& getHeight() const { return m_height; }
@@ -31,10 +34,9 @@ public:
     inline const SDL_Texture* getTexture() const { return m_texture; }
     inline const std::string& getText() const { return m_text; }
     /* SETTERS */
-    inline void setColor(SDL_Color color) { m_color = color; m_shouldUpdate = true;}
-    inline void setColor(Uint8 r, Uint8 g, Uint8 b) {
-        m_color = { r, g, b };
-    }
-    inline void setScale(float scale) { m_scale = scale; }
-    inline void setText(std::string text) { m_text = text; m_shouldUpdate = true;}
+    inline GUIText* setColor(SDL_Color color) { m_color = color; m_shouldUpdate = true; return this;}
+    inline GUIText* setColor(Uint8 r, Uint8 g, Uint8 b) { m_color = { r, g, b }; return this;}
+    inline GUIText* setScale(float scale) { m_scale = scale; return this;}
+    inline GUIText* setText(std::string text) { m_text = text; m_shouldUpdate = true; return this;}
+    inline GUIText* setAlign( TEXT_ALIGN a ) { m_align = a; m_shouldUpdate = true; return this;}
 };

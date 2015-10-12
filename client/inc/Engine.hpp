@@ -1,8 +1,11 @@
 #pragma once
 
+#include <initializer_list>
+
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -11,30 +14,28 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
-#include "core/GUIInput.hpp"
 #include "core/InputManager.hpp"
-#include "core/GUIText.hpp"
-#include "core/InetConnection.hpp"
 #include "core/ResourceManager.hpp"
+#include "core/Scene.hpp"
 
-#include "Player.hpp"
+#include "GUI/GUIInput.hpp"
+#include "GUI/GUIText.hpp"
+#include "Inet/InetConnection.hpp"
 
 enum GameState { PLAY, PAUSE, EXIT };
 enum GameScene { IP, NICK, INIT, GAME };
 
-class Game {
-private:
+using namespace std;
+
+class Engine {
+public:
     GameState m_gameState = GameState::EXIT;
     SDL_Window* m_window    = nullptr; // put this in own class
-    SDL_Renderer* m_renderer = nullptr; // put this in window class
-    InputManager* m_inputManager = nullptr; // put all inputs to one place (much wow)
-    GUIText* m_guiText = nullptr;
-    InetConnection* m_connection = new InetConnection();
+    SDL_Renderer* renderer = nullptr; // put this in window class
+    InputManager* inputManager = nullptr; // put all inputs to one place (much wow)
+    InetConnection* m_connection = nullptr;
     ResourceManager* R = nullptr;
-    // player circle
-    Player m_player;
-    // camera whee
-    Camera* m_camera = nullptr;
+    Camera* camera = nullptr;
     // whole fucking game init
     int init();
     // ask for nickname and ip
@@ -51,13 +52,16 @@ private:
     float m_fps;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/
     float m_deltaTime;
-    // player name
-    std::string m_nickname = "";
-    std::string m_ip = "";
-public:
-    SDL_Texture* m_circle = nullptr;
-    Game ();
-    ~Game ();
-    // same as start game, extend separate init if needed
-    void run();
+    string m_currentScene = "";
+
+    Engine ();
+    ~Engine ();
+    void run(const std::string& name);
+    inline Camera* getCamera() const { return camera; }
+    inline SDL_Renderer* getRenderer() const { return renderer; }
+    map<string, Scene*> m_scenes;
+    inline void addScene(pair<string,Scene*> scene) {
+        m_scenes.insert(scene);
+    }
+    bool startScene(string name);
 };

@@ -1,23 +1,34 @@
-#include "core/InetConnection.hpp"
+#include "Inet/InetConnection.hpp"
 
-InetConnection::InetConnection() {
+InetConnection::InetConnection(void) {
+    // this is temp. replace 1 with size of message
     memset(&dgram, 1, 1);
-    // c99
-    /*
-    hints = (struct addrinfo){
-            .ai_flags = AI_NUMERICHOST|AI_NUMERICSERV,
-            .ai_family = PF_UNSPEC,
-            .ai_socktype = SOCK_DGRAM,
-            .ai_protocol = IPPROTO_UDP
-        };
-    */
-    // c++
+    // fill hints with rightful flags
     hints.ai_flags = AI_NUMERICHOST|AI_NUMERICSERV;
     hints.ai_family = PF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
     hints.ai_protocol = IPPROTO_UDP;
 }
-bool InetConnection::send() {
+/** deconstructor
+* frees all used memory and empties messages vector
+* @params: void
+*
+
+*/
+InetConnection::~InetConnection(void)  {
+    // delete messages behind pointers
+    for ( auto& it : messages) {
+        delete it;
+    }
+    // empty whole vector
+    messages.empty();
+}
+/** send
+* this function sends socket messages
+* @params: void
+* @return: bool success. returns success if there was no socket error
+*/
+bool InetConnection::send(void) {
     bool success = false;
     if(getaddrinfo(ip.c_str(), port.c_str(), &hints, &result) < 0) {
         std::cout << "Cannot resolve address" << std::endl;
@@ -48,6 +59,13 @@ bool InetConnection::send() {
     }
     return success;
 }
+/**
+* connect
+* this function tries to connect to given server crediterials.
+* it makes ConnectionState CONNECTING and then tries to send message to connect
+* @params: string ip, string port. Port and IP of the server we are connecting.
+* @return: bool success. returns success if there was no socket error
+*/
 bool InetConnection::connect(std::string ip, std::string port) {
     m_state = ConnectionState::CONNECTING;
     /*
@@ -62,7 +80,7 @@ bool InetConnection::disconnect() {
   return true;
 }
 void InetConnection::update() {
-  
+
   // SELECT
   /*
   switch msg{
@@ -77,6 +95,6 @@ void InetConnection::update() {
   //if(m_state == ConnectionState::CONNECTING)
     //
   for ( auto& it : messages) {
-    //it->update();
+    it->update();
   }
 }

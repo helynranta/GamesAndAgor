@@ -1,4 +1,5 @@
 #include "core/ResourceManager.hpp"
+
 ResourceManager::~ResourceManager() {
     // empty whole texture map
     for(auto& it : m_textureMap) {
@@ -33,7 +34,7 @@ SDL_Texture* ResourceManager::getTexture(string path) {
             SDL_FreeSurface(loadSurface);
             return l_texture;
         }
-    }
+    } else return it->second;
     return nullptr;
 }
 TTF_Font* ResourceManager::getFont(string path, int x /* = 42 */) {

@@ -1,4 +1,4 @@
-#include "core/GUIElement.hpp"
+#include "GUI/GUIElement.hpp"
 
 void GUIElement::drawBackground () {
     drawBackground(m_width, m_height);

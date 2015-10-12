@@ -6,10 +6,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "core/GUIElement.hpp"
-#include "core/GUIText.hpp"
 #include "core/InputManager.hpp"
 #include "core/Camera.hpp"
+
+#include "GUI/GUIElement.hpp"
+#include "GUI/GUIText.hpp"
 
 class GUIInput : public GUIElement {
 private:
@@ -22,9 +23,8 @@ public:
       m_text = new GUIText(r, f);
   }
   inline virtual ~GUIInput() { delete m_text; }
-  bool update() override;
-  bool update(int x, int y);
-  void draw(TEXT_ALIGN align = TEXT_ALIGN::LEFT);
+  bool update();
+  void draw();
   /* GETTERS */
   inline const std::string& getText() const { return m_text->getText(); }
   inline void empty() { m_text->setText(""); }

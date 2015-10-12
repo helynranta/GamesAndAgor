@@ -10,7 +10,7 @@
 #include <iostream>
 #include <vector>
 
-#include "core/Messages.hpp"
+#include "Inet/Messages.hpp"
 
 enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, TIMING_OUT, EXITING };
 
@@ -30,16 +30,11 @@ private:
     std::string port = "";
 public:
     InetConnection ();
-    inline virtual ~InetConnection () {
-      for ( auto& it : messages) {
-        //delete it->second;
-      }
-      messages.empty();
-    }
+    virtual ~InetConnection ();
     bool send();
     bool connect(std::string ip, std::string port);
     bool disconnect();
     void update();
-  
+
     std::vector<Message*> messages;
 };
