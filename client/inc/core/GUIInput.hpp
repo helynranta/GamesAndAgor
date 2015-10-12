@@ -17,7 +17,7 @@ private:
   InputManager* m_inputManager = nullptr;
   unsigned int m_maxInputLength = 10;
 public:
-  inline GUIInput(InputManager* i, SDL_Renderer* r, TTF_Font* f) : m_inputManager(i)
+  inline GUIInput(InputManager* i, SDL_Renderer* r, TTF_Font* f) : GUIElement(r), m_inputManager(i)
   {
       m_text = new GUIText(r, f);
   }
@@ -31,5 +31,5 @@ public:
   inline const int& getWidth() const { return m_text->getWidth(); }
   inline const int& getHeight() const { return m_text->getHeight(); }
   /* SETTERS */
-  inline void setMaxLength(unsigned int x) { m_maxInputLength = x; }
+  inline void setMaxLength(unsigned int x) { m_maxInputLength = x;}
 };

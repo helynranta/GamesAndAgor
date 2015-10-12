@@ -33,10 +33,14 @@ bool GUIInput::update(int x, int y) {
     return false;
 }
 void GUIInput::draw(TEXT_ALIGN align /*= TEXT_ALIGN::LEFT*/) {
+    m_align = align;
+    drawBackground(400, 64);
     if(m_text == nullptr) {
         std::cout << "Could not allocate memory for input text" << std::endl;
     }
-    else if(m_text->getText().length() != 0){
-        m_text->renderText(m_x, m_y, align);
+    else {
+        if(m_text->getText().length() != 0){
+            m_text->renderText(m_x, m_y, align);
+        }
     }
 }

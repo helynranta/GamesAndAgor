@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 
-#include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
@@ -12,14 +11,13 @@
 class GUIText : public GUIElement {
 private:
     SDL_Texture* m_texture = nullptr;
-    SDL_Renderer* m_renderer = nullptr;
     TTF_Font* m_font = nullptr;
     std::string m_text = "";
     SDL_Color m_color = {200, 200, 200};
     bool m_shouldUpdate = false;
     float m_scale = 0.5f;
 public:
-    inline GUIText (SDL_Renderer* r, TTF_Font* f) : m_renderer(r), m_font(f){;}
+    inline GUIText (SDL_Renderer* r, TTF_Font* f) : GUIElement(r), m_font(f) {;}
     inline ~GUIText () { free(); }
     void createTexture(const std::string& text);
     void renderText(int x, int y, const std::string& text, TEXT_ALIGN text_align = TEXT_ALIGN::LEFT);

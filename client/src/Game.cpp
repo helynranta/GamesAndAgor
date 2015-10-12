@@ -85,15 +85,17 @@ void Game::menu() {
     {
         // clear screen
         SDL_RenderClear(m_renderer);
+        // set clear color
+        SDL_SetRenderDrawColor(m_renderer, 50, 50, 50, 255);
         // process events
         processInput();
         // test connection screen if nickname is given
         if (!isConnected) {
-            l_input->setMaxLength(50);
+            l_input->setMaxLength(29);
             // create info text, centered to screen
             m_guiText->renderText(m_camera->getWidth()/2,m_camera->getHeight()/2-80, "Give host IP address:", TEXT_ALIGN::CENTER_XY);
             // wait for return to be pressed
-            if(l_input->update(m_camera->getWidth()/2, m_camera->getHeight()/2))
+            if(l_input->update(m_camera->getWidth()/2-200, m_camera->getHeight()/2))
             {
                 // finished condition is that we have connected to server
                 // TMP TMP
@@ -104,7 +106,7 @@ void Game::menu() {
                 isConnected = m_connection->connect();
                 l_input->empty();
             }
-            l_input->draw(TEXT_ALIGN::CENTER_XY);
+            l_input->draw();
         }
         // as long as we dont have proper nickname
         else if(m_nickname.length() == 0)
@@ -113,13 +115,13 @@ void Game::menu() {
             // create info text, centered to screen
             m_guiText->renderText(m_camera->getWidth()/2,m_camera->getHeight()/2-80, "Give nickname: (3-8 characters)", TEXT_ALIGN::CENTER_XY);
             // wait for return to be pressed
-            if(l_input->update(m_camera->getWidth()/2, m_camera->getHeight()/2))
+            if(l_input->update(m_camera->getWidth()/2-200, m_camera->getHeight()/2))
             {
                 if((l_input->getText()).length() > 2) {
                     m_nickname = l_input->getText();
                 }
             }
-            l_input->draw(TEXT_ALIGN::CENTER_XY);
+            l_input->draw();
         }
         // render screen
         SDL_RenderPresent(m_renderer);
@@ -236,6 +238,9 @@ void Game::run() {
 void Game::draw() {
     // render circle to screen
     // m_guiText.renderText("FPS:", {0,0,0}, {0,0,0});
+    // set clear color
+    SDL_SetRenderDrawColor(m_renderer, 50, 50, 50, 255);
+
     SDL_Rect l_ppos = m_camera->transformToWorldCordinates(m_player.getDestRect());
     SDL_RenderCopy(m_renderer, m_circle, NULL, &l_ppos );
     m_guiText->setColor(0,0,0);
@@ -250,12 +255,8 @@ void Game::draw() {
     m_guiText->renderText(m_camera->getWidth()/2-100,40, "Camera pos: ("+std::to_string(m_camera->getX())+","+std::to_string(m_camera->getY())+")");
 
     SDL_Rect vw = m_camera->getViewport();
-    m_guiText->renderText(10,10,
-        "("+std::to_string(vw.w)+","+std::to_string(vw.y)+")"
-        );
-    m_guiText->renderText(10,m_camera->getHeight() - 50,
-        "("+std::to_string(vw.w)+","+std::to_string(vw.h)+")"
-        );
+    m_guiText->renderText(10,10,"("+std::to_string(vw.w)+","+std::to_string(vw.y)+")");
+    m_guiText->renderText(10,m_camera->getHeight() - 50,"("+std::to_string(vw.w)+","+std::to_string(vw.h)+")");
     m_guiText->renderText(m_camera->getWidth() - 110,10,
         "("+std::to_string(vw.x)+","+std::to_string(vw.y)+")"
         );
