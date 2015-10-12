@@ -1,13 +1,18 @@
 #pragma once
 
-#include <iostream>
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 
-enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, TIMING_OUT };
+#include <iostream>
+#include <vector>
+
+#include "core/Messages.hpp"
+
+enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, TIMING_OUT, EXITING };
 
 class InetConnection {
 private:
@@ -15,14 +20,26 @@ private:
     ConnectionState m_state = ConnectionState::DISCONNECTED;
 
     struct addrinfo hints = {};
-    struct addrinfo *results = nullptr, *iter = nullptr;
+    struct addrinfo *result = nullptr, *iter = nullptr;
     int socketfd = -1;
     int length = 0;
     int rval = 0;
     char dgram[1];
+
+    std::string ip = "";
+    std::string port = "";
 public:
     InetConnection ();
-    inline virtual ~InetConnection () {}
+    inline virtual ~InetConnection () {
+      for ( auto& it : messages) {
+        //delete it->second;
+      }
+      messages.empty();
+    }
     bool send();
-    bool connect();
+    bool connect(std::string ip, std::string port);
+    bool disconnect();
+    void update();
+  
+    std::vector<Message*> messages;
 };

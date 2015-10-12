@@ -101,7 +101,7 @@ void Game::menu() {
                 m_guiText->renderText(m_camera->getWidth()/2,m_camera->getHeight()/2, "Connecting to server...", TEXT_ALIGN::CENTER_XY);
                 SDL_RenderPresent(m_renderer);
                 // TMTP TMP
-                isConnected = m_connection->connect();
+                isConnected = true;
                 l_input->empty();
             }
             l_input->draw(TEXT_ALIGN::CENTER_XY);
@@ -195,7 +195,7 @@ void Game::update() {
         m_camera->moveY(1);
     if(m_inputManager->isKeyDown(SDLK_s))
         m_camera->moveY(-1);
-
+  
 
 
 }

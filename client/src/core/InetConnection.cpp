@@ -19,13 +19,13 @@ InetConnection::InetConnection() {
 }
 bool InetConnection::send() {
     bool success = false;
-    if(getaddrinfo("127.0.0.1", "8000", &hints, &results) < 0) {
+    if(getaddrinfo(ip.c_str(), port.c_str(), &hints, &result) < 0) {
         std::cout << "Cannot resolve address" << std::endl;
     }
     else {
         std::cout << "getaddrinof sucess" << std::endl;
         // Go through every returned address and attempt to connect to each
-        for (iter = results; iter != NULL; iter = iter->ai_next) {
+        for (iter = result; iter != NULL; iter = iter->ai_next) {
             /* Can socket be created? */
             if ((socketfd = socket(iter->ai_family, iter->ai_socktype,iter->ai_protocol)) < 0) {
                 std::cout << "Error socket()" << std::endl;
@@ -48,6 +48,35 @@ bool InetConnection::send() {
     }
     return success;
 }
-bool InetConnection::connect() {
+bool InetConnection::connect(std::string ip, std::string port) {
+    m_state = ConnectionState::CONNECTING;
+    /*
+    send to asdfasdf
+    */
     return true;
+}
+bool InetConnection::disconnect() {
+  if (result == nullptr)
+    freeaddrinfo(result);
+  //close(socketfd);
+  return true;
+}
+void InetConnection::update() {
+  
+  // SELECT
+  /*
+  switch msg{
+    case JOIN_ACK:
+      messages.push_back(new NickACK());
+    case WAIT:
+      messages.push_back(new WAIT());
+    default:
+      std::cout << "Undefined message error"  << std::endl;
+  }
+  */
+  //if(m_state == ConnectionState::CONNECTING)
+    //
+  for ( auto& it : messages) {
+    //it->update();
+  }
 }
