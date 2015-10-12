@@ -20,4 +20,6 @@ void Player::update(float dT) {
     m_y += l_movementVector.y;
     
     l_movementVector.normalize();
+    
+    //InetConnection->send(player.x);
 }

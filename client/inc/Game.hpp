@@ -20,6 +20,7 @@
 #include "Player.hpp"
 
 enum GameState { PLAY, PAUSE, EXIT };
+enum GameScene { IP, NICK, INIT, GAME };
 
 class Game {
 private:
