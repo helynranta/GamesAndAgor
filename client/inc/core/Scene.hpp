@@ -15,4 +15,5 @@ public:
     virtual void end() = 0;
     virtual void draw() = 0;
     inline void drawGUI() { if(gui != nullptr) gui->draw(); }
+    inline void updateGUI() { if(gui != nullptr) gui->update(); }
 };

@@ -2,8 +2,8 @@
 
 bool GUIInput::update() {
     // ask for input
+    m_text->setX(m_x)->setY(m_y)->setAlign(m_align);
     std::string tmp = "";
-    std::cout << "que" << std::endl;
     int l_key = m_inputManager->getchar();
     if(l_key != -1)
     {

@@ -18,6 +18,7 @@ public:
         //std::cout << engine->camera->getWidth()/2 << std::endl;
         gui->getText("hint")->setText("Enter server IP address")->setX(engine->camera->getWidth()/2.0f)->setY(engine->camera->getHeight()/2.0f-30);
         gui->getText("hint")->setAlign(TEXT_ALIGN::CENTER_XY);
+        gui->getInput("input")->setMaxLength(15);
         gui->getInput("input")->setX(engine->camera->getWidth()/2.0f-200)->setY(engine->camera->getHeight()/2.0f+30);
     }
     inline void update(float dt) override {

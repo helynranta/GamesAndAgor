@@ -38,5 +38,4 @@ public:
     inline GUIText* setColor(Uint8 r, Uint8 g, Uint8 b) { m_color = { r, g, b }; return this;}
     inline GUIText* setScale(float scale) { m_scale = scale; return this;}
     inline GUIText* setText(std::string text) { m_text = text; m_shouldUpdate = true; return this;}
-    inline GUIText* setAlign( TEXT_ALIGN a ) { m_align = a; m_shouldUpdate = true; return this;}
 };

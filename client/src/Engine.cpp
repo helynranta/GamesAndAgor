@@ -118,6 +118,7 @@ void Engine::gameLoop() {
 }
 void Engine::update() {
     m_scenes[m_currentScene]->update(m_deltaTime);
+    m_scenes[m_currentScene]->updateGUI();
 }
 void Engine::processInput() {
     // update input manager

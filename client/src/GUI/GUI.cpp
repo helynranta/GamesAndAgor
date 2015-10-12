@@ -27,10 +27,10 @@ void GUI::draw() {
     }
 }
 void GUI::update() {
-    for ( auto& it : m_GUITexts) {
+    for ( auto& it : m_GUIInputs) {
         it.second->update();
     }
-    for ( auto& it : m_GUIInputs) {
+    for ( auto& it : m_GUITexts) {
         it.second->update();
     }
 }

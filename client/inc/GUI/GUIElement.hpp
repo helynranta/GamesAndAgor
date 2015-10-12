@@ -13,7 +13,7 @@ protected:
     int m_width = 0.0f;
     int m_height = 0.0f;
     SDL_Renderer* m_renderer = nullptr;
-    TEXT_ALIGN m_align = TEXT_ALIGN::CENTER;
+    TEXT_ALIGN m_align = TEXT_ALIGN::LEFT;
 public:
     inline GUIElement (SDL_Renderer* r) : m_renderer(r) {}
     inline virtual ~GUIElement () {}
@@ -37,6 +37,10 @@ public:
     inline GUIElement* setPos(int x, int y) {
         m_x = x;
         m_y = y;
+        return this;
+    }
+    inline GUIElement* setAlign( TEXT_ALIGN a ) {
+        m_align = a;
         return this;
     }
 };
