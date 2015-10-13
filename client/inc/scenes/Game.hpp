@@ -4,12 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "core/Scene.hpp"
 #include "Engine.hpp"
 
 #include "Player.hpp"
-
-#include "GUI/GUIText.hpp"
 
 class Game : public Scene {
 private:

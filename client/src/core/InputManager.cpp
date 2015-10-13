@@ -1,13 +1,9 @@
 #include "core/InputManager.hpp"
 
-bool InputManager::wasKeyDown(unsigned int key) {
-    // was key down last time
-    auto it = m_previousKeys.find(key);
-    if(it != m_previousKeys.end())
-        return it->second;
-    else
-        return false;
-}
+std::unordered_map<unsigned int, bool> InputManager::m_keys;
+std::unordered_map<unsigned int, bool> InputManager::m_previousKeys;
+int InputManager::m_lastCharacter = -1;
+
 void InputManager::pressKey(unsigned int key) {
     m_keys[key] = true; // set true for this key
     m_lastCharacter = key;
@@ -24,6 +20,14 @@ bool InputManager::isKeyPressed(unsigned int key) {
     // if key is down, but wasnt down last time we checked
     if(isKeyDown(key) && !wasKeyDown(key)) return true;
     return false;
+}
+bool InputManager::wasKeyDown(unsigned int key) {
+    // was key down last time
+    auto it = m_previousKeys.find(key);
+    if(it != m_previousKeys.end())
+        return it->second;
+    else
+        return false;
 }
 void InputManager::update() {
     for (auto& it : m_keys)

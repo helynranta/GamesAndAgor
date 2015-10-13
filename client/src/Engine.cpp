@@ -11,15 +11,12 @@ Engine::~Engine () {
         delete it.second;
     }
     m_scenes.empty();
-    // delete resource manager
-    delete R;
-    R = nullptr;
+
+    R::destroy();
+    InputManager::empty();
     // delete connection handler
     delete m_connection;
     m_connection = nullptr;
-    // delete input amanger
-    delete inputManager;
-    inputManager = nullptr;
     // delete camera
     delete camera;
     camera = nullptr;
@@ -71,8 +68,7 @@ int Engine::init() {
         std::cout << "Could not initialize SDL_ttf. Error: " << std::string(TTF_GetError()) << std::endl;
         success = 0;
     }
-    R             = new ResourceManager(renderer);
-    inputManager  = new InputManager();
+    R::init(renderer);
     m_connection  = new InetConnection();
     // return what ever happened
     return success;
@@ -122,7 +118,7 @@ void Engine::update() {
 }
 void Engine::processInput() {
     // update input manager
-    inputManager->update();
+    InputManager::update();
     /*
     Poll all events
     Keycodes: https://wiki.libsdl.org/SDL_Keycode
@@ -134,12 +130,12 @@ void Engine::processInput() {
                 m_gameState = GameState::EXIT;
                 break;
             case SDL_KEYDOWN: // key is down
-                inputManager->pressKey(e.key.keysym.sym);
+                InputManager::pressKey(e.key.keysym.sym);
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
                     m_gameState = GameState::EXIT;
                 break;
             case SDL_KEYUP:
-                inputManager->releaseKey(e.key.keysym.sym);
+                InputManager::releaseKey(e.key.keysym.sym);
         }
     }
 

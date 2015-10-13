@@ -1,9 +1,8 @@
 #pragma once
 
-#include "core/Scene.hpp"
-#include "Engine.hpp"
-
 #include <iostream>
+
+#include "Engine.hpp"
 
 class Menu : public Scene {
 private:
@@ -13,8 +12,8 @@ public:
     inline virtual ~Menu () {}
     inline void awake() override {
         gui = new GUI(engine->renderer);
-        gui->addText("hint", new GUIText(engine->renderer, engine->R->getFont("res/fonts/OpenSans.ttf")));
-        gui->addInput("input", new GUIInput(engine->inputManager, engine->renderer, engine->R->getFont("res/fonts/OpenSans.ttf")));
+        gui->addText("hint", new GUIText(engine->renderer, R::getFont("res/fonts/OpenSans.ttf")));
+        gui->addInput("input", new GUIInput(engine->renderer, R::getFont("res/fonts/OpenSans.ttf")));
         //std::cout << engine->camera->getWidth()/2 << std::endl;
         gui->getText("hint")->setText("Enter server IP address")->setX(engine->camera->getWidth()/2.0f)->setY(engine->camera->getHeight()/2.0f-30);
         gui->getText("hint")->setAlign(TEXT_ALIGN::CENTER_XY);
@@ -22,7 +21,7 @@ public:
         gui->getInput("input")->setX(engine->camera->getWidth()/2.0f-200)->setY(engine->camera->getHeight()/2.0f+30);
     }
     inline void update(float dt) override {
-        if(engine->inputManager->isKeyPressed(SDLK_RETURN))
+        if(InputManager::isKeyPressed(SDLK_RETURN))
             engine->startScene("Game");
     }
     inline void end() override {

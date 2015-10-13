@@ -9,24 +9,26 @@
 
 class InputManager {
 private:
-    std::unordered_map<unsigned int, bool> m_keys;          // is key down map
-    std::unordered_map<unsigned int, bool> m_previousKeys;  // was key previously down map
-    bool wasKeyDown(unsigned int key);                      // this is dedicately used for keypress
-    int m_lastCharacter = -1;
+    static std::unordered_map<unsigned int, bool> m_keys;          // is key down map
+    static std::unordered_map<unsigned int, bool> m_previousKeys;  // was key previously down map
+    static bool wasKeyDown(unsigned int key);                      // this is dedicately used for keypress
+    static int m_lastCharacter;
 public:
-    inline InputManager () { ; }
-    inline virtual ~InputManager () { ; }
     // public methods. SDL keysym are unsigned ints
-    void pressKey(unsigned int key);
-    void releaseKey(unsigned int key);
-    bool isKeyDown(unsigned int key);
-    bool isKeyPressed(unsigned int key);
-    void update();
+    static void pressKey(unsigned int key);
+    static void releaseKey(unsigned int key);
+    static bool isKeyDown(unsigned int key);
+    static bool isKeyPressed(unsigned int key);
+    static void update();
 
-    inline const int getchar() {
+    static inline const int getchar() {
         if(m_lastCharacter == -1) return m_lastCharacter;
         int tmp = m_lastCharacter;
         m_lastCharacter = -1;
         return tmp;
+    }
+    static inline void empty() {
+        m_keys.empty();
+        m_previousKeys.empty();
     }
 };

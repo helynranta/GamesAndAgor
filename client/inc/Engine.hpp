@@ -15,11 +15,12 @@
 #include "SDL2/SDL_ttf.h"
 
 #include "core/InputManager.hpp"
-#include "core/ResourceManager.hpp"
 #include "core/Scene.hpp"
+#include "core/ResourceManager.hpp"
 
 #include "GUI/GUIInput.hpp"
 #include "GUI/GUIText.hpp"
+
 #include "Inet/InetConnection.hpp"
 
 enum GameState { PLAY, PAUSE, EXIT };
@@ -32,9 +33,7 @@ public:
     GameState m_gameState = GameState::EXIT;
     SDL_Window* m_window    = nullptr; // put this in own class
     SDL_Renderer* renderer = nullptr; // put this in window class
-    InputManager* inputManager = nullptr; // put all inputs to one place (much wow)
     InetConnection* m_connection = nullptr;
-    ResourceManager* R = nullptr;
     Camera* camera = nullptr;
     // whole fucking game init
     int init();

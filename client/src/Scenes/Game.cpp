@@ -3,7 +3,7 @@
 void Game::awake() {
     gui = new GUI(engine->renderer);
     std::cout << "Game awake" << std::endl;
-    m_player.init(engine->inputManager);
+    m_player.init();
 
     //gui->add("TEST", new GUIText(engine->renderer, engine->R->getFont("res/fonts/OpenSans.ttf")));
     //gui->get("TEST")->setText("useita")->setX(200)->setY(200);
@@ -11,16 +11,16 @@ void Game::awake() {
 void Game::update(float dt) {
     m_player.update(dt);
     // this is how camera behaves in real gameplay
-    if(engine->inputManager->isKeyDown(SDLK_q))
+    if(InputManager::isKeyDown(SDLK_q))
         m_player.scale(-1.0f);
-    if(engine->inputManager->isKeyDown(SDLK_e))
+    if(InputManager::isKeyDown(SDLK_e))
         m_player.scale(1.0f);
     engine->camera->setPos(m_player.getX(), m_player.getY());
     engine->camera->setScale(float(m_player.getR())/100);
 }
 void Game::draw() {
     SDL_Rect l_ppos = engine->camera->transformToWorldCordinates(m_player.getDestRect());
-    SDL_RenderCopy(engine->renderer, engine->R->getTexture("res/circle.png"), NULL, &l_ppos );
+    SDL_RenderCopy(engine->renderer, R::getTexture("res/circle.png"), NULL, &l_ppos );
 }
 void Game::end() {
     std::cout << "Game ends" << std::endl;
@@ -28,17 +28,17 @@ void Game::end() {
 
 // CAMERA TESTING
 #if 0
-    if(engine->inputManager->isKeyDown(SDLK_q))
+    if(InputManager::isKeyDown(SDLK_q))
         engine->camera->scale(-0.5f);
-    if(engine->inputManager->isKeyDown(SDLK_e))
+    if(InputManager::isKeyDown(SDLK_e))
         engine->camera->scale(0.5f);
-    if(engine->inputManager->isKeyDown(SDLK_a))
+    if(InputManager::isKeyDown(SDLK_a))
         engine->camera->moveX(-1);
-    if(engine->inputManager->isKeyDown(SDLK_d))
+    if(InputManager::isKeyDown(SDLK_d))
         engine->camera->moveX(1);
-    if(engine->inputManager->isKeyDown(SDLK_w))
+    if(InputManager::isKeyDown(SDLK_w))
         engine->camera->moveY(1);
-    if(engine->inputManager->isKeyDown(SDLK_s))
+    if(InputManager::isKeyDown(SDLK_s))
         engine->camera->moveY(-1);
 #endif
 // debug prints

@@ -10,15 +10,14 @@
 
 using namespace std;
 
-class ResourceManager {
+class R {
 private:
-    map<string, SDL_Texture*> m_textureMap;
-    map<string, TTF_Font*>    m_fontMap;
-    SDL_Renderer* m_renderer = nullptr;
+    static map<string, SDL_Texture*> m_textureMap;
+    static map<string, TTF_Font*>    m_fontMap;
+    static SDL_Renderer* m_renderer;
 public:
-    inline ResourceManager (SDL_Renderer* r) : m_renderer(r) {;}
-    virtual ~ResourceManager ();
-
-    SDL_Texture* getTexture(string path);
-    TTF_Font* getFont(string path, int x = 42);
+    static inline void init(SDL_Renderer* r) { m_renderer = r; }
+    static SDL_Texture* getTexture(string path);
+    static TTF_Font* getFont(string path, int x = 42);
+    static void destroy();
 };

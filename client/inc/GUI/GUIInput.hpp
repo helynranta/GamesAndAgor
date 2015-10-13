@@ -15,10 +15,9 @@
 class GUIInput : public GUIElement {
 private:
   GUIText* m_text = nullptr;
-  InputManager* m_inputManager = nullptr;
   unsigned int m_maxInputLength = 10;
 public:
-  inline GUIInput(InputManager* i, SDL_Renderer* r, TTF_Font* f) : GUIElement(r), m_inputManager(i)
+  inline GUIInput(SDL_Renderer* r, TTF_Font* f) : GUIElement(r)
   {
       m_text = new GUIText(r, f);
   }
