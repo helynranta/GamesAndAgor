@@ -77,7 +77,6 @@ void Engine::gameLoop() {
         // process SDL events
         processInput();
         // everything draw related
-        Camera::update();
         draw();
         // if drawing happened too fast, we can sleep for a while
         Uint32 l_frameTicks = SDL_GetTicks() - l_startTicks;
@@ -91,6 +90,7 @@ void Engine::gameLoop() {
 void Engine::update() {
     m_scenes[m_currentScene]->update(m_deltaTime);
     m_scenes[m_currentScene]->updateGUI();
+    Camera::update();
 }
 void Engine::processInput() {
     // update input manager
