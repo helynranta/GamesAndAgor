@@ -18,7 +18,7 @@ void ComputeNearObjects(Player *sPlayers, Object *sObjects){
 				memset(temp,0,sizeof(Near));
 
 				temp->pParticle = p2;
-				append2ListNear(p1->nearPlayers, temp);
+				append2ListNear(&(p1->nearPlayers), temp);
 				temp = NULL;
 			}
 
@@ -28,7 +28,7 @@ void ComputeNearObjects(Player *sPlayers, Object *sObjects){
 				memset(temp,0,sizeof(Near));
 
 				temp->pParticle = p1;
-				append2ListNear(p2->nearPlayers, temp);
+				append2ListNear(&(p2->nearPlayers), temp);
 				temp = NULL;
 			}
 		}
@@ -60,30 +60,37 @@ int isWithinRange(int location1[2], int location2[2], int scale){
 
 }
 
-void append2ListNear(Near *pList, Near *pNew){
-	Near *temp;
-	temp = pList;
-	pList = pNew;
-	pList->pNext = temp;
+void append2ListNear(Near **pList, Near *pNew){
+	Near *temp, *p;
+	p = *pList;  // pointer of the list
+	temp = p;  // Store to temp
+	p = pNew;  // New object should be the first
+	p->pNext = temp;  // Previous first is now the second
+	*pList = p;  // Update the pointer of the list
 }
 
-void append2ListPlayer(Player *pList, Player *pNew){
-	Player *temp;
-	temp = pList;
-	pList = pNew;
-	pList->pNext = temp;
+void append2ListPlayer(Player **pList, Player *pNew){
+	// For functional explanation, see append2ListNear
+	Player *temp, *p;
+	p = *pList;
+	temp = p;
+	p = pNew;
+	p->pNext = temp;
+	*pList = p;
 }
 
-void append2ListObject(Object *pList, Object *pNew){
-	Object *temp;
-	temp = pList;
-	pList = pNew;
-	pList->pNext = temp;
+void append2ListObject(Object **pList, Object *pNew){
+	// For functional explanation, see append2ListNear
+	Object *temp, *p;
+	p = *pList;
+	temp = p;
+	p = pNew;
+	p->pNext = temp;
+	*pList = p;
 }
 
 void clearListNear(Near *pList){
 	Near *next, *p;
-
 	p=pList;
 	while(p != NULL){
 			next = p->pNext;
@@ -96,7 +103,9 @@ void clearListPlayer(Player *pList){
 	Player *next, *p;
 
 	p=pList;
+	printf("hei\n");
 	while(p != NULL){
+			printf("hahaa\n");
 			next = p->pNext;
 			clearListNear(p->nearPlayers);
 			clearListNear(p->nearObjects);
@@ -114,4 +123,8 @@ void clearListObject(Object *pList){
 			free(p);
 			p = next;
 	}
+}
+
+Player *newPlayer(){
+
 }

@@ -9,12 +9,12 @@ int main(int argc, char const *argv[]){
 	free(Tester);
 
 
-	Player *TestList = NULL, *p, *prev;
+	Player *TestList = NULL, *p;
 	for (i = 0; i < 10; i++) {
 		if (!(p = malloc(sizeof(Player))))
 			perror("malloc");
 		memset(p, 0, sizeof(Player));
-		append2ListPlayer(TestList,p);
+		append2ListPlayer(&TestList,p);
 	}
 	clearListPlayer(TestList);
 	// Tester->pParticle = TestPlayer;
