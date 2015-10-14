@@ -15,8 +15,7 @@ Engine::~Engine () {
     R::destroy();
     InputManager::empty();
     // delete connection handler
-    delete m_connection;
-    m_connection = nullptr;
+    InetConnection::disconnect();
     // delete camera
     delete camera;
     camera = nullptr;
@@ -69,7 +68,6 @@ int Engine::init() {
         success = 0;
     }
     R::init(renderer);
-    m_connection  = new InetConnection();
     // return what ever happened
     return success;
 }

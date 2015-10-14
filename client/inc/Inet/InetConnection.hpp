@@ -16,25 +16,22 @@ enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, TIMING_OUT, EXITING 
 
 class InetConnection {
 private:
-
-    ConnectionState m_state = ConnectionState::DISCONNECTED;
-
-    struct addrinfo hints = {};
-    struct addrinfo *result = nullptr, *iter = nullptr;
-    int socketfd = -1;
-    int length = 0;
-    int rval = 0;
-    char dgram[1];
-
-    std::string ip = "";
-    std::string port = "";
+    static ConnectionState m_state;
+    static struct addrinfo hints;
+    static struct addrinfo *result;
+    static struct addrinfo *iter;
+    static int socketfd;
+    static int length;
+    static int rval;
+    static char dgram[1];
+    static std::string ip;
+    static std::string port;
 public:
-    InetConnection ();
-    virtual ~InetConnection ();
-    bool send();
-    bool connect(std::string ip, std::string port);
-    bool disconnect();
-    void update();
-
-    std::vector<Message*> messages;
+    static bool send();
+    static bool connect(std::string ip, std::string port);
+    static bool disconnect();
+    static void update();
+    static std::vector<Message*> messages;
+    static void init();
+    static void destroy();
 };

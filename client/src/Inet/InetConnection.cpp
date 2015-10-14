@@ -1,6 +1,19 @@
 #include "Inet/InetConnection.hpp"
 
-InetConnection::InetConnection(void) {
+ConnectionState   InetConnection::m_state = ConnectionState::DISCONNECTED;
+struct addrinfo   InetConnection::hints = {};
+struct addrinfo   *InetConnection::result = nullptr;
+struct addrinfo   *InetConnection::iter = nullptr;
+int               InetConnection::socketfd = -1;
+int               InetConnection::length = 0;
+int               InetConnection::rval = 0;
+char              InetConnection::dgram[1];
+std::string       InetConnection::ip = "";
+std::string       InetConnection::port = "";
+
+std::vector<Message*> InetConnection::messages;
+
+void InetConnection::init(void) {
     // this is temp. replace 1 with size of message
     memset(&dgram, 1, 1);
     // fill hints with rightful flags
@@ -15,7 +28,7 @@ InetConnection::InetConnection(void) {
 *
 
 */
-InetConnection::~InetConnection(void)  {
+void InetConnection::destroy(void)  {
     // delete messages behind pointers
     for ( auto& it : messages) {
         delete it;

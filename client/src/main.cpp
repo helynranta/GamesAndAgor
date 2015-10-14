@@ -16,6 +16,7 @@ int main(void) {
 
     engine->addScene(menu);
     engine->addScene(game);
+    
     engine->run("Menu");
     delete engine;
     return 1;

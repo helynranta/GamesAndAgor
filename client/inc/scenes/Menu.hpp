@@ -9,7 +9,9 @@ private:
 
 public:
     inline Menu (Engine* e) : Scene(e) {}
+    
     inline virtual ~Menu () {}
+    
     inline void awake() override {
         gui = new GUI(engine->renderer);
         gui->addText("hint", new GUIText(engine->renderer, R::getFont("res/fonts/OpenSans.ttf")));
@@ -20,13 +22,16 @@ public:
         gui->getInput("input")->setMaxLength(15);
         gui->getInput("input")->setX(engine->camera->getWidth()/2.0f-200)->setY(engine->camera->getHeight()/2.0f+30);
     }
+    
     inline void update(float dt) override {
         if(InputManager::isKeyPressed(SDLK_RETURN))
             engine->startScene("Game");
     }
+    
     inline void end() override {
         std::cout << "Menu end" << std::endl;
     }
+    
     inline void draw() override {
 
     }

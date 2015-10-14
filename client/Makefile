@@ -33,6 +33,10 @@ SOURCES		:=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 #SOURCES		:= $(wildcard $(addsuffix /*.$(SRCEXT), $(SRCDIR)))
 OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
+.scene:
+	$(shell echo "#pragma once\n" > scenes.h;)
+	$(shell for file in ./inc/*; do echo "$file"; done)
+
 # Defauilt Make
 all: resources $(TARGET)
 

@@ -33,7 +33,6 @@ public:
     GameState m_gameState = GameState::EXIT;
     SDL_Window* m_window    = nullptr; // put this in own class
     SDL_Renderer* renderer = nullptr; // put this in window class
-    InetConnection* m_connection = nullptr;
     Camera* camera = nullptr;
     // whole fucking game init
     int init();
