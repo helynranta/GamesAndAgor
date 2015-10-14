@@ -33,7 +33,6 @@ public:
     GameState m_gameState = GameState::EXIT;
     SDL_Window* m_window    = nullptr; // put this in own class
     SDL_Renderer* renderer = nullptr; // put this in window class
-    Camera* camera = nullptr;
     // whole fucking game init
     int init();
     // ask for nickname and ip
@@ -55,11 +54,16 @@ public:
     Engine ();
     ~Engine ();
     void run(const std::string& name);
-    inline Camera* getCamera() const { return camera; }
     inline SDL_Renderer* getRenderer() const { return renderer; }
     map<string, Scene*> m_scenes;
     inline void addScene(pair<string,Scene*> scene) {
         m_scenes.insert(scene);
+    }
+    inline void addScenes(vector<pair<string,Scene*>> scenes) {
+        for(auto& it : scenes)
+        {
+            m_scenes.insert(it);
+        }
     }
     bool startScene(string name);
 };

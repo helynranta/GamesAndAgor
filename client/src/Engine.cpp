@@ -16,9 +16,6 @@ Engine::~Engine () {
     InputManager::empty();
     // delete connection handler
     InetConnection::disconnect();
-    // delete camera
-    delete camera;
-    camera = nullptr;
     // clear sdl
     SDL_DestroyRenderer(renderer);
     renderer  = nullptr;
@@ -35,12 +32,11 @@ int Engine::init() {
     m_gameState = GameState::PLAY;
     // init whole sdl
     SDL_Init(SDL_INIT_EVERYTHING);
-    //
-    camera = new Camera(800, 640);
     // create window
+    Camera::init(800, 600);
     m_window = SDL_CreateWindow("Agor and Gamus",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        camera->getWidth(), camera->getHeight(), 0);
+        Camera::getWidth(), Camera::getHeight(), 0);
     // check if window creat>ion failed
     if(m_window == nullptr) {
         std::cout << "Could not create window " << std::string(SDL_GetError()) << std::endl;
@@ -99,7 +95,7 @@ void Engine::gameLoop() {
         // process SDL events
         processInput();
         // everything draw related
-        camera->update();
+        Camera::update();
         draw();
         // if drawing happened too fast, we can sleep for a while
         Uint32 l_frameTicks = SDL_GetTicks() - l_startTicks;

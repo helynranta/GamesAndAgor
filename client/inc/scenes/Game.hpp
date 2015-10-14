@@ -13,7 +13,7 @@ private:
     // player circle
     Player m_player;
 public:
-    inline Game (Engine* e) : Scene(e) {}
+    inline Game () : Scene() {}
     inline ~Game () {}
     // game init
     void awake();

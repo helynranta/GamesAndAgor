@@ -1,14 +1,17 @@
 #include "scenes/Game.hpp"
 
 void Game::awake() {
+    /*
     gui = new GUI(engine->renderer);
     std::cout << "Game awake" << std::endl;
     m_player.init();
 
     //gui->add("TEST", new GUIText(engine->renderer, engine->R->getFont("res/fonts/OpenSans.ttf")));
     //gui->get("TEST")->setText("useita")->setX(200)->setY(200);
+    */
 }
 void Game::update(float dt) {
+    /*
     m_player.update(dt);
     // this is how camera behaves in real gameplay
     if(InputManager::isKeyDown(SDLK_q))
@@ -17,10 +20,13 @@ void Game::update(float dt) {
         m_player.scale(1.0f);
     engine->camera->setPos(m_player.getX(), m_player.getY());
     engine->camera->setScale(float(m_player.getR())/100);
+    */
 }
 void Game::draw() {
+    /*
     SDL_Rect l_ppos = engine->camera->transformToWorldCordinates(m_player.getDestRect());
     SDL_RenderCopy(engine->renderer, R::getTexture("res/circle.png"), NULL, &l_ppos );
+    */
 }
 void Game::end() {
     std::cout << "Game ends" << std::endl;

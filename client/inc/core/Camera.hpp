@@ -4,41 +4,41 @@
 
 class Camera {
 private:
-    float m_x = 0;
-    float m_y = 0;
-    float m_scale = 1.0f;
+    static float m_x;
+    static float m_y;
+    static float m_scale;
     // should be set only once plz
-    unsigned int m_width = 0;
-    unsigned int m_height = 0;
-    SDL_Rect m_viewport = {0,0,0,0};
+    static unsigned int m_width;
+    static unsigned int m_height;
+    static SDL_Rect m_viewport;
 
 public:
-    inline Camera() {;}
-    inline Camera(int width, int height) : m_width(width), m_height(height) {;}
-    virtual ~Camera () {}
-
-    int init();
-    void destroy();
-    void update();
-    SDL_Rect transformToWorldCordinates(SDL_Rect rect);
+    static inline int init(int width, int height) {
+        m_width = width;
+        m_height = height;
+        return true;
+    }
+    static void destroy();
+    static void update();
+    static SDL_Rect transformToWorldCordinates(SDL_Rect rect);
     /* GETTERS */
-    inline const int getX() const { return m_x; }
-    inline const int getY() const { return m_y; }
-    inline const int getWidth() const { return m_width; }
-    inline const int getHeight() const { return m_height; }
-    inline const float getScale() const { return m_scale; }
+    static inline const int getX()  { return m_x; }
+    static inline const int getY()  { return m_y; }
+    static inline const int getWidth()  { return m_width; }
+    static inline const int getHeight()  { return m_height; }
+    static inline const float getScale()  { return m_scale; }
     // camera viewport
-    inline const SDL_Rect getViewport() const {return m_viewport;}
+    static inline const SDL_Rect getViewport()  {return m_viewport;}
     /* SETTERS */
     // move x amout
-    inline void moveX(float x) { m_x += x; }
-    inline void moveY(float y) { m_y += y; }
-    inline void movePos( float x, float y ) { m_x += x; m_y += y; }
+    static inline void moveX(float x) { m_x += x; }
+    static inline void moveY(float y) { m_y += y; }
+    static inline void movePos( float x, float y ) { m_x += x; m_y += y; }
     // set to camera to point
-    inline void setX(float x) { m_x = x; }
-    inline void setY(float y) { m_y = y; }
-    inline void setPos( float x, float y ) { m_x = x; m_y = y; }
+    static inline void setX(float x) { m_x = x; }
+    static inline void setY(float y) { m_y = y; }
+    static inline void setPos( float x, float y ) { m_x = x; m_y = y; }
     // set camera zoom scale
-    inline void scale(float scale) { m_scale -= scale/10.0f; } // divide by 10, so we dont use numbers like 0.001f
-    inline void setScale(float scale) { m_scale = scale; }
+    static inline void scale(float scale) { m_scale -= scale/10.0f; } // divide by 10, so we dont use numbers like 0.001f
+    static inline void setScale(float scale) { m_scale = scale; }
 };

@@ -3,9 +3,14 @@
 #include <iostream>
 #include <string>
 
-int Camera::init() {
-    return 0;
-}
+float Camera::m_x = 0;
+float Camera::m_y = 0;
+float Camera::m_scale = 1.0f;
+// should be set only once plz
+unsigned int Camera::m_width = 0;
+unsigned int Camera::m_height = 0;
+SDL_Rect Camera::m_viewport = {0,0,0,0};
+
 void Camera::destroy() {}
 SDL_Rect Camera::transformToWorldCordinates(SDL_Rect rect) {
     // flip Y axis

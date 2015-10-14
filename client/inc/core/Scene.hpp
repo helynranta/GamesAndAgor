@@ -5,10 +5,9 @@
 class Engine;
 class Scene {
 protected:
-    Engine* engine = nullptr;
     GUI* gui = nullptr;
 public:
-    Scene(Engine* e);
+    inline Scene() {}
     inline virtual ~Scene() {;}
     virtual void awake() = 0;
     virtual void update(float dt) = 0;
