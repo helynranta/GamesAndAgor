@@ -13,39 +13,28 @@ public:
     inline virtual ~Menu () {}
 
     inline void awake() override {
-        /*
-        gui = new GUI(engine->renderer);
-        gui->addText("hint", new GUIText(engine->renderer, R::getFont("res/fonts/OpenSans.ttf")));
-        gui->addInput("input", new GUIInput(engine->renderer, R::getFont("res/fonts/OpenSans.ttf")));
-        //std::cout << engine->camera->getWidth()/2 << std::endl;
-        gui->getText("hint")->setText("Enter server IP address")->setX(engine->camera->getWidth()/2.0f)->setY(engine->camera->getHeight()/2.0f-30);
+        gui = new GUI(Window::getRenderer());
+        gui->addText("hint", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
+        gui->addInput("input", new GUIInput(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
+        gui->getText("hint")->setText("Enter server IP address")->setX(Camera::getWidth()/2.0f)->setY(Camera::getHeight()/2.0f-30);
         gui->getText("hint")->setAlign(TEXT_ALIGN::CENTER_XY);
         gui->getInput("input")->setMaxLength(15);
-        gui->getInput("input")->setX(engine->camera->getWidth()/2.0f-200)->setY(engine->camera->getHeight()/2.0f+30);
-        */
+        gui->getInput("input")->setX(Camera::getWidth()/2.0f-200)->setY(Camera::getHeight()/2.0f+30);
     }
 
     inline void update(float dt) override {
-        /*
-        if(InputManager::isKeyPressed(SDLK_RETURN))
-            engine->startScene("Game");
-        */
+        if(Input::isKeyPressed(SDLK_RETURN))
+            Engine::startScene("Game");
     }
 
-    inline void end() override {
-        /*
-        std::cout << "Menu end" << std::endl;
-        */
-    }
+    inline void end() override {}
 
-    inline void draw() override {
-
-    }
+    inline void draw() override {}
 };
 
 /*
 void Game::menu() {
-    GUIInput* l_input = new GUIInput(m_inputManager, m_renderer, R->getFont("res/fonts/OpenSans.ttf")); // input field
+    GUIInput* l_input = new GUIInput(m_Input, m_renderer, R->getFont("res/fonts/OpenSans.ttf")); // input field
     bool isConnected = false;   // for connection check
     while(m_gameState!= GameState::EXIT && (m_nickname.length() == 0 || !isConnected))
     {

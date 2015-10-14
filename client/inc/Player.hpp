@@ -2,7 +2,7 @@
 
 #include "Circle.hpp"
 
-#include "core/InputManager.hpp"
+#include "core/Input.hpp"
 
 class Player : public Circle {
 private:

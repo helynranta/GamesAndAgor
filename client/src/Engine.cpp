@@ -4,6 +4,10 @@
 
 #include "Engine.hpp"
 
+// statics
+map<string, Scene*> Engine::m_scenes;
+string Engine::m_currentScene = "";
+
 Engine::Engine () {}
 Engine::~Engine () {
     // close all scenes
@@ -13,15 +17,9 @@ Engine::~Engine () {
     m_scenes.empty();
 
     R::destroy();
-    InputManager::empty();
-    // delete connection handler
+    Input::empty();
     InetConnection::disconnect();
-    // clear sdl
-    SDL_DestroyRenderer(renderer);
-    renderer  = nullptr;
-    SDL_DestroyWindow(m_window);
-    m_window    = nullptr;
-
+    Window::destroy();
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
@@ -33,24 +31,8 @@ int Engine::init() {
     // init whole sdl
     SDL_Init(SDL_INIT_EVERYTHING);
     // create window
-    Camera::init(800, 600);
-    m_window = SDL_CreateWindow("Agor and Gamus",
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        Camera::getWidth(), Camera::getHeight(), 0);
-    // check if window creat>ion failed
-    if(m_window == nullptr) {
-        std::cout << "Could not create window " << std::string(SDL_GetError()) << std::endl;
-        success = 0;
-    }
-    // init renderer
-    renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
-    // set clear color
-    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
-    // check if renderer init failed
-    if(renderer == nullptr) {
-        std::cout << "Could not create renderer " << std::string(SDL_GetError()) << std::endl;
-        success = 0;
-    }
+    success = Camera::init(800, 600);
+    success = Window::init(800, 600);
     // init img loader
     if ( !(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) )
     {
@@ -63,7 +45,7 @@ int Engine::init() {
         std::cout << "Could not initialize SDL_ttf. Error: " << std::string(TTF_GetError()) << std::endl;
         success = 0;
     }
-    R::init(renderer);
+    R::init(Window::getRenderer());
     // return what ever happened
     return success;
 }
@@ -112,7 +94,7 @@ void Engine::update() {
 }
 void Engine::processInput() {
     // update input manager
-    InputManager::update();
+    Input::update();
     /*
     Poll all events
     Keycodes: https://wiki.libsdl.org/SDL_Keycode
@@ -124,12 +106,12 @@ void Engine::processInput() {
                 m_gameState = GameState::EXIT;
                 break;
             case SDL_KEYDOWN: // key is down
-                InputManager::pressKey(e.key.keysym.sym);
+                Input::pressKey(e.key.keysym.sym);
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
                     m_gameState = GameState::EXIT;
                 break;
             case SDL_KEYUP:
-                InputManager::releaseKey(e.key.keysym.sym);
+                Input::releaseKey(e.key.keysym.sym);
         }
     }
 
@@ -152,14 +134,14 @@ void Engine::run(const std::string& name) {
 }
 void Engine::draw() {
     // set clear color
-    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
+    SDL_SetRenderDrawColor(Window::getRenderer(), 50, 50, 50, 255);
     // clear screen
-    SDL_RenderClear(renderer);
+    SDL_RenderClear(Window::getRenderer());
     // draw current scene
     m_scenes[m_currentScene]->draw();
     m_scenes[m_currentScene]->drawGUI();
     // render buffer to screen
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(Window::getRenderer());
 }
 bool Engine::startScene(string name){
     auto it = m_scenes.find(name);

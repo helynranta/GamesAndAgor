@@ -1,50 +1,55 @@
 #include "scenes/Game.hpp"
 
 void Game::awake() {
-    /*
-    gui = new GUI(engine->renderer);
-    std::cout << "Game awake" << std::endl;
+
+    gui = new GUI(Window::getRenderer());
     m_player.init();
 
     //gui->add("TEST", new GUIText(engine->renderer, engine->R->getFont("res/fonts/OpenSans.ttf")));
     //gui->get("TEST")->setText("useita")->setX(200)->setY(200);
-    */
 }
 void Game::update(float dt) {
-    /*
+
     m_player.update(dt);
     // this is how camera behaves in real gameplay
-    if(InputManager::isKeyDown(SDLK_q))
-        m_player.scale(-1.0f);
-    if(InputManager::isKeyDown(SDLK_e))
-        m_player.scale(1.0f);
-    engine->camera->setPos(m_player.getX(), m_player.getY());
-    engine->camera->setScale(float(m_player.getR())/100);
-    */
+    //Camera::setPos(m_player.getX(), m_player.getY());
+    //Camera::setScale(float(m_player.getR())/100);
+
+    if(Input::isKeyDown(SDLK_q))
+        Camera::scale(-0.5f);
+    if(Input::isKeyDown(SDLK_e))
+        Camera::scale(0.5f);
+    if(Input::isKeyDown(SDLK_a))
+        Camera::moveX(-1);
+    if(Input::isKeyDown(SDLK_d))
+        Camera::moveX(1);
+    if(Input::isKeyDown(SDLK_w))
+        Camera::moveY(1);
+    if(Input::isKeyDown(SDLK_s))
+        Camera::moveY(-1);
+
 }
 void Game::draw() {
-    /*
-    SDL_Rect l_ppos = engine->camera->transformToWorldCordinates(m_player.getDestRect());
-    SDL_RenderCopy(engine->renderer, R::getTexture("res/circle.png"), NULL, &l_ppos );
-    */
+    SDL_Rect l_ppos = Camera::transformToWorldCordinates(m_player.getDestRect());
+    SDL_RenderCopy(Window::getRenderer(), R::getTexture("res/circle.png"), NULL, &l_ppos );
 }
 void Game::end() {
-    std::cout << "Game ends" << std::endl;
+
 }
 
 // CAMERA TESTING
 #if 0
-    if(InputManager::isKeyDown(SDLK_q))
+    if(Input::isKeyDown(SDLK_q))
         engine->camera->scale(-0.5f);
-    if(InputManager::isKeyDown(SDLK_e))
+    if(Input::isKeyDown(SDLK_e))
         engine->camera->scale(0.5f);
-    if(InputManager::isKeyDown(SDLK_a))
+    if(Input::isKeyDown(SDLK_a))
         engine->camera->moveX(-1);
-    if(InputManager::isKeyDown(SDLK_d))
+    if(Input::isKeyDown(SDLK_d))
         engine->camera->moveX(1);
-    if(InputManager::isKeyDown(SDLK_w))
+    if(Input::isKeyDown(SDLK_w))
         engine->camera->moveY(1);
-    if(InputManager::isKeyDown(SDLK_s))
+    if(Input::isKeyDown(SDLK_s))
         engine->camera->moveY(-1);
 #endif
 // debug prints

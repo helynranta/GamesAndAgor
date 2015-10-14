@@ -4,7 +4,7 @@ bool GUIInput::update() {
     // ask for input
     m_text->setX(m_x)->setY(m_y)->setAlign(m_align);
     std::string tmp = "";
-    int l_key = InputManager::getchar();
+    int l_key = Input::getchar();
     if(l_key != -1)
     {
         std::string l_text = m_text->getText();

@@ -14,9 +14,10 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
-#include "core/InputManager.hpp"
+#include "core/Input.hpp"
 #include "core/Scene.hpp"
 #include "core/ResourceManager.hpp"
+#include "core/Window.hpp"
 
 #include "GUI/GUIInput.hpp"
 #include "GUI/GUIText.hpp"
@@ -31,8 +32,6 @@ using namespace std;
 class Engine {
 public:
     GameState m_gameState = GameState::EXIT;
-    SDL_Window* m_window    = nullptr; // put this in own class
-    SDL_Renderer* renderer = nullptr; // put this in window class
     // whole fucking game init
     int init();
     // ask for nickname and ip
@@ -49,21 +48,13 @@ public:
     float m_fps;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/
     float m_deltaTime;
-    string m_currentScene = "";
-
     Engine ();
     ~Engine ();
     void run(const std::string& name);
-    inline SDL_Renderer* getRenderer() const { return renderer; }
-    map<string, Scene*> m_scenes;
+    static map<string, Scene*> m_scenes;
+    static string m_currentScene;
+    static bool startScene(string name);
     inline void addScene(pair<string,Scene*> scene) {
         m_scenes.insert(scene);
     }
-    inline void addScenes(vector<pair<string,Scene*>> scenes) {
-        for(auto& it : scenes)
-        {
-            m_scenes.insert(it);
-        }
-    }
-    bool startScene(string name);
 };

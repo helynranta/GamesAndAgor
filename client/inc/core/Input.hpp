@@ -7,7 +7,7 @@
 
 #include "SDL2/SDL.h"
 
-class InputManager {
+class Input {
 private:
     static std::unordered_map<unsigned int, bool> m_keys;          // is key down map
     static std::unordered_map<unsigned int, bool> m_previousKeys;  // was key previously down map
