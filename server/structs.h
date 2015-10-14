@@ -51,8 +51,8 @@ typedef struct Player {
 	int state;  // | alive | eaten | exited |
 
 	// For stroring players and objects nearby
-	struct Near *nearPlayers;
-	struct Near *nearObjects;
+	Near *nearPlayers;
+	Near *nearObjects;
 
 	// For storing player's IP address //
 	struct sockaddr_storage addressStorage;
@@ -71,3 +71,12 @@ typedef struct Object {
 	int location[2];
 	struct Object *pNext;
 } Object;
+
+/*
+typedef struct Ack{
+	int packetID;
+	char msg[BUFFERSIZE];
+	struct Ack *pNext;
+	struct Ack *pPrev;
+} Ack;
+*/
