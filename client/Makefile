@@ -33,10 +33,6 @@ SOURCES		:=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 #SOURCES		:= $(wildcard $(addsuffix /*.$(SRCEXT), $(SRCDIR)))
 OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
-.scene:
-	$(shell echo "#pragma once\n" > scenes.h;)
-	$(shell for file in ./inc/*; do echo "$file"; done)
-
 # Defauilt Make
 all: resources $(TARGET)
 
@@ -79,6 +75,27 @@ $(BUILDDIR)/%.$(OBJEXT): $(SRCDIR)/%.$(SRCEXT)
 	@sed -e 's|.*:|$(BUILDDIR)/$*.$(OBJEXT):|' < $(BUILDDIR)/$*.$(DEPEXT).tmp > $(BUILDDIR)/$*.$(DEPEXT)
 	@sed -e 's/.*://' -e 's/\\$$//' < $(BUILDDIR)/$*.$(DEPEXT).tmp | fmt -1 | sed -e 's/^ *//' -e 's/$$/:/' >> $(BUILDDIR)/$*.$(DEPEXT)
 	@rm -f $(BUILDDIR)/$*.$(DEPEXT).tmp
-
+	
+scene:
+	@echo "#pragma once\n" > scenes.hpp;
+	
+	@echo "#include <iostream>" >> scenes.hpp;
+	@echo "#include <vector>" >> scenes.hpp;
+	@echo "#include <string>" >> scenes.hpp;
+	@echo "using namespace std" >> scenes.hpp;
+	
+	@for file in ./inc/scenes/*; do echo "#include <.$$file>"; done >> scenes.hpp
+	
+	@echo "vector<const char*> files;\n" >> scenes.hpp
+	
+	@for file in ./inc/scenes/*; do i=$$((i+1)); echo "files.push_back(\"$$file\");"; done >> scenes.hpp
+	
+	
+	@cp -f scenes.hpp inc/scenes.hpp
+	@rm scenes.hpp
+	@echo "\0" >> scenes.hpp
+	
+	
+	
 #Non-File Targets
-.PHONY: all remake clean cleaner resources
+.PHONY: all remake clean cleaner resources scene

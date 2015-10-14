@@ -3,8 +3,7 @@
 
 #include "Engine.hpp"
 
-#include "scenes/Menu.hpp"
-#include "scenes/Game.hpp"
+#include "scenes.hpp"
 
 using namespace std;
 
