@@ -26,8 +26,11 @@ private:
     static char dgram[1];
     static std::string ip;
     static std::string port;
-    fd_set incoming;
-    fd_set incoming_temp;
+    static fd_set incoming;
+    static fd_set incoming_temp;
+    static struct timeval timeout;
+    static int listensocket;
+    static int biggestsocket;
 public:
     static bool send();
     static bool connect(std::string ip, std::string port);

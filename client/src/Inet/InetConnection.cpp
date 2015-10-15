@@ -10,10 +10,14 @@ int               InetConnection::socketfd = -1;
 int               InetConnection::length = 0;
 int               InetConnection::rval = 0;
 char              InetConnection::dgram[1];
-fd_set            InetConnection::incoming = -1;
-fd_set            InetConnection::incoming_temp = -1;
+// fd_set doesn not need to be initialized as it need to be emptied ALWAYS before use
+fd_set            InetConnection::incoming;
+fd_set            InetConnection::incoming_temp;
 std::string       InetConnection::ip = "";
 std::string       InetConnection::port = "";
+struct timeval InetConnection::timeout;
+int InetConnection::listensocket = -1;
+int InetConnection::biggestsocket = 0;
 
 std::vector<Message*> InetConnection::messages;
 
@@ -96,15 +100,38 @@ bool InetConnection::disconnect() {
   //close(socketfd);
   return true;
 }
+
+
 void InetConnection::update() {
+ memset(&timeout,0,sizeof(timeout));
+ timeout.tv_usec = 0; // microseconds
+ timeout.tv_sec = 1; // seconds
+
+  FD_ZERO(&incoming); // Clear the set of file descriptors
+
+  // Add listening socket to the set and check if it is the biggest socket number
+  FD_SET(listensocket,&incoming);
+  if(listensocket > biggestsocket) biggestsocket = listensocket;
+
+  // Add standard input to the set and check if it is the biggest socket number
+  FD_SET(fileno(stdin),&incoming);
+  if(fileno(stdin) > biggestsocket) biggestsocket = fileno(stdin);
+
+  // Add all other sockets to the list
+
+  // Use the biggestsocket+1 file descriptors with the incoming fd set with specified timeout for select
 
   // SELECT
 
   //TODO Build select structures in init and update them here!
-  int asd =  select(int nfds, fd_set *readfds, fd_set *writefds,
-                          fd_set *exceptfds, struct timeval *timeout);
-  if(asd == -1)
+  switch (select(biggestsocket+1,&incoming,NULL,NULL,&timeout)){
+    case(-1):
+      break;
+  case (0):
     break;
+  default:
+    break;
+  }
 
   /*
   switch msg{

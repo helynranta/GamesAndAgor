@@ -11,10 +11,10 @@ public:
 class JoinMessage : public Message{
 public:
   inline JoinMessage(){
-    
+    ;
   }
 
-}
+};
 
 class NickACK : public Message {
 public:
