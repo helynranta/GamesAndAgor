@@ -26,6 +26,8 @@ private:
     static char dgram[1];
     static std::string ip;
     static std::string port;
+    fd_set incoming;
+    fd_set incoming_temp;
 public:
     static bool send();
     static bool connect(std::string ip, std::string port);

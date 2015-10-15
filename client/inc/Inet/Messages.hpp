@@ -8,6 +8,14 @@ public:
   virtual void update() = 0;
 };
 
+class JoinMessage : public Message{
+public:
+  inline JoinMessage(){
+    
+  }
+
+}
+
 class NickACK : public Message {
 public:
   inline NickACK(/* byttejä tänn */) {;}

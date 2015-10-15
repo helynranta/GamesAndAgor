@@ -1,3 +1,5 @@
+#include <sys/select.h>
+
 #include "Inet/InetConnection.hpp"
 
 ConnectionState   InetConnection::m_state = ConnectionState::DISCONNECTED;
@@ -8,6 +10,8 @@ int               InetConnection::socketfd = -1;
 int               InetConnection::length = 0;
 int               InetConnection::rval = 0;
 char              InetConnection::dgram[1];
+fd_set            InetConnection::incoming = -1;
+fd_set            InetConnection::incoming_temp = -1;
 std::string       InetConnection::ip = "";
 std::string       InetConnection::port = "";
 
@@ -95,6 +99,13 @@ bool InetConnection::disconnect() {
 void InetConnection::update() {
 
   // SELECT
+
+  //TODO Build select structures in init and update them here!
+  int asd =  select(int nfds, fd_set *readfds, fd_set *writefds,
+                          fd_set *exceptfds, struct timeval *timeout);
+  if(asd == -1)
+    break;
+
   /*
   switch msg{
     case JOIN_ACK:
