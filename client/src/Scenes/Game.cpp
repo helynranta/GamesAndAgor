@@ -8,6 +8,21 @@ void Game::awake() {
     gui->getText("PAUSED")->setX(Camera::getWidth()/2)->setY(Camera::getHeight()/2);
     gui->getText("PAUSED")->setAlign(TEXT_ALIGN::CENTER_XY);
     gui->getText("PAUSED")->setColor({200,10,10});
+    // debug prints
+    gui->addText("d-topleft", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
+
+    gui->addText("d-topright", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
+    gui->getText("d-topright")->setX(Camera::getWidth());
+    gui->getText("d-topright")->setAlign(TEXT_ALIGN::RIGHT);
+
+    gui->addText("d-bottomleft", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
+    gui->getText("d-bottomleft")->setY(Camera::getHeight());
+    gui->getText("d-bottomleft")->setAlign(TEXT_ALIGN::OVER);
+
+    gui->addText("d-bottomright", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
+    gui->getText("d-bottomright")->setX(Camera::getWidth())->setY(Camera::getHeight());
+    gui->getText("d-bottomright")->setAlign(TEXT_ALIGN::OVER_RIGHT);
+/*    */
 }
 void Game::update(float dt) {
     m_player.update(dt);
@@ -37,6 +52,11 @@ void Game::draw() {
         gui->getText("PAUSED")->show();
     else
         gui->getText("PAUSED")->hide();
+
+    gui->getText("d-topleft")->setText('('+std::to_string(Camera::getViewport().w)+','+std::to_string(Camera::getViewport().y)+')');
+    gui->getText("d-bottomleft")->setText('('+std::to_string(Camera::getViewport().w)+','+std::to_string(Camera::getViewport().h)+')');
+    gui->getText("d-topright")->setText('('+std::to_string(Camera::getViewport().x)+','+std::to_string(Camera::getViewport().y)+')');
+    gui->getText("d-bottomright")->setText('('+std::to_string(Camera::getViewport().x)+','+std::to_string(Camera::getViewport().h)+')');
 }
 void Game::end() {
 
@@ -66,14 +86,4 @@ void Game::end() {
     guiText->renderText(camera->getWidth()/2-100,10, "Camera scale: "+l_scale.str());
 
     guiText->renderText(camera->getWidth()/2-100,40, "Camera pos: ("+std::to_string(camera->getX())+","+std::to_string(camera->getY())+")");
-
-    SDL_Rect vw = camera->getViewport();
-    guiText->renderText(10,10,"("+std::to_string(vw.w)+","+std::to_string(vw.y)+")");
-    guiText->renderText(10,camera->getHeight() - 50,"("+std::to_string(vw.w)+","+std::to_string(vw.h)+")");
-    guiText->renderText(camera->getWidth() - 110,10,
-        "("+std::to_string(vw.x)+","+std::to_string(vw.y)+")"
-        );
-    guiText->renderText(camera->getWidth()-110, camera->getHeight()-50,
-        "("+std::to_string(vw.x)+","+std::to_string(vw.h)+")"
-        );
 #endif

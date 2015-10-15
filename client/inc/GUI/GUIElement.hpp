@@ -2,7 +2,7 @@
 
 #include "SDL2/SDL.h"
 
-enum TEXT_ALIGN { LEFT, RIGHT, CENTER, CENTER_XY };
+enum TEXT_ALIGN { LEFT, RIGHT, CENTER, CENTER_XY, OVER, OVER_RIGHT };
 
 class GUIElement {
 protected:

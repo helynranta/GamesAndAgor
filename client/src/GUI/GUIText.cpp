@@ -47,6 +47,11 @@ void GUIText::renderText(int x, int y, TEXT_ALIGN text_align /*= TEXT_ALIGN::LEF
         y -= m_height/4;
     } else if(m_align == TEXT_ALIGN::RIGHT) {
         x -= m_width/2;
+    } else if(m_align == TEXT_ALIGN::OVER) {
+        y -= m_height/2;
+    } else if(m_align == TEXT_ALIGN::OVER_RIGHT) {
+        y -= m_height/2;
+        x -= m_width/2;
     }
     if(m_texture != nullptr && !m_hidden) {
         SDL_Rect renderQuad = {x, y, int(m_width*m_scale), int(m_height*m_scale)};
