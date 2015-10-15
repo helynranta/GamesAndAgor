@@ -20,7 +20,6 @@ public:
     static bool isKeyDown(unsigned int key);
     static bool isKeyPressed(unsigned int key);
     static void update();
-
     static inline const int getchar() {
         if(m_lastCharacter == -1) return m_lastCharacter;
         int tmp = m_lastCharacter;

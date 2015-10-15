@@ -1,8 +1,8 @@
 #include "GUI/GUI.hpp"
 
 GUI::GUI (SDL_Renderer* r) : m_renderer(r) {
-    if(m_renderer == nullptr)
-        std::cout << "GUI was initialized with renderer pointer leading to NULL" << std::endl;
+    //if(m_renderer == nullptr)
+    //    std::cout << "GUI was initialized with renderer pointer leading to NULL" << std::endl;
     //if(m_camera == nullptr)
     //    std::cout << "GUI was initialized with camera pointer leading to NULL" << std::endl;
 }

@@ -34,7 +34,7 @@ SOURCES		:=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
 # Defauilt Make
-all: resources $(TARGET)
+all: scene resources $(TARGET)
 
 run: all
 	$(TARGETDIR)/$(TARGET)
@@ -47,7 +47,6 @@ resources: directories
 
 # Make the Directories
 directories:
-	#rm -R $(TARGETDIR)
 	@mkdir -p $(TARGETDIR)
 	@mkdir -p $(BUILDDIR)
 
@@ -77,12 +76,8 @@ $(BUILDDIR)/%.$(OBJEXT): $(SRCDIR)/%.$(SRCEXT)
 	@rm -f $(BUILDDIR)/$*.$(DEPEXT).tmp
 
 scene:
-	@echo "#pragma once\n" > scenes.h;
-	@for file in ./inc/scenes/*; do echo "#include <.$$file>"; done >> scenes.h
-	@cp -f scenes.h inc/scenes.h
-	@rm -f scenes.h
-
-
+	@chmod +x ./create_scenes.sh
+	@./create_scenes.sh
 
 #Non-File Targets
 .PHONY: all remake clean cleaner resources scene

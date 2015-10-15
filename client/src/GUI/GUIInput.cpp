@@ -26,13 +26,16 @@ bool GUIInput::update() {
     return false;
 }
 void GUIInput::draw() {
-    drawBackground(400, 64);
-    if(m_text == nullptr) {
-        std::cout << "Could not allocate memory for input text" << std::endl;
-    }
-    else {
-        if(m_text->getText().length() != 0){
-            m_text->renderText(m_x, m_y, m_align);
+    if(!m_hidden)
+    {
+        drawBackground(400, 64);
+        if(m_text == nullptr) {
+            std::cout << "Could not allocate memory for input text" << std::endl;
+        }
+        else {
+            if(m_text->getText().length() != 0){
+                m_text->renderText(m_x, m_y, m_align);
+            }
         }
     }
 }

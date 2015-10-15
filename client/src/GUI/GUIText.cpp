@@ -48,7 +48,7 @@ void GUIText::renderText(int x, int y, TEXT_ALIGN text_align /*= TEXT_ALIGN::LEF
     } else if(m_align == TEXT_ALIGN::RIGHT) {
         x -= m_width/2;
     }
-    if(m_texture != nullptr) {
+    if(m_texture != nullptr && !m_hidden) {
         SDL_Rect renderQuad = {x, y, int(m_width*m_scale), int(m_height*m_scale)};
         SDL_RenderCopy(m_renderer, m_texture, NULL, &renderQuad);
     }

@@ -10,10 +10,11 @@ private:
 public:
     inline Menu () {}
 
-    inline virtual ~Menu () {}
+    inline virtual ~Menu () {
+
+    }
 
     inline void awake() override {
-        gui = new GUI(Window::getRenderer());
         gui->addText("hint", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
         gui->addInput("input", new GUIInput(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
         gui->getText("hint")->setText("Enter server IP address")->setX(Camera::getWidth()/2.0f)->setY(Camera::getHeight()/2.0f-30);
