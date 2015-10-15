@@ -27,8 +27,10 @@ public:
     void draw();
     void update();
     inline void addText(string name, GUIText* element) {
-        if(element != nullptr)
+        if(element != nullptr) {
             m_GUITexts.insert(make_pair(name, element));
+            element->setText(name);
+        }
     }
     inline void addInput(string name, GUIInput* element) {
         if(element != nullptr)

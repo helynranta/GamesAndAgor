@@ -25,13 +25,11 @@
 #include "Inet/InetConnection.hpp"
 
 enum GameState { PLAY, PAUSE, EXIT };
-enum GameScene { IP, NICK, INIT, GAME };
 
 using namespace std;
 
 class Engine {
-public:
-    GameState m_gameState = GameState::EXIT;
+private:
     // whole fucking game init
     int init();
     // ask for nickname and ip
@@ -48,6 +46,7 @@ public:
     float m_fps;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/
     float m_deltaTime;
+public:
     Engine ();
     ~Engine ();
     void run(const std::string& name);
@@ -57,4 +56,10 @@ public:
     inline void addScene(pair<string,Scene*> scene) {
         m_scenes.insert(scene);
     }
+    inline void addScenes(vector<pair<string,Scene*>> scenes) {
+        for (auto& it : scenes) {
+            m_scenes.insert(it);    
+        }
+    }
+    static GameState gameState;
 };

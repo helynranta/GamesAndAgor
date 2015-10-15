@@ -2,7 +2,7 @@
 
 #include "SDL2/SDL.h"
 
-enum TEXT_ALIGN { LEFT, RIGHT, CENTER, CENTER_XY };
+enum TEXT_ALIGN { LEFT, RIGHT, CENTER, CENTER_XY, OVER, OVER_RIGHT };
 
 class GUIElement {
 protected:
@@ -14,6 +14,7 @@ protected:
     int m_height = 0.0f;
     SDL_Renderer* m_renderer = nullptr;
     TEXT_ALIGN m_align = TEXT_ALIGN::LEFT;
+    bool m_hidden = false;
 public:
     inline GUIElement (SDL_Renderer* r) : m_renderer(r) {}
     inline virtual ~GUIElement () {}
@@ -25,6 +26,7 @@ public:
     void drawBackground ();
     void drawBackground (int width);
     void drawBackground (int width, int height);
+    inline const bool isHidden() const { return m_hidden; }
     /* SETTERS */
     inline GUIElement* setX ( int x ) {
         m_x = x;
@@ -43,4 +45,7 @@ public:
         m_align = a;
         return this;
     }
+    inline void setHidden(bool h) { m_hidden = h; };
+    inline void hide() { m_hidden = true; }
+    inline void show() { m_hidden = false; }
 };

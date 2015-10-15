@@ -7,6 +7,7 @@
 // statics
 map<string, Scene*> Engine::m_scenes;
 string Engine::m_currentScene = "";
+GameState Engine::gameState = GameState::EXIT;
 
 Engine::Engine () {}
 Engine::~Engine () {
@@ -26,8 +27,6 @@ Engine::~Engine () {
 }
 int Engine::init() {
     int success = 1;
-    // set gamestate
-    m_gameState = GameState::PLAY;
     // init whole sdl
     SDL_Init(SDL_INIT_EVERYTHING);
     // create window
@@ -57,7 +56,7 @@ void Engine::gameLoop() {
     // count deltaTime
     Uint32 l_previousTicks = SDL_GetTicks();
     // main loop starts here
-    while(m_gameState == GameState::PLAY)
+    while(gameState != GameState::EXIT)
     {
         Uint32 l_startTicks     = SDL_GetTicks();
         Uint32 l_frameTime      = l_startTicks - l_previousTicks;
@@ -88,9 +87,11 @@ void Engine::gameLoop() {
     m_scenes[m_currentScene]->end();
 }
 void Engine::update() {
-    m_scenes[m_currentScene]->update(m_deltaTime);
-    m_scenes[m_currentScene]->updateGUI();
-    Camera::update();
+    if(gameState != GameState::PAUSE) {
+        m_scenes[m_currentScene]->update(m_deltaTime);
+        m_scenes[m_currentScene]->updateGUI();
+        Camera::update();
+    }
 }
 void Engine::processInput() {
     // update input manager
@@ -103,18 +104,21 @@ void Engine::processInput() {
     while (SDL_PollEvent(&e)) {
         switch(e.type) {
             case SDL_QUIT: // user quits window
-                m_gameState = GameState::EXIT;
+                gameState = GameState::EXIT;
                 break;
             case SDL_KEYDOWN: // key is down
                 Input::pressKey(e.key.keysym.sym);
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
-                    m_gameState = GameState::EXIT;
+                    gameState = GameState::EXIT;
                 break;
             case SDL_KEYUP:
                 Input::releaseKey(e.key.keysym.sym);
         }
     }
-
+    if(Input::isKeyPressed(SDLK_p)) {
+        if(gameState == PLAY) gameState = GameState::PAUSE;
+        else gameState = GameState::PLAY;
+    }
 }
 void Engine::run(const std::string& name) {
     // if everyhing is ok, start gameloop
@@ -122,7 +126,7 @@ void Engine::run(const std::string& name) {
         std::cout << "Init Successful!" << std::endl;
         auto it = m_scenes.find(name);
         if(it != m_scenes.end()) {
-            std::cout << "Starting first scene: " << m_currentScene << std::endl;
+            gameState = GameState::PLAY;
             startScene(name);
             gameLoop();
         }
