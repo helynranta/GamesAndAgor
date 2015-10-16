@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _INPUT_HPP
+#define _INPUT_HPP
 
 #include <iostream>
 #include <vector>
@@ -31,3 +32,5 @@ public:
         m_previousKeys.empty();
     }
 };
+
+#endif

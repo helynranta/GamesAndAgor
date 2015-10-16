@@ -1,6 +1,7 @@
 #include "scenes/Game.hpp"
 
 void Game::awake() {
+
     m_player.init();
     gui->addText("PAUSED", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
     //gui->getText("PAUSED")->hide();

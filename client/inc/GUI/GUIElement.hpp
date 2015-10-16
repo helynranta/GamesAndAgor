@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _GUIELEMENT_HPP
+#define _GUIELEMENT_HPP
 
 #include "SDL2/SDL.h"
 
@@ -11,6 +12,7 @@ protected:
     int m_bg_x = 0;
     int m_bg_y = 0;
     int m_width = 0.0f;
+
     int m_height = 0.0f;
     float m_scale = 0.5f;
     SDL_Renderer* m_renderer = nullptr;
@@ -63,3 +65,4 @@ public:
         return this;
     }
 };
+#endif

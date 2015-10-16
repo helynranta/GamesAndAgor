@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _CIRCLE_HPP
+#define _CIRCLE_HPP
 
 #include "SDL2/SDL.h"
 
@@ -29,3 +30,5 @@ public:
         if(m_r < 10) m_r = 10;
     }
 };
+
+#endif

@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef _INETCONNECTION_HPP
+#define _INETCONNECTION_HPP
 
 #include <stdio.h>
 #include <string.h>
@@ -40,3 +40,4 @@ public:
     static void init();
     static void destroy();
 };
+#endif

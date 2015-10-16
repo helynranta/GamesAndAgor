@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _GUI_HPP
+#define  _GUI_HPP
 
 #include <iostream>
 #include <string>
@@ -53,3 +54,5 @@ public:
         return nullptr;
     }
 };
+
+#endif

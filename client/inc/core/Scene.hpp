@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _SCENE_HPP
+#define _SCENE_HPP
 
 #include "GUI/GUI.hpp"
 
@@ -19,3 +20,4 @@ public:
     inline void onPause() {;}
     inline void onExit() {;}
 };
+#endif

@@ -1,4 +1,7 @@
-#pragma once
+#ifndef _VECTOR2D
+#define _VECTOR2D
+
+#include <math.h>
 
 // replace this shit with glm::vec2
 class Vector2d {
@@ -15,3 +18,4 @@ public:
       return vec;
     }
 };
+#endif

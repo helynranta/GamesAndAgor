@@ -3,7 +3,7 @@
 
 #include "Engine.hpp"
 
-#include "scenes.h"
+#include "scenes.hpp"
 
 using namespace std;
 

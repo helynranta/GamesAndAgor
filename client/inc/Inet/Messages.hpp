@@ -1,3 +1,5 @@
+#ifndef _MESSAGES_HPP
+#define _MESSAGES_HPP
 
 class Message {
 public:
@@ -30,3 +32,4 @@ public:
       ;
   }
 };
+#endif

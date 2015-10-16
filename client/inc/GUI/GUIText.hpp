@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _GUITEXT_HPP
+#define _GUITEXT_HPP
 
 #include <iostream>
 #include <string>
@@ -36,3 +37,5 @@ public:
     inline GUIText* setScale(float scale) { m_scale = scale; return this;}
     inline GUIText* setText(std::string text) { m_text = text; m_shouldUpdate = true; return this;}
 };
+
+#endif

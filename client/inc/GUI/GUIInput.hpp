@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _GUIINPUT_HPP
+#define _GUIINPUT_HPP
 
 #include <iostream>
 #include <string>
@@ -35,3 +36,5 @@ public:
   inline void setCursorVisibility(bool b) { cursorEnabled = b; }
   inline void setMaxLength(unsigned int x) { m_maxInputLength = x;}
 };
+
+#endif

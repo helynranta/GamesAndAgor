@@ -6,6 +6,7 @@ void GUIElement::drawBackground () {
 void GUIElement::drawBackground (int width) {
     drawBackground(width, m_height);
 }
+
 void GUIElement::drawBackground (int width, int height) {
     if(!m_hidden)
     {

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _PLAYER_HPP
+#define _PLAYER_HPP
 
 #include "Circle.hpp"
 
@@ -15,3 +16,4 @@ public:
     inline void init() {  }
     void update(float dT);
 };
+#endif

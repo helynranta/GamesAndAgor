@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _MENU_HPP
+#define _MENU_HPP
 
 #include <iostream>
 
@@ -85,3 +86,4 @@ void Game::menu() {
     }
 }
 */
+#endif

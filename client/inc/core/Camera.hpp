@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _CAMERA_HPP
+#define _CAMERA_HPP
 
 #include <SDL2/SDL.h>
 
@@ -42,3 +43,4 @@ public:
     static inline void scale(float scale) { m_scale -= scale/10.0f; } // divide by 10, so we dont use numbers like 0.001f
     static inline void setScale(float scale) { m_scale = scale; }
 };
+#endif

@@ -1,3 +1,6 @@
+#ifndef _STRINGSPLIT_HPP
+#define _STRINGSPLIT_HPP
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -17,3 +20,4 @@ inline std::vector<std::string> split(const std::string &s, char delim) {
     split(s, delim, elems);
     return elems;
 }
+#endif

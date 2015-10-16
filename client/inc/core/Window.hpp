@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _WINDOW_HPP
+#define _WINDOW_HPP
 
 #include <iostream>
 
@@ -14,3 +15,4 @@ public:
     static SDL_Renderer* getRenderer() { return renderer; }
     static void destroy();
 };
+#endif

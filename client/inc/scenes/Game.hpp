@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _GAME_HPP
+#define _GAME_HPP
 
 #include <iostream>
 #include <iomanip> // std::setprecision
@@ -28,3 +29,5 @@ public:
     // generic drawing function
     void draw();
 };
+
+#endif

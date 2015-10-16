@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _RESOURCEMANAGER_HPP
+#define _RESOURCEMANAGER_HPP
 
 #include <map>
 #include <iostream>
@@ -21,3 +22,4 @@ public:
     static TTF_Font* getFont(string path, int x = 42);
     static void destroy();
 };
+#endif

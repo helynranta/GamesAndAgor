@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _ENGINE_HPP
+#define _ENGINE_HPP
 
 #include <initializer_list>
 
@@ -68,3 +69,5 @@ public:
     static void setDebugingMode(bool d) { debugging = d; }
     static const bool isDebugging()  { return debugging; }
 };
+
+#endif
