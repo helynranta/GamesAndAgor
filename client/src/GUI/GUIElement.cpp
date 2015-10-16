@@ -16,7 +16,7 @@ void GUIElement::drawBackground (int width, int height) {
         }
 
         SDL_SetRenderDrawColor( m_renderer, 40, 40, 40, 255 );
-        const SDL_Rect rect =  {m_bg_x, m_bg_y, width*m_scale, height*m_scale};
+        const SDL_Rect rect =  {m_bg_x, m_bg_y, int(width*m_scale), int(height*m_scale)};
         SDL_RenderFillRect(m_renderer, &rect);
         SDL_SetRenderDrawColor(m_renderer, 50, 50, 50, 255);
     }

@@ -54,6 +54,12 @@ public:
         return this;
     }
     inline void setHidden(bool h) { m_hidden = h; };
-    inline void hide() { m_hidden = true; }
-    inline void show() { m_hidden = false; }
+    inline GUIElement* hide() {
+        m_hidden = true;
+        return this;
+    }
+    inline GUIElement* show() {
+        m_hidden = false;
+        return this;
+    }
 };

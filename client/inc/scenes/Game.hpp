@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <iomanip> // std::setprecision
+#include <sstream> // std::stringstream
 #include <string>
 #include <vector>
 

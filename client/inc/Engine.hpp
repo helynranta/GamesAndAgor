@@ -46,6 +46,8 @@ private:
     float m_fps;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/
     float m_deltaTime;
+    static int debugKey;
+    static bool debugging;
 public:
     Engine ();
     ~Engine ();
@@ -58,8 +60,11 @@ public:
     }
     inline void addScenes(vector<pair<string,Scene*>> scenes) {
         for (auto& it : scenes) {
-            m_scenes.insert(it);    
+            m_scenes.insert(it);
         }
     }
     static GameState gameState;
+    static void setDebugKey(unsigned int key) { debugKey = key; }
+    static void setDebugingMode(bool d) { debugging = d; }
+    static const bool isDebugging()  { return debugging; }
 };

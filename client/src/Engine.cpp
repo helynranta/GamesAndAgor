@@ -8,6 +8,9 @@
 map<string, Scene*> Engine::m_scenes;
 string Engine::m_currentScene = "";
 GameState Engine::gameState = GameState::EXIT;
+//debug
+int Engine::debugKey = SDLK_o;
+bool Engine::debugging = false;
 
 Engine::Engine () {}
 Engine::~Engine () {
@@ -118,6 +121,12 @@ void Engine::processInput() {
     if(Input::isKeyPressed(SDLK_p)) {
         if(gameState == PLAY) gameState = GameState::PAUSE;
         else gameState = GameState::PLAY;
+    }
+    if(debugKey != -1) {
+        if(Input::isKeyPressed(debugKey)) {
+            if(debugging) debugging = false;
+            else debugging = true;
+        }
     }
 }
 void Engine::run(const std::string& name) {
