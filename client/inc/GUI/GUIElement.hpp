@@ -12,17 +12,21 @@ protected:
     int m_bg_y = 0;
     int m_width = 0.0f;
     int m_height = 0.0f;
+    float m_scale = 0.5f;
     SDL_Renderer* m_renderer = nullptr;
     TEXT_ALIGN m_align = TEXT_ALIGN::LEFT;
     bool m_hidden = false;
 public:
     inline GUIElement (SDL_Renderer* r) : m_renderer(r) {}
     inline virtual ~GUIElement () {}
-    virtual bool update() = 0;
+    inline virtual bool update() = 0;
     virtual void draw() = 0;
     // GETTERS
     inline const int& getX() const { return m_x; }
     inline const int& getY() const { return m_y; }
+    inline const int& getWidth() const { return m_width; }
+    inline const int& getHeight() const { return m_height; }
+    inline const float& getScale() const { return m_scale; }
     void drawBackground ();
     void drawBackground (int width);
     void drawBackground (int width, int height);
@@ -43,6 +47,10 @@ public:
     }
     inline GUIElement* setAlign( TEXT_ALIGN a ) {
         m_align = a;
+        return this;
+    }
+    inline GUIElement* setScale( float s ) {
+        m_scale = s;
         return this;
     }
     inline void setHidden(bool h) { m_hidden = h; };
