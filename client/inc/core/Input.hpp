@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 
+
 #include "SDL2/SDL.h"
 
 class Input {
@@ -21,7 +22,7 @@ public:
     static bool isKeyDown(unsigned int key);
     static bool isKeyPressed(unsigned int key);
     static void update();
-    static inline const int getchar() {
+    static inline int getchar() {
         if(m_lastCharacter == -1) return m_lastCharacter;
         int tmp = m_lastCharacter;
         m_lastCharacter = -1;
@@ -30,6 +31,7 @@ public:
     static inline void empty() {
         m_keys.empty();
         m_previousKeys.empty();
+
     }
 };
 

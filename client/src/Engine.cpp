@@ -9,7 +9,7 @@ map<string, Scene*> Engine::m_scenes;
 string Engine::m_currentScene = "";
 GameState Engine::gameState = GameState::EXIT;
 //debug
-int Engine::debugKey = SDLK_o;
+unsigned int Engine::debugKey = SDLK_o;
 bool Engine::debugging = false;
 
 Engine::Engine () {}
@@ -31,22 +31,30 @@ Engine::~Engine () {
 int Engine::init() {
     int success = 1;
     // init whole sdl
-    SDL_Init(SDL_INIT_EVERYTHING);
-    // create window
-    success = Camera::init(800, 600);
-    success = Window::init(800, 600);
+    try {
+        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+    } catch (const InitError& err) {
+        std::cerr << "Error while initializing SDL: " << err.what() << std::endl;
+        success = 0;
+    }
     // init img loader
-    if ( !(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) )
-    {
-        std::cout << "Could not initialize SDL_Image. Error: " << std::string(IMG_GetError()) << std::endl;
+    try{
+        IMG_Init(IMG_INIT_PNG);
+    } catch (const InitError& err) {
+        std::cerr << "Could not initialize SDL_Image. Error: " << err.what() << std::endl;
         success = 0;
     }
     // init SDL_ttf
-    if(TTF_Init() == -1)
+    try {
+        TTF_Init();
+    } catch(const InitError& err)
     {
-        std::cout << "Could not initialize SDL_ttf. Error: " << std::string(TTF_GetError()) << std::endl;
+        std::cerr << "Could not initialize SDL_ttf. Error: " << err.what() << std::endl;
         success = 0;
     }
+    // create window
+    success = Camera::init(800, 600);
+    success = Window::init(800, 600);
     R::init(Window::getRenderer());
     // return what ever happened
     return success;
@@ -65,7 +73,7 @@ void Engine::gameLoop() {
         Uint32 l_frameTime      = l_startTicks - l_previousTicks;
         l_previousTicks         = l_startTicks;
         // get total deltaTime
-        float l_totalDeltaTime = (float) l_frameTime / DESIRED_FRAMETIME;
+        float l_totalDeltaTime = float(l_frameTime / DESIRED_FRAMETIME);
         // if you lagg, you lagg... dont overdo it
         int i = 0;
         while (l_totalDeltaTime > 0.0f && i < MAX_PHYSICS_STEPS)
@@ -83,7 +91,7 @@ void Engine::gameLoop() {
         // if drawing happened too fast, we can sleep for a while
         Uint32 l_frameTicks = SDL_GetTicks() - l_startTicks;
         if( (1000.0f / 60.0f) > l_frameTicks)
-           SDL_Delay( (int)(1000.0f/ 60.0f - l_frameTicks));
+           SDL_Delay( Uint32(1000.0f/ 60.0f - l_frameTicks));
 
         m_fps = (1000.0f / (SDL_GetTicks() - l_startTicks));
     }
@@ -110,19 +118,21 @@ void Engine::processInput() {
                 gameState = GameState::EXIT;
                 break;
             case SDL_KEYDOWN: // key is down
-                Input::pressKey(e.key.keysym.sym);
+                Input::pressKey(uint(e.key.keysym.sym));
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
                     gameState = GameState::EXIT;
                 break;
             case SDL_KEYUP:
-                Input::releaseKey(e.key.keysym.sym);
+                Input::releaseKey(uint(e.key.keysym.sym));
+            default:
+                break;
         }
     }
     if(Input::isKeyPressed(SDLK_p)) {
         if(gameState == PLAY) gameState = GameState::PAUSE;
         else gameState = GameState::PLAY;
     }
-    if(debugKey != -1) {
+    if(int(debugKey) != -1) {
         if(Input::isKeyPressed(debugKey)) {
             if(debugging) debugging = false;
             else debugging = true;

@@ -15,6 +15,8 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
+#include "core/InitError.hpp"
+// statics
 #include "core/Input.hpp"
 #include "core/Scene.hpp"
 #include "core/ResourceManager.hpp"
@@ -47,7 +49,7 @@ private:
     float m_fps;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/
     float m_deltaTime;
-    static int debugKey;
+    static unsigned int debugKey;
     static bool debugging;
 public:
     Engine ();
@@ -67,7 +69,7 @@ public:
     static GameState gameState;
     static void setDebugKey(unsigned int key) { debugKey = key; }
     static void setDebugingMode(bool d) { debugging = d; }
-    static const bool isDebugging()  { return debugging; }
+    static bool isDebugging()  { return debugging; }
 };
 
 #endif

@@ -6,7 +6,7 @@ bool GUIInput::update() {
     int l_key = Input::getchar();
     if(l_key != -1)
     {
-        std::string tmp = SDL_GetKeyName(l_key);
+        tmp = SDL_GetKeyName(l_key);
         if(tmp == "Backspace" && m_text.length() > 0) {
             m_text.pop_back();
         }

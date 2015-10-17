@@ -3,7 +3,13 @@
 #include "Inet/InetConnection.hpp"
 
 ConnectionState   InetConnection::m_state = ConnectionState::DISCONNECTED;
-struct addrinfo   InetConnection::hints = {};
+struct addrinfo   InetConnection::hints = {
+    AI_NUMERICHOST|AI_NUMERICSERV,  // addrinfo::ai_flags
+    PF_UNSPEC,                      // addrinfo::ai_family
+    SOCK_DGRAM,                     // addrinfo::ai_socktype
+    IPPROTO_UDP,                    // addrinfo::ai_protocol
+    0,0,nullptr,nullptr             // unused
+};
 struct addrinfo   *InetConnection::result = nullptr;
 struct addrinfo   *InetConnection::iter = nullptr;
 int               InetConnection::socketfd = -1;
@@ -24,11 +30,6 @@ std::vector<Message*> InetConnection::messages;
 void InetConnection::init(void) {
     // this is temp. replace 1 with size of message
     memset(&dgram, 1, 1);
-    // fill hints with rightful flags
-    hints.ai_flags = AI_NUMERICHOST|AI_NUMERICSERV;
-    hints.ai_family = PF_UNSPEC;
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_protocol = IPPROTO_UDP;
 }
 /** deconstructor
 * frees all used memory and empties messages vector
@@ -37,6 +38,8 @@ void InetConnection::init(void) {
 
 */
 void InetConnection::destroy(void)  {
+    delete result;
+    delete iter;
     // delete messages behind pointers
     for ( auto& it : messages) {
         delete it;
@@ -87,7 +90,7 @@ bool InetConnection::send(void) {
 * @params: string ip, string port. Port and IP of the server we are connecting.
 * @return: bool success. returns success if there was no socket error
 */
-bool InetConnection::connect(std::string ip, std::string port) {
+bool InetConnection::connect(std::string l_ip, std::string l_port) {
     m_state = ConnectionState::CONNECTING;
     /*
     send to asdfasdf

@@ -32,7 +32,7 @@ public:
     void drawBackground ();
     void drawBackground (int width);
     void drawBackground (int width, int height);
-    inline const bool isHidden() const { return m_hidden; }
+    inline bool isHidden() const { return m_hidden; }
     /* SETTERS */
     inline GUIElement* setX ( int x ) {
         m_x = x;

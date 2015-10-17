@@ -46,13 +46,19 @@ SDL_Texture* R::getTexture(string path) {
     return nullptr;
 }
 TTF_Font* R::getFont(string path, int x /* = 42 */) {
-    TTF_Font* l_font = TTF_OpenFont(path.c_str(), x);
-    if(l_font == nullptr)
+    auto it = m_fontMap.find(path);
+    if(it == m_fontMap.end())
     {
-        std::cout << "Could not load OpenSans font. Error: " << std::string(TTF_GetError()) << std::endl;
+        TTF_Font* l_font = TTF_OpenFont(path.c_str(), x);
+        if(l_font == nullptr)
+        {
+            std::cout << "Could not load OpenSans font. Error: " << std::string(TTF_GetError()) << std::endl;
+        } else {
+            m_fontMap.insert(make_pair(path, l_font));
+        }
+        return l_font;
     } else {
-        m_fontMap.insert(make_pair(path, l_font));
+        return it->second;
     }
-
-    return l_font;
+    return nullptr;
 }

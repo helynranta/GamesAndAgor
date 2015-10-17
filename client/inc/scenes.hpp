@@ -12,11 +12,14 @@
 #include <../inc/scenes/Game.hpp>
 #include <../inc/scenes/Menu.hpp>
 
+void import_scenes();
+
+
 using namespace std;
 
 std::vector<pair<string, Scene*>> scenes;
 
-extern void import_scenes() {
+void import_scenes() {
 	scenes.emplace_back("Game", new Game());
 	scenes.emplace_back("Menu", new Menu());
 }

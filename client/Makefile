@@ -20,7 +20,9 @@ DEPEXT      := d
 OBJEXT      := o
 
 # Flags, Libraries and Includes
-CFLAGS      := -Wall -pedantic -std=c++11 -O3
+CFLAGS      := -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization \
+-Wformat=2 -Winit-self -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual \
+-Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused -std=c++11 -O3
 #this links against shared libraries
 #LIB			:= -lSDL2 -lSDL2_image -lSDL2_ttf -Llib/shared
 #this makes links against static libraries, a.k.a creates program with no need of .so files
@@ -79,5 +81,12 @@ scene:
 	@chmod +x ./create_scenes.sh
 	@./create_scenes.sh
 
+m-val-run: all val-run
+
+val-run:
+	@valgrind --leak-check=full bin/program
+
+val-run-all:
+	@valgrind --leak-check=full --show-leak-kinds=all bin/program
 #Non-File Targets
 .PHONY: all remake clean cleaner resources scene

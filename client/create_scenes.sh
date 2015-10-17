@@ -9,11 +9,12 @@ for file in ./inc/scenes/*
 do
     echo "#include <.$file>"
 done >> scenes.hpp
+echo -e "\nvoid import_scenes();\n" >> scenes.hpp
 echo -e "\nusing namespace std;" >> scenes.hpp
 #vector of scenes
 echo -e "\nstd::vector<pair<string, Scene*>> scenes;\n" >> scenes.hpp
 # create vector for a objects
-echo "extern void import_scenes() {" >> scenes.hpp
+echo "void import_scenes() {" >> scenes.hpp
 
 for file in ./inc/scenes/*
 do

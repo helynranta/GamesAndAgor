@@ -6,7 +6,7 @@ int Input::m_lastCharacter = -1;
 
 void Input::pressKey(unsigned int key) {
     m_keys[key] = true; // set true for this key
-    m_lastCharacter = key;
+    m_lastCharacter = int(key);
 }
 void Input::releaseKey(unsigned int key) {
     m_keys[key] = false; // set false for this key

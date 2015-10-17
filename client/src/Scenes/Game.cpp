@@ -8,7 +8,7 @@ void Game::awake() {
     gui->getText("PAUSED");
     gui->getText("PAUSED")->setX(Camera::getWidth()/2)->setY(Camera::getHeight()/2);
     gui->getText("PAUSED")->setAlign(TEXT_ALIGN::CENTER_XY);
-    gui->getText("PAUSED")->setColor({200,10,10});
+    gui->getText("PAUSED")->setColor({200,10,10,255});
     // INIT DEBUG PRINTS
     gui->addText("d-topleft", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
 
@@ -32,7 +32,7 @@ void Game::awake() {
 
     gui->addText("player-pos", new GUIText(Window::getRenderer(), R::getFont("res/fonts/OpenSans.ttf")));
     gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY);
-    gui->getText("player-pos")->setColor({50,50,50});
+    gui->getText("player-pos")->setColor({50,50,50,255});
 /*    */
 }
 void Game::update(float dt) {

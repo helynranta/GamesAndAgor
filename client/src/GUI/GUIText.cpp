@@ -31,7 +31,7 @@ void GUIText::createTexture(const std::string& l_text) {
     }
 
 }
-void GUIText::renderText(int x, int y, const std::string& text, TEXT_ALIGN text_align /*= TEXT_ALIGN::LEFT*/) {
+void GUIText::renderText(int x, int y, const std::string& text) {
     createTexture(text);
     renderText(x, y);
 }

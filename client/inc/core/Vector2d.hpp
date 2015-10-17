@@ -3,7 +3,6 @@
 
 #include <math.h>
 
-// replace this shit with glm::vec2
 class Vector2d {
 public:
     float x = 0.0f;
