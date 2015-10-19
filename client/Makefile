@@ -20,9 +20,7 @@ DEPEXT      := d
 OBJEXT      := o
 
 # Flags, Libraries and Includes
-CFLAGS      := -pedantic -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization \
--Wformat=2 -Winit-self -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual \
--Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=5 -Wswitch-default -Wundef -Wno-unused -std=c++11 -O3
+CFLAGS      := -pedantic -Wall -std=c++11 -O3
 #this links against shared libraries
 #LIB			:= -lSDL2 -lSDL2_image -lSDL2_ttf -Llib/shared
 #this makes links against static libraries, a.k.a creates program with no need of .so files
