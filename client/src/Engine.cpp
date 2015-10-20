@@ -56,6 +56,10 @@ int Engine::init() {
     success = Camera::init(800, 600);
     success = Window::init(800, 600);
     R::init(Window::getRenderer());
+
+    udpConnection = new InetConnection();
+    udpConnection->init();
+
     // return what ever happened
     return success;
 }
@@ -102,6 +106,7 @@ void Engine::update() {
         m_scenes[m_currentScene]->update(m_deltaTime);
         m_scenes[m_currentScene]->updateGUI();
         Camera::update();
+        udpConnection->update();
     }
 }
 void Engine::processInput() {

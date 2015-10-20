@@ -11,7 +11,7 @@ int main(void) {
     Engine* engine = new Engine();
     import_scenes();
     engine->addScenes(scenes);
-    engine->run("Menu");
+    engine->run("Game");
     delete engine;
     return 1;
 }

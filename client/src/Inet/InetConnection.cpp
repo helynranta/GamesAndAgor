@@ -2,25 +2,27 @@
 
 #include "Inet/InetConnection.hpp"
 
-ConnectionState   InetConnection::m_state = ConnectionState::DISCONNECTED;
-struct addrinfo   InetConnection::hints = {
-    AI_NUMERICHOST|AI_NUMERICSERV,  // addrinfo::ai_flags
-    PF_UNSPEC,                      // addrinfo::ai_family
-    SOCK_DGRAM,                     // addrinfo::ai_socktype
-    IPPROTO_UDP,                    // addrinfo::ai_protocol
-    0,0,nullptr,nullptr             // unused
-};
-struct addrinfo   *InetConnection::result = nullptr;
-struct addrinfo   *InetConnection::iter = nullptr;
-int               InetConnection::socketfd = -1;
-int               InetConnection::length = 0;
-int               InetConnection::rval = 0;
-char              InetConnection::dgram[1];
-// fd_set doesn not need to be initialized as it need to be emptied ALWAYS before use
-fd_set            InetConnection::incoming;
-fd_set            InetConnection::incoming_temp;
-std::string       InetConnection::ip = "";
-std::string       InetConnection::port = "";
+#define PORT "3393"
+#define UDP_BUFMAX "1500"
+
+ConnectionState InetConnection::m_state = ConnectionState::DISCONNECTED;
+struct addrinfo InetConnection::hints = {
+AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
+		PF_UNSPEC,                      // addrinfo::ai_family
+		SOCK_DGRAM,                     // addrinfo::ai_socktype
+		IPPROTO_UDP,                    // addrinfo::ai_protocol
+		0, 0, nullptr, nullptr             // unused
+		};
+struct addrinfo *InetConnection::result = nullptr;
+struct addrinfo *InetConnection::iter = nullptr;
+int InetConnection::length = 0;
+int InetConnection::rval = 0;
+char InetConnection::dgram[1];
+// fd_set does not need to be initialized as it need to be emptied ALWAYS before use
+fd_set InetConnection::socket_fds;
+fd_set InetConnection::socket_fds_temp;
+std::string InetConnection::ip = "";
+std::string InetConnection::port = "";
 struct timeval InetConnection::timeout;
 int InetConnection::listensocket = -1;
 int InetConnection::biggestsocket = 0;
@@ -28,127 +30,143 @@ int InetConnection::biggestsocket = 0;
 std::vector<Message*> InetConnection::messages;
 
 void InetConnection::init(void) {
-    // this is temp. replace 1 with size of message
-    memset(&dgram, 1, 1);
-}
-/** deconstructor
-* frees all used memory and empties messages vector
-* @params: void
-*
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_flags = AI_PASSIVE;
 
-*/
-void InetConnection::destroy(void)  {
-    delete result;
-    delete iter;
-    // delete messages behind pointers
-    for ( auto& it : messages) {
-        delete it;
-    }
-    // empty whole vector
-    messages.empty();
+	if (getaddrinfo(NULL, PORT, &hints, &result)) {
+		std::cout << "Cannot resolve address. Exiting" << std::endl;
+		exit (EXIT_FAILURE);
+	} else {
+		std::cout << "getaddrinfo success" << std::endl;
+		// Go through every returned address and attempt to connect to each
+		for (iter = result; iter != NULL; iter = iter->ai_next) {
+			/* Can socket be created? */
+			if ((listensocket = socket(iter->ai_family, iter->ai_socktype,
+					iter->ai_protocol)) < 0) {
+				std::cout << "Error socket()" << std::endl;
+				exit (EXIT_FAILURE);
+				break;
+			}
+			if (bind(listensocket, iter->ai_addr, iter->ai_addrlen) < 0) {
+				close(listensocket); /* Even when bind fails, socket remains, close it */
+				perror("bind()");
+				break;
+			}
+			break;
+		}
+	}
+	std::cout << "Listening socket" << listensocket << std::endl;
+}
+
+/** deconstructor
+ * frees all used memory and empties messages vector
+ * @params: void
+ *
+
+ */
+void InetConnection::destroy(void) {
+	delete result;
+	delete iter;
+	// delete messages behind pointers
+	for (auto& it : messages) {
+		delete it;
+	}
+	// empty whole vector
+	messages.empty();
 }
 /** send
-* this function sends socket messages
-* @params: void
-* @return: bool success. returns success if there was no socket error
-*/
+ * this function sends socket messages
+ * @params: void
+ * @return: bool success. returns success if there was no socket error
+ */
 bool InetConnection::send(void) {
-    bool success = false;
-    if(getaddrinfo(ip.c_str(), port.c_str(), &hints, &result) < 0) {
-        std::cout << "Cannot resolve address" << std::endl;
-    }
-    else {
-        std::cout << "getaddrinof sucess" << std::endl;
-        // Go through every returned address and attempt to connect to each
-        for (iter = result; iter != NULL; iter = iter->ai_next) {
-            /* Can socket be created? */
-            if ((socketfd = socket(iter->ai_family, iter->ai_socktype,iter->ai_protocol)) < 0) {
-                std::cout << "Error socket()" << std::endl;
-            break;
-        }
+	bool success = false;
 
-        /* Try to send data to server:
-        * sendto(socket, data , data length, flags, destination, struct length)
-        * see 'man sendto'
-        */
-        if((length = sendto(socketfd,&dgram,1,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
-            std::cout << "error sendto()" << std::endl;
-            break;
-        }
-        else {
-            std::cout << "Client: Sent datagram legnth = " << length << std::endl;
-            success = true;
-            }
-        }
-    }
-    return success;
+	/* Try to send data to server:
+	 * sendto(socket, data , data length, flags, destination, struct length)
+	 * see 'man sendto'
+	 */
+	if ((length = sendto(listensocket, &dgram, 1, 0, iter->ai_addr,
+			iter->ai_addrlen)) < 0) {
+		std::cout << "error sendto()" << std::endl;
+	} else {
+		std::cout << "Client: Sent datagram legnth = " << length << std::endl;
+		success = true;
+	}
+	return success;
 }
 /**
-* connect
-* this function tries to connect to given server crediterials.
-* it makes ConnectionState CONNECTING and then tries to send message to connect
-* @params: string ip, string port. Port and IP of the server we are connecting.
-* @return: bool success. returns success if there was no socket error
-*/
+ * connect
+ * this function tries to connect to given server crediterials.
+ * it makes ConnectionState CONNECTING and then tries to send message to connect
+ * @params: string ip, string port. Port and IP of the server we are connecting.
+ * @return: bool success. returns success if there was no socket error
+ */
 bool InetConnection::connect(std::string l_ip, std::string l_port) {
-    m_state = ConnectionState::CONNECTING;
-    /*
-    send to asdfasdf
-    */
-    return true;
+	m_state = ConnectionState::CONNECTING;
+	/*
+	 send to asdfasdf
+	 */
+	return true;
 }
 bool InetConnection::disconnect() {
-  if (result == nullptr)
-    freeaddrinfo(result);
-  //close(socketfd);
-  return true;
+	if (result == nullptr)
+		freeaddrinfo(result);
+	//close(socketfd);
+	return true;
 }
 
-
 void InetConnection::update() {
- memset(&timeout,0,sizeof(timeout));
- timeout.tv_usec = 0; // microseconds
- timeout.tv_sec = 1; // seconds
+	memset(&timeout, 0, sizeof(timeout));
+	biggestsocket = 0;
+	timeout.tv_usec = 1000; // microseconds
+	timeout.tv_sec = 2; // seconds
+	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 
-  FD_ZERO(&incoming); // Clear the set of file descriptors
+	// Add listening socket to the set and check if it is the biggest socket number
+	FD_SET(listensocket, &socket_fds);
+	if (listensocket > biggestsocket) {
+		std::cout << "We have a descriptor: " << listensocket << std::endl;
+		biggestsocket = listensocket;
+	}
 
-  // Add listening socket to the set and check if it is the biggest socket number
-  FD_SET(listensocket,&incoming);
-  if(listensocket > biggestsocket) biggestsocket = listensocket;
+	switch (select(biggestsocket + 1, &socket_fds, NULL, NULL, &timeout)) {
+	case (-1):
+		std::cout << "Error -1" << std::endl;
+		break;
+	case (0):
+		std::cout << "Timeout" << std::endl;
+		break;
+	default:
+		std::cout << "Inet update" << std::endl;
+		struct message_header *header =
+				static_cast<struct message_header*>(malloc(
+						sizeof(struct message_header)));
 
-  // Add standard input to the set and check if it is the biggest socket number
-  FD_SET(fileno(stdin),&incoming);
-  if(fileno(stdin) > biggestsocket) biggestsocket = fileno(stdin);
+		for (int socket_fd = 0; socket_fd <= biggestsocket; socket_fd++) {
+			if (FD_ISSET(socket_fd, &socket_fds)) {
+				std::cout << "Unpacking" << std::endl;
+				Message::unpack_header(socket_fd, header);
+			}
+		}
+		break;
+	}
 
-  // Add all other sockets to the list
-
-  // Use the biggestsocket+1 file descriptors with the incoming fd set with specified timeout for select
-
-  // SELECT
-
-  //TODO Build select structures in init and update them here!
-  switch (select(biggestsocket+1,&incoming,NULL,NULL,&timeout)){
-    case(-1):
-      break;
-  case (0):
-    break;
-  default:
-    break;
-  }
-
-  /*
-  switch msg{
-    case JOIN_ACK:
-      messages.push_back(new NickACK());
-    case WAIT:
-      messages.push_back(new WAIT());
-    default:
-      std::cout << "Undefined message error"  << std::endl;
-  }
-  */
-  //if(m_state == ConnectionState::CONNECTING)
-    //
-  for ( auto& it : messages) {
-    it->update();
-  }
+	/*
+	 switch msg{
+	 case JOIN_ACK:
+	 messages.push_back(new NickACK());
+	 case WAIT:
+	 messages.push_back(new WAIT());
+	 default:
+	 std::cout << "Undefined message error"  << std::endl;
+	 }
+	 */
+	//if(m_state == ConnectionState::CONNECTING)
+	//
+	for (auto& it : messages) {
+		it->update();
+	}
 }

@@ -51,6 +51,7 @@ private:
     float m_deltaTime;
     static unsigned int debugKey;
     static bool debugging;
+    InetConnection *udpConnection;
 public:
     Engine ();
     ~Engine ();
