@@ -129,4 +129,5 @@ void newPlayer(Player **pList){
 	if (!(p = calloc(1,sizeof(Player))))
 		perror("calloc");
 	append2ListPlayer(pList, p);
+	p->address = (struct sockaddr*)&(p->addressStorage);
 }
