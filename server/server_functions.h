@@ -1,6 +1,7 @@
 #include "structs.h"
 #include <math.h>
 #include <errno.h>
+// #define PAYLOAD_INDEX
 
 void ComputeNearParticles(Player *sPlayers, Object *sObjects);
 int isWithinRange(int location1[2], int location2[2], int scale);
@@ -11,3 +12,4 @@ void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
 void newPlayer(Player **pList);
+void headerPacker(int playerID, int gameTime, int msgType, int payloadLength, char **msgBuffer);

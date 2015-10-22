@@ -131,3 +131,54 @@ void newPlayer(Player **pList){
 	append2ListPlayer(pList, p);
 	p->address = (struct sockaddr*)&(p->addressStorage);
 }
+
+void headerPacker(char **msgBuffer, int playerID, int gameTime, int msgType, ...){
+	int index = 0, argList[10] = {-1}, msgSubType;
+	int msgPayloadIndex, payloadLengthIndex;
+	char *msg = *buffer;
+	va_list ap;
+
+	// Pack the header first
+	*(uint16_t*)&msg[index] = htons(playerID);
+	index += sizeof(uint16_t);
+	*(uint32_t*)&msg[index] = htonl(gameTime);
+	index += sizeof(uint32_t);
+	*(uint8_t*)&msg[index] = msgType;
+	index += sizeof(uint8_t);
+	// *(uint32_t*)&msg[index] = htonl(payloadLength);
+	// index += sizeof(uint32_t)
+
+	// Store payload length's index and message's payload's index in different
+	// variables
+	payloadLengthIndex=index;
+	msgPayloadIndex = index + sizeof(uint32_t);
+
+	// Act based upon the message type
+	// If the message type is one that contains payload, go through the rest of
+	// the arguments
+	switch (msgType) {
+		case GAME:
+			payloadLength = packGameMessage(playerID, &msg[msgPayloadIndex]);
+			break;
+		case ACK:
+			break;
+		case CHAT:
+			break;
+		case STAT:
+			break;
+	}
+
+	switch (/* expression */) {
+		case /* value */:
+	}
+	if(msgType == GAME || msgType == ACK){
+		va_start(ap, msgType);
+		msgSubType = va_arg(ap, int);
+		// while()
+	}
+
+
+	// FOKIT
+
+
+}
