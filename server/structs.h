@@ -6,9 +6,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <stdlib.h>
-
-/* Definitons for message types */
-
+#include <stdarg.h>
 
 /*
 char buffer[1000];
@@ -48,14 +46,16 @@ typedef struct Near {
 // Struct for Players
 typedef struct Player {
 	int ID;
+	char nick[12];
+	int lastPacket; // player's game time (game time of last movement packet)
 	int location[2];  // | X ¦ Y |
 	int direction[2];  // | X ¦ Y |
 	int scale;
 	int state;  // | alive | eaten | exited |
 
 	// For stroring players and objects nearby
-	struct Near *nearPlayers;
-	struct Near *nearObjects;
+	Near *nearPlayers;
+	Near *nearObjects;
 
 	// For storing player's IP address //
 	struct sockaddr_storage addressStorage;
@@ -74,6 +74,35 @@ typedef struct Object {
 	int location[2];
 	struct Object *pNext;
 } Object;
+
+typedef struct Ack{
+	int packetID;
+	int gameTimeSent;
+	char msg[BUFFERSIZE];
+	struct Ack *pNext;
+	struct Ack *pPrev;
+} Ack;
+
+typedef struct Game {
+	int gameTime;
+	Player *sPlayers;
+	Object *sObjects;
+	Ack *sAcks; // List of messages that haven't been acknowledged
+	int packetID; // Increasing integer value to serialize ack packets
+} Game;
+
+// Used to give arguments to and receive data from packet handling functions
+typedef struct unknown {
+	int msgType;
+	int playerID;
+	int packetID;
+	Player *pPlayers;
+	Object *pObjects;
+	int ackType;
+	int ackStatus; // if any
+	int newPlayerID; // in case of Join
+
+} unknown;
 
 
 /**************************************
