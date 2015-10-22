@@ -7,6 +7,9 @@
 #include <netdb.h>
 #include <stdlib.h>
 
+/* Definitons for message types */
+
+
 /*
 char buffer[1000];
 memset($buffer,0,1000);
@@ -71,3 +74,28 @@ typedef struct Object {
 	int location[2];
 	struct Object *pNext;
 } Object;
+
+
+/**************************************
+DATA STRUCTURE FOR PROTOCOL'S MESSAGES
+**************************************/
+
+
+/* The data that will be sent over the network */
+
+typedef struct Header {
+	uint16_t ID;
+	uint32_t gameTime;
+	uint8_t msgType;
+	uint32_t payloadLength;
+	void *payload;
+} Header;
+
+/* Message types */
+enum msg {GAME, ACK, MOVEMENT, CHAT, STAT};
+
+/* Game message types  */
+enum gameMsg {JOIN, NICK, WAIT, EXIT, INIT, START, STOP, GAME_END, GAME_UPDATE};
+
+/* GAME_UPDATE MSGS */
+enum gameUpdate { };
