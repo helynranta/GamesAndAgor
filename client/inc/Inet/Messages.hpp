@@ -1,6 +1,7 @@
 #ifndef _MESSAGES_HPP
 #define _MESSAGES_HPP
 
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -32,8 +33,8 @@ public:
 		;
 	}
 	virtual void unpack() = 0;
-	inline static void unpack_header(int socket_fd,
-			struct message_header *header) {
+/*
+	inline static void unpack_header(int socket_fd, struct message_header *header) {
 		uint8_t byteBuffer[1500];
 		int location = 0;
 		memset(byteBuffer, 0, 1500);
@@ -59,7 +60,7 @@ public:
 			location += static_cast<uint16_t>(sizeof(uint32_t));
 			std::cout << "location pointer: " << location << std::endl;
 
-			uint8_t uint8_tmp;
+			//uint8_t uint8_tmp;
 			memcpy(&header->message_type, &byteBuffer[location], sizeof(uint8_t));
 			std::cout << "Message type: " << unsigned(header->message_type) << std::endl;
 			location += static_cast<uint16_t>(sizeof(uint8_t));
@@ -86,11 +87,12 @@ public:
 
 		std::cout << "BOOM?" << std::endl;
 	}
+	*/
 	virtual void pack() = 0;
 	virtual void update() = 0;
 };
-
-class JoinMessage: public Message {
+/*
+class JoinMessage {
 public:
 	inline JoinMessage() {
 		;
@@ -98,9 +100,9 @@ public:
 
 };
 
-class NickACK: public Message {
+class NickACK {
 public:
-	inline NickACK(/* byttejä tänn */) {
+	inline NickACK() {
 		;
 	}
 	inline ~NickACK() {
@@ -116,4 +118,5 @@ public:
 		;
 	}
 };
+*/
 #endif

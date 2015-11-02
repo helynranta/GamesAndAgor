@@ -18,6 +18,6 @@ public:
     inline void drawGUI() { if(gui != nullptr) gui->draw(); }
     inline void updateGUI() { if(gui != nullptr) gui->update(); }
     inline void onPause() {;}
-    inline void onExit() {;}    
+    inline void onExit() {;}
 };
 #endif

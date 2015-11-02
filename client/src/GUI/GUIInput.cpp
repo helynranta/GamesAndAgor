@@ -3,7 +3,7 @@
 bool GUIInput::update() {
     // ask for input
     std::string tmp = "";
-    int l_key = Input::getchar();
+    int l_key = Engine::input->getchar();
     if(l_key != -1)
     {
         tmp = SDL_GetKeyName(l_key);

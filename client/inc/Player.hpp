@@ -3,8 +3,6 @@
 
 #include "Circle.hpp"
 
-#include "core/Input.hpp"
-
 class Player : public Circle {
 private:
     /* data */

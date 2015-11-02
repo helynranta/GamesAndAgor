@@ -16,29 +16,36 @@
 enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, TIMING_OUT, EXITING };
 
 class InetConnection {
+friend class Engine;
 private:
-    static ConnectionState m_state;
-    static struct addrinfo hints;
-    static struct addrinfo *result;
-    static struct addrinfo *iter;
-    static int length;
-    static int rval;
-    static char dgram[1];
-    static std::string ip;
-    static std::string port;
-    static fd_set socket_fds;
-    static fd_set socket_fds_temp;
-    static struct timeval timeout;
-    static int listensocket;
-    static int biggestsocket;
-    static void unpack_header();
+    /* private data */
+    ConnectionState m_state = ConnectionState::DISCONNECTED;
+    struct addrinfo hints;
+    struct addrinfo *result = nullptr;
+    struct addrinfo *iter = nullptr;
+    int length = 0;
+    int rval = 0;
+    char dgram[1];
+    std::string ip = "";
+    std::string port = "";
+    fd_set socket_fds;
+    fd_set socket_fds_temp;
+    struct timeval timeout;
+    int listensocket = -1;
+    int biggestsocket = -1;
+    void unpack_header();
+protected:
+    /* protected data */
+    inline InetConnection() {;}
+    inline ~InetConnection() {;}
 public:
-    static bool send();
-    static bool connect(std::string ip, std::string port);
-    static bool disconnect();
-    static void update();
-    static std::vector<Message*> messages;
-    static void init();
-    static void destroy();
+    /* public data */
+    bool send();
+    bool connect(std::string ip, std::string port);
+    bool disconnect();
+    void update();
+    std::vector<Message*> messages;
+    void init();
+    void destroy();
 };
 #endif

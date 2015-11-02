@@ -6,13 +6,19 @@
 #include <SDL2/SDL.h>
 
 class Window {
+friend class Engine;
 private:
-    // Camera now owns the renderer
-    static SDL_Renderer* renderer;
-    static SDL_Window* window;
+    /* private data */
+    SDL_Renderer* renderer = nullptr;
+    SDL_Window* window = nullptr;
+protected:
+    /* protected data */
+    inline Window() {;}
+    inline ~Window() {;}
 public:
-    static int init(int width, int height);
-    static SDL_Renderer* getRenderer() { return renderer; }
-    static void destroy();
+    /* public data */
+    int init(int width, int height);
+    SDL_Renderer* getRenderer() { return renderer; }
+    void destroy();
 };
 #endif

@@ -1,10 +1,6 @@
 #include "core/ResourceManager.hpp"
 
-map<string, SDL_Texture*>   R::m_textureMap;
-map<string, TTF_Font*>      R::m_fontMap;
-SDL_Renderer*               R::m_renderer    = nullptr;
-
-void R::destroy() {
+void ResourceManager::destroy() {
     // empty whole texture map
     for(auto& it : m_textureMap) {
         SDL_DestroyTexture(it.second);
@@ -18,7 +14,7 @@ void R::destroy() {
     }
     m_fontMap.empty();
 }
-SDL_Texture* R::getTexture(string path) {
+SDL_Texture* ResourceManager::getTexture(string path) {
     if(m_renderer == nullptr) {
         std::cout << "ResourceManager got renderer pointing to nullptr" << std::endl;
         return nullptr;
@@ -45,7 +41,7 @@ SDL_Texture* R::getTexture(string path) {
     } else return it->second;
     return nullptr;
 }
-TTF_Font* R::getFont(string path, int x /* = 42 */) {
+TTF_Font* ResourceManager::getFont(string path, int x /* = 42 */) {
     auto it = m_fontMap.find(path);
     if(it == m_fontMap.end())
     {

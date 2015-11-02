@@ -7,8 +7,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "core/Input.hpp"
-#include "core/Camera.hpp"
+#include "Engine.hpp"
 
 #include "GUI/GUIElement.hpp"
 #include "GUI/GUIText.hpp"

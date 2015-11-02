@@ -5,30 +5,6 @@
 #define PORT "3393"
 #define UDP_BUFMAX "1500"
 
-ConnectionState InetConnection::m_state = ConnectionState::DISCONNECTED;
-struct addrinfo InetConnection::hints = {
-AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
-		PF_UNSPEC,                      // addrinfo::ai_family
-		SOCK_DGRAM,                     // addrinfo::ai_socktype
-		IPPROTO_UDP,                    // addrinfo::ai_protocol
-		0, 0, nullptr, nullptr             // unused
-		};
-struct addrinfo *InetConnection::result = nullptr;
-struct addrinfo *InetConnection::iter = nullptr;
-int InetConnection::length = 0;
-int InetConnection::rval = 0;
-char InetConnection::dgram[1];
-// fd_set does not need to be initialized as it need to be emptied ALWAYS before use
-fd_set InetConnection::socket_fds;
-fd_set InetConnection::socket_fds_temp;
-std::string InetConnection::ip = "";
-std::string InetConnection::port = "";
-struct timeval InetConnection::timeout;
-int InetConnection::listensocket = -1;
-int InetConnection::biggestsocket = 0;
-
-std::vector<Message*> InetConnection::messages;
-
 void InetConnection::init(void) {
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_INET;
@@ -148,7 +124,7 @@ void InetConnection::update() {
 		for (int socket_fd = 0; socket_fd <= biggestsocket; socket_fd++) {
 			if (FD_ISSET(socket_fd, &socket_fds)) {
 				std::cout << "Unpacking" << std::endl;
-				Message::unpack_header(socket_fd, header);
+				//Message::unpack_header(socket_fd, header);
 			}
 		}
 		break;

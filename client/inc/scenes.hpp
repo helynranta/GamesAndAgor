@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "core/Scene.hpp"
 
 #include <../inc/scenes/Game.hpp>
 #include <../inc/scenes/Menu.hpp>
