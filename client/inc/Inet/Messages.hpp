@@ -5,6 +5,12 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+#define BUFFER_SIZE 1500
+
+enum MESSAGE_TYPE {
+	JOIN = 1, JOIN_ACK = 2, NICK = 3, NICK_ACK = 4
+};
+
 struct message_header {
 	uint16_t user_id = 0;
 	uint32_t game_time;
@@ -16,104 +22,60 @@ struct message_header {
 
 class IMessage {
 public:
-	IMessage() {
-	}
-	virtual ~IMessage();
-	virtual void unpack() = 0;
-	virtual void pack() = 0;
-	virtual void update() = 0;
+	IMessage() {};
+	virtual ~IMessage() { }	;
+	virtual void Pack() = 0;
+	virtual void Update() = 0;
+	virtual void UnpackPayload() = 0;
 };
 
 class Message: public IMessage {
 public:
-	inline Message() {
-	}
-	inline virtual ~Message() {
-		;
-	}
-	virtual void unpack() = 0;
-	inline static void unpack_header(int socket_fd,
-			struct message_header *header) {
-		uint8_t byteBuffer[1500];
-		int location = 0;
-		memset(byteBuffer, 0, 1500);
-		memset(header, 0, sizeof(struct message_header));
-		header->addrlen = sizeof(header->sender_addr);
+	Message(){};
+	~Message(){};
+	void Pack(){};
+	void Update(){};
+	void UnpackPayload(){};
 
-		int read_amount = recvfrom(socket_fd, byteBuffer, 1500, 0,
-				reinterpret_cast<struct sockaddr*>(&header->sender_addr),
-				&header->addrlen);
-		if (read_amount > 0) {
-
-			uint16_t uint16_tmp;
-			memcpy(&uint16_tmp, &byteBuffer[location], sizeof(uint16_t));
-			header->user_id = ntohs(uint16_tmp);
-			std::cout << "USER_ID: " << header->user_id << std::endl;
-			location += static_cast<uint16_t>(sizeof(uint16_t));
-			std::cout << "location pointer: " << location << std::endl;
-
-			uint32_t uint32_tmp;
-			memcpy(&uint32_tmp, &byteBuffer[location], sizeof(uint32_t));
-			header->game_time = ntohl(uint32_tmp);
-			std::cout << "GAME TIME: " << header->game_time << std::endl;
-			location += static_cast<uint16_t>(sizeof(uint32_t));
-			std::cout << "location pointer: " << location << std::endl;
-
-			uint8_t uint8_tmp;
-			memcpy(&header->message_type, &byteBuffer[location], sizeof(uint8_t));
-			std::cout << "Message type: " << unsigned(header->message_type) << std::endl;
-			location += static_cast<uint16_t>(sizeof(uint8_t));
-			std::cout << "location pointer: " << location << std::endl;
-
-			memcpy(&uint32_tmp, &byteBuffer[location], sizeof(uint32_t));
-			header->payload_length = ntohl(uint32_tmp);
-			std::cout << "Payload lenght: " << header->payload_length << std::endl;
-			location += static_cast<uint16_t>(sizeof(uint32_t));
-			std::cout << "location pointer: " << location << std::endl;
-		}
-		//recvfrom(socket_fd, &header->game_time, sizeof(uint32_t), 0, NULL, NULL);
-		//std::cout << read_amount << std::endl;
-		//recvfrom(socket_fd, &header->message_type, sizeof(uint8_t), 0, NULL, NULL);
-		//std::cout << "BOOM?" << std::endl;
-		//recvfrom(socket_fd, &header->payload_length, sizeof(uint32_t), 0, NULL, NULL);
-		//std::cout << "BOOM?" << std::endl;
-
-		char s[INET_ADDRSTRLEN];
-		std::cout << "Got message from "
-				<< inet_ntop(header->sender_addr.ss_family,
-						reinterpret_cast<const void*>(&reinterpret_cast<struct sockaddr_in*>(reinterpret_cast<struct sockaddr*>(&header->sender_addr))->sin_addr),
-						s, sizeof s) << std::endl;
-
-		std::cout << "BOOM?" << std::endl;
-	}
-	virtual void pack() = 0;
-	virtual void update() = 0;
+	static void UnpackHeader(int socket_fd, struct message_header*, uint8_t*);
 };
 
 class JoinMessage: public Message {
 public:
-	inline JoinMessage() {
-		;
-	}
+	JoinMessage();
+	~JoinMessage() {};
+	void Pack(){};
+	void Update(){};
+	void UnpackPayload(uint32_t, uint8_t*);
 
 };
 
 class NickACK: public Message {
 public:
-	inline NickACK(/* byttejä tänn */) {
-		;
+	NickACK();
+	~NickACK();
+	void Pack() {
 	}
-	inline ~NickACK() {
-		;
+	;
+	void Update() {
 	}
-	inline void unpack() override {
-		;
+	;
+	void UnpackPayload() {
 	}
-	inline void pack() override {
-		;
-	}
-	inline void update() override {
-		;
-	}
+	;
 };
+
+class MessageFactory {
+public:
+	static MessageFactory& getInstance() {
+		static MessageFactory instance;
+		return instance;
+	}
+	Message* getMessageByType(struct message_header* , uint8_t*);
+private:
+	MessageFactory(){};
+	MessageFactory(MessageFactory const&) = delete;
+    void operator=(MessageFactory const&)  = delete;
+};
+
 #endif

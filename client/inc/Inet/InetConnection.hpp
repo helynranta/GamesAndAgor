@@ -1,6 +1,7 @@
 #ifndef _INETCONNECTION_HPP
 #define _INETCONNECTION_HPP
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -33,7 +34,7 @@ private:
     static int biggestsocket;
     static void unpack_header();
 public:
-    static bool send();
+    static bool send(std::string l_ip, std::string l_port, std::string message);
     static bool connect(std::string ip, std::string port);
     static bool disconnect();
     static void update();
