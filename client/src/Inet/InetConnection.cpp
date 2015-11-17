@@ -5,7 +5,7 @@
 #define PORT "3393"
 #define UDP_BUFMAX "1500"
 
-ConnectionState InetConnection::m_state = ConnectionState::DISCONNECTED;
+
 
 struct addrinfo InetConnection::hints = {
 AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
@@ -147,6 +147,7 @@ void InetConnection::update() {
 	default:
 		std::cout << "Inet update" << std::endl;
 		struct message_header *header = static_cast<struct message_header*>(malloc(sizeof(struct message_header)));
+
 		uint8_t payloadBuffer[BUFFER_SIZE];
 
 		for (int socket_fd = 0; socket_fd <= biggestsocket; socket_fd++) {

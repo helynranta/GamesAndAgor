@@ -13,8 +13,8 @@ Message * MessageFactory::getMessageByType(struct message_header * header, uint8
 	default:
 		return new JoinMessage();
 	}
+	return new JoinMessage();
 }
-
 
 void Message::UnpackHeader(int socket_fd, struct message_header *header, uint8_t* payloadBuffer) {
 	uint8_t byteBuffer[BUFFER_SIZE];
@@ -24,8 +24,7 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header, uint8_t
 	header->addrlen = sizeof(header->sender_addr);
 
 	int read_amount = recvfrom(socket_fd, byteBuffer, BUFFER_SIZE, 0,
-			reinterpret_cast<struct sockaddr*>(&header->sender_addr),
-			&header->addrlen);
+			reinterpret_cast<struct sockaddr*>(&header->sender_addr), &header->addrlen);
 	if (read_amount > 0) {
 
 		uint16_t uint16_tmp;
@@ -43,8 +42,7 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header, uint8_t
 		std::cout << "location pointer: " << udpBufP << std::endl;
 
 		memcpy(&header->message_type, &byteBuffer[udpBufP], sizeof(uint8_t));
-		std::cout << "Message type: " << unsigned(header->message_type)
-				<< std::endl;
+		std::cout << "Message type: " << unsigned(header->message_type) << std::endl;
 		udpBufP += static_cast<uint16_t>(sizeof(uint8_t));
 		std::cout << "location pointer: " << udpBufP << std::endl;
 
@@ -56,7 +54,7 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header, uint8_t
 
 		// TODO Will I miss the last meaningful byte?
 		memcpy(payloadBuffer, &byteBuffer[udpBufP], header->payload_length);
-	}else{
+	} else {
 		std::cout << "Nothing read from recvfrom()" << std::endl;
 	}
 
@@ -67,12 +65,13 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header, uint8_t
 					s, sizeof s) << std::endl;
 }
 
-
 //======= JoinMessage ========//
-JoinMessage::JoinMessage() {}
-void JoinMessage::UnpackPayload(uint32_t length, uint8_t * payload){
-	char * nick = static_cast<char*>(malloc(length * sizeof (char) + 1));
-	memcpy(nick, payload, length * sizeof (char));
+JoinMessage::JoinMessage() {
+}
+
+void JoinMessage::UnpackPayload(uint32_t length, uint8_t * payload) {
+	char * nick = static_cast<char*>(malloc(length * sizeof(char) + 1));
+	memcpy(nick, payload, length * sizeof(char));
 	nick[3] = '\0';
 	std::cout << "Nick: " << nick << std::endl;
 }
