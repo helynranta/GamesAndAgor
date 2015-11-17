@@ -11,15 +11,22 @@
 
 using namespace std;
 
-class R {
+class ResourceManager {
+friend class Engine;
 private:
-    static map<string, SDL_Texture*> m_textureMap;
-    static map<string, TTF_Font*>    m_fontMap;
-    static SDL_Renderer* m_renderer;
+    /* private data */
+    map<string, SDL_Texture*> m_textureMap;
+    map<string, TTF_Font*>    m_fontMap;
+    SDL_Renderer* m_renderer = nullptr;
+protected:
+    /* protected data */
+    inline ResourceManager() {;}
+    inline ~ResourceManager() {;}
 public:
-    static inline void init(SDL_Renderer* r) { m_renderer = r; }
-    static SDL_Texture* getTexture(string path);
-    static TTF_Font* getFont(string path, int x = 42);
-    static void destroy();
+    /* public data */
+    inline void init(SDL_Renderer* r) { m_renderer = r; }
+    SDL_Texture* getTexture(string path);
+    TTF_Font* getFont(string path, int x = 42);
+    void destroy();
 };
 #endif

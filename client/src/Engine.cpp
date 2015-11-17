@@ -3,16 +3,28 @@
 */
 
 #include "Engine.hpp"
+#include "core/Scene.hpp"
 
 // statics
 map<string, Scene*> Engine::m_scenes;
 string Engine::m_currentScene = "";
 GameState Engine::gameState = GameState::EXIT;
+InetConnection* Engine::connection = nullptr;
+Camera* Engine::camera = nullptr;
+ResourceManager* Engine::R = nullptr;
+InputManager* Engine::input = nullptr;
+Window* Engine::window = nullptr;
 //debug
 unsigned int Engine::debugKey = SDLK_o;
 bool Engine::debugging = false;
 
-Engine::Engine () {}
+Engine::Engine () {
+    connection = new InetConnection();
+    camera = new Camera();
+    R = new ResourceManager();
+    input = new InputManager();
+    window = new Window();
+}
 Engine::~Engine () {
     // close all scenes
     for ( auto& it : m_scenes) {
@@ -20,10 +32,10 @@ Engine::~Engine () {
     }
     m_scenes.empty();
 
-    R::destroy();
-    Input::empty();
-    InetConnection::disconnect();
-    Window::destroy();
+    R->destroy();
+    input->empty();
+    connection->disconnect();
+    window->destroy();
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
@@ -53,13 +65,9 @@ int Engine::init() {
         success = 0;
     }
     // create window
-    success = Camera::init(800, 600);
-    success = Window::init(800, 600);
-    R::init(Window::getRenderer());
-
-    udpConnection = new InetConnection();
-    udpConnection->init();
-
+    success = camera->init(800, 600);
+    success = window->init(800, 600);
+    R->init(window->getRenderer());
     // return what ever happened
     return success;
 }
@@ -105,13 +113,12 @@ void Engine::update() {
     if(gameState != GameState::PAUSE) {
         m_scenes[m_currentScene]->update(m_deltaTime);
         m_scenes[m_currentScene]->updateGUI();
-        Camera::update();
-        udpConnection->update();
+        camera->update();
     }
 }
 void Engine::processInput() {
     // update input manager
-    Input::update();
+    input->update();
     /*
     Poll all events
     Keycodes: https://wiki.libsdl.org/SDL_Keycode
@@ -123,22 +130,22 @@ void Engine::processInput() {
                 gameState = GameState::EXIT;
                 break;
             case SDL_KEYDOWN: // key is down
-                Input::pressKey(uint(e.key.keysym.sym));
+                input->pressKey(uint(e.key.keysym.sym));
                 if(e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
                     gameState = GameState::EXIT;
                 break;
             case SDL_KEYUP:
-                Input::releaseKey(uint(e.key.keysym.sym));
+                input->releaseKey(uint(e.key.keysym.sym));
             default:
                 break;
         }
     }
-    if(Input::isKeyPressed(SDLK_p)) {
+    if(input->isKeyPressed(SDLK_p)) {
         if(gameState == PLAY) gameState = GameState::PAUSE;
         else gameState = GameState::PLAY;
     }
     if(int(debugKey) != -1) {
-        if(Input::isKeyPressed(debugKey)) {
+        if(input->isKeyPressed(debugKey)) {
             if(debugging) debugging = false;
             else debugging = true;
         }
@@ -162,15 +169,16 @@ void Engine::run(const std::string& name) {
 }
 void Engine::draw() {
     // set clear color
-    SDL_SetRenderDrawColor(Window::getRenderer(), 50, 50, 50, 255);
+    SDL_SetRenderDrawColor(window->getRenderer(), 50, 50, 50, 255);
     // clear screen
-    SDL_RenderClear(Window::getRenderer());
+    SDL_RenderClear(window->getRenderer());
     // draw current scene
     m_scenes[m_currentScene]->draw();
     m_scenes[m_currentScene]->drawGUI();
     // render buffer to screen
-    SDL_RenderPresent(Window::getRenderer());
+    SDL_RenderPresent(window->getRenderer());
 }
+/* SCENE RELATED */
 bool Engine::startScene(string name){
     auto it = m_scenes.find(name);
     if(it == m_scenes.end()) {
@@ -183,4 +191,12 @@ bool Engine::startScene(string name){
     m_currentScene = name;
     m_scenes[m_currentScene]->awake();
     return true;
+}
+void Engine::addScene(pair<string,Scene*> scene) {
+    m_scenes.insert(scene);
+}
+void Engine::addScenes(vector<pair<string,Scene*>> scenes) {
+    for (auto& it : scenes) {
+        m_scenes.insert(it);
+    }
 }

@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Engine.hpp"
+#include "core/Scene.hpp"
 
 #include "Player.hpp"
 

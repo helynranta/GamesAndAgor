@@ -1,8 +1,5 @@
 #include "core/Window.hpp"
 
-SDL_Renderer*   Window::renderer    = nullptr;
-SDL_Window*     Window::window      = nullptr;
-
 int Window::init(int width, int height) {
     int success = 1;
     window = SDL_CreateWindow("Agor and Gamus",
