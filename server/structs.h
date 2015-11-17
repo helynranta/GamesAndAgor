@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#define BUFFERSIZE 1500
 /*
 char buffer[1000];
 memset($buffer,0,1000);
@@ -127,4 +128,4 @@ enum msg {GAME, ACK, MOVEMENT, CHAT, STAT};
 enum gameMsg {JOIN, NICK, WAIT, EXIT, INIT, START, STOP, GAME_END, GAME_UPDATE};
 
 /* GAME_UPDATE MSGS */
-enum gameUpdate { };
+/*enum gameUpdate { };*/
