@@ -5,7 +5,9 @@
 #define PORT "3393"
 #define UDP_BUFMAX "1500"
 
-
+InetConnection::InetConnection() {
+	result = static_cast<addrinfo*>(malloc(sizeof(addrinfo)));
+}
 
 struct addrinfo InetConnection::hints = {
 AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
@@ -14,23 +16,9 @@ AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
 		IPPROTO_UDP,                    // addrinfo::ai_protocol
 		0, 0, nullptr, nullptr             // unused
 		};
-struct addrinfo *InetConnection::result = nullptr;
-struct addrinfo *InetConnection::iter = nullptr;
-struct timeval InetConnection::timeout;
 
-int InetConnection::length = 0;
-int InetConnection::rval = 0;
-int InetConnection::listensocket = -1;
-int InetConnection::biggestsocket = 0;
-char InetConnection::dgram[1];
 
-// fd_set does not need to be initialized as it need to be emptied ALWAYS before use
-fd_set InetConnection::socket_fds;
-fd_set InetConnection::socket_fds_temp;
-std::string InetConnection::ip = "";
-std::string InetConnection::port = "";
-
-std::vector<Message*> InetConnection::messages;
+std::vector<Message*> messages;
 
 void InetConnection::init(void) {
 	memset(&hints, 0, sizeof hints);
