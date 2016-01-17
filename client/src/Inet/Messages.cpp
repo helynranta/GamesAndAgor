@@ -8,7 +8,7 @@ IMessage::IMessage() {
 IMessage::~IMessage() {
 }
 
-Message* MessageFactory::getMessageByType(struct message_header * header,
+Message* MessageFactory::getMessageByType(struct MessageHeader * header,
 		uint8_t * payload) {
 
 	GameMessage* message = GameMessage::Unpack(header->payload_length, payload);
@@ -54,18 +54,18 @@ Message* MessageFactory::getMessageByType(struct message_header * header,
 	return new GameMessage();
 }
 
-void Message::UnpackHeader(int socket_fd, struct message_header *header,
+void Message::UnpackHeader(int socket_fd, struct MessageHeader *header,
 		uint8_t* payloadBuffer) {
 	uint8_t byteBuffer[BUFFER_SIZE];
 	int readByteCount = 0;
 	memset(byteBuffer, 0, BUFFER_SIZE);
-	memset(header, 0, sizeof(struct message_header));
+	memset(header, 0, sizeof(struct MessageHeader));
 	header->addrlen = sizeof(header->sender_addr);
 
-	int read_amount = recvfrom(socket_fd, byteBuffer, BUFFER_SIZE, 0,
+	int bytesRead = recvfrom(socket_fd, byteBuffer, BUFFER_SIZE, 0,
 			reinterpret_cast<struct sockaddr*>(&header->sender_addr),
 			&header->addrlen);
-	if (read_amount > 0) {
+	if (bytesRead > 0) {
 
 		// Unpack USER_ID (UINT_16)
 		uint16_t uint16_tmp;
@@ -73,15 +73,15 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header,
 		header->user_id = ntohs(uint16_tmp);
 		std::cout << "USER_ID: " << header->user_id << std::endl;
 		readByteCount += sizeof(uint16_t);
-		std::cout << "location pointer: " << readByteCount << std::endl;
+		std::cout << "Location pointer: " << readByteCount << std::endl;
 
 		// Unpack GAME_TIME (UINT_32)
-		uint32_t gametime;
-		memcpy(&gametime, &byteBuffer[readByteCount], sizeof(uint32_t));
-		header->game_time = ntohl(gametime);
+		uint32_t gameTime;
+		memcpy(&gameTime, &byteBuffer[readByteCount], sizeof(uint32_t));
+		header->game_time = ntohl(gameTime);
 		std::cout << "GAME TIME: " << header->game_time << std::endl;
 		readByteCount += sizeof(uint32_t);
-		std::cout << "location pointer: " << readByteCount << std::endl;
+		std::cout << "Location pointer: " << readByteCount << std::endl;
 
 		// Unpack MESSAGE_TYPE (UINT_8)
 		memcpy(&header->message_type, &byteBuffer[readByteCount],
@@ -89,15 +89,15 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header,
 		std::cout << "Message type: " << unsigned(header->message_type)
 				<< std::endl;
 		readByteCount += sizeof(uint8_t);
-		std::cout << "location pointer: " << readByteCount << std::endl;
+		std::cout << "Location pointer: " << readByteCount << std::endl;
 
 		// Unpack PAYLOAD_LENGTH (UINT_32)
-		uint32_t payload_length;
-		memcpy(&payload_length, &byteBuffer[readByteCount], sizeof(uint32_t));
-		header->payload_length = ntohl(payload_length);
+		uint32_t payloadLength;
+		memcpy(&payloadLength, &byteBuffer[readByteCount], sizeof(uint32_t));
+		header->payload_length = ntohl(payloadLength);
 		std::cout << "Payload length: " << header->payload_length << std::endl;
 		readByteCount += sizeof(uint32_t);
-		std::cout << "location pointer: " << readByteCount << std::endl;
+		std::cout << "Location pointer: " << readByteCount << std::endl;
 
 		// TODO Will I miss the last meaningful byte?
 		memcpy(payloadBuffer, &byteBuffer[readByteCount],
@@ -116,9 +116,9 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header,
 //======= GAME_MESSAGE ========//
 uint8_t GameMessage::UnpackHeader(uint8_t * payload) {
 	// Unpack MSG_SUBTYPE (UINT_8)
-	uint8_t message_sybtype;
-	memcpy(&message_sybtype, payload, sizeof(uint8_t));
-	std::cout << "Message subtype" << message_sybtype << std::endl;
+	uint8_t messageSubtype;
+	memcpy(&messageSubtype, payload, sizeof(uint8_t));
+	std::cout << "Message subtype" << messageSubtype << std::endl;
 	return 1;
 }
 
@@ -126,9 +126,9 @@ GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
 	int readByteCount = 0;
 
 	// Unpack MSG_SUBTYPE (UINT_8)
-	uint8_t message_sybtype;
-	memcpy(&message_sybtype, payload, sizeof(uint8_t));
-	std::cout << "Message subtype" << message_sybtype << std::endl;
+	uint8_t messageSubtype;
+	memcpy(&messageSubtype, payload, sizeof(uint8_t));
+	std::cout << "Message subtype" << messageSubtype << std::endl;
 	readByteCount += sizeof(uint8_t);
 
 	// Unpack PAYLOAD_LENGTH (UINT_32)
@@ -139,33 +139,37 @@ GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
 	readByteCount += sizeof(uint32_t);
 
 	// Copy rest of the payload to new variable and pass it to next Unpacker
-	uint32_t remaining_payload_length = length - readByteCount;
-	uint8_t * remaining_payload = static_cast<uint8_t *>(malloc(
-			remaining_payload_length));
-	memcpy(remaining_payload, &payload[readByteCount],
-			remaining_payload_length);
+	uint32_t remainingPayloadLength = length - readByteCount;
+	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(
+			remainingPayloadLength));
+	memcpy(remainingPayload, &payload[readByteCount],
+			remainingPayloadLength);
 
-	switch (message_sybtype) {
+	switch (messageSubtype) {
 	case GameMessage::JOIN:
 		return new Join();
 	case GameMessage::NICK:
-		return Nick::Unpack(remaining_payload_length, remaining_payload);
+		return Nick::Unpack(remainingPayloadLength, remainingPayload);
 	case GameMessage::EXIT:
 		return new Exit();
 	case GameMessage::GAME_END:
 		return new GameEnd();
 	case GameMessage::GAME_UPDATE:
-		return GameMessage::Unpack(remaining_payload_length, remaining_payload);
+		return GameMessage::Unpack(remainingPayloadLength, remainingPayload);
 	case GameMessage::POINTS:
-		return Points::Unpack(remaining_payload_length, remaining_payload);
+		return Points::Unpack(remainingPayloadLength, remainingPayload);
 	case GameMessage::PLAYER_DEAD:
-		return PlayerDead::Unpack(remaining_payload_length, remaining_payload);
+		return PlayerDead::Unpack(remainingPayloadLength, remainingPayload);
 	case GameMessage::PLAYER_OUT:
-		return PlayerOut::Unpack(remaining_payload_length, remaining_payload);
+		return PlayerOut::Unpack(remainingPayloadLength, remainingPayload);
 	default:
 		return nullptr;
 	}
 	return nullptr;
+}
+
+void GameMessage::Pack(Message* message){
+	GameMessage * gameMessage = dynamic_cast<GameMessage*>(message);
 }
 
 //======= NICK ========//

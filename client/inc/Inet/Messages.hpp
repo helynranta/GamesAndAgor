@@ -21,7 +21,7 @@ enum MESSAGE_TYPE {
 
 };
 
-struct message_header {
+struct MessageHeader {
 	uint16_t user_id = 0;
 	uint32_t game_time;
 	uint8_t message_type;
@@ -34,7 +34,7 @@ class IMessage {
 public:
 	IMessage();
 	virtual ~IMessage();
-	virtual void Pack() = 0;
+	virtual void Pack(Message*) = 0;
 	virtual void Update() = 0;
 	//virtual Message UnpackPayload(uint32_t, uint8_t*) = 0;
 	static Message * Unpack(uint32_t, uint8_t*);
@@ -48,7 +48,7 @@ public:
 	inline ~Message() {
 		;
 	}
-	inline void Pack() {
+	void Pack() {
 	}
 	;
 
@@ -57,7 +57,7 @@ public:
 	}
 	;
 
-	static void UnpackHeader(int socket_fd, struct message_header*, uint8_t*);
+	static void UnpackHeader(int socket_fd, struct MessageHeader*, uint8_t*);
 
 	static void Unpack(uint32_t, uint8_t*);
 };
@@ -88,9 +88,7 @@ public:
 	}
 	;
 
-	inline void Pack() {
-	}
-	;
+	void Pack(Message *);
 
 	inline void Update() {
 	}
@@ -281,7 +279,7 @@ public:
 		static MessageFactory instance;
 		return instance;
 	}
-	Message* getMessageByType(struct message_header*, uint8_t*);
+	Message* getMessageByType(struct MessageHeader*, uint8_t*);
 private:
 	MessageFactory() {
 	}
@@ -289,6 +287,5 @@ private:
 	MessageFactory(MessageFactory const&) = delete;
 	void operator=(MessageFactory const&) = delete;
 };
-
 
 #endif
