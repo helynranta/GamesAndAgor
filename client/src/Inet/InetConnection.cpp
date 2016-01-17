@@ -137,9 +137,9 @@ void InetConnection::update() {
 		break;
 	default:
 		std::cout << "Inet update" << std::endl;
-		struct message_header *header =
-				static_cast<struct message_header*>(malloc(
-						sizeof(struct message_header)));
+		struct MessageHeader *header =
+				static_cast<struct MessageHeader*>(malloc(
+						sizeof(struct MessageHeader)));
 
 		uint8_t payloadBuffer[BUFFER_SIZE];
 
