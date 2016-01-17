@@ -32,15 +32,12 @@ struct message_header {
 
 class IMessage {
 public:
-	IMessage() {
-	}
-	;
-	virtual ~IMessage() {
-	}
-	;
+	IMessage();
+	virtual ~IMessage();
 	virtual void Pack() = 0;
 	virtual void Update() = 0;
-	virtual Message UnpackPayload(uint32_t, uint8_t*);
+	//virtual Message UnpackPayload(uint32_t, uint8_t*) = 0;
+	static Message * Unpack(uint32_t, uint8_t*);
 };
 
 class Message: public IMessage {
@@ -48,18 +45,21 @@ public:
 	inline Message() {
 		;
 	}
-	inline virtual ~Message() {
+	inline ~Message() {
 		;
 	}
-	void Pack() {
+	inline void Pack() {
 	}
 	;
 
-	void Update() {
+	inline void Update() {
+		;
 	}
 	;
 
 	static void UnpackHeader(int socket_fd, struct message_header*, uint8_t*);
+
+	static void Unpack(uint32_t, uint8_t*);
 };
 
 class GameMessage: public Message {
@@ -88,15 +88,15 @@ public:
 	}
 	;
 
-	void Pack() {
+	inline void Pack() {
 	}
 	;
 
-	void Update() {
+	inline void Update() {
 	}
 	;
 
-	void UnpackPayload() {
+	inline void UnpackPayload() {
 	}
 	;
 
@@ -289,4 +289,6 @@ private:
 	MessageFactory(MessageFactory const&) = delete;
 	void operator=(MessageFactory const&) = delete;
 };
+
+
 #endif

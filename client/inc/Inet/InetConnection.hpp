@@ -21,9 +21,9 @@ friend class Engine;
 private:
     /* private data */
     ConnectionState m_state = ConnectionState::DISCONNECTED;
-    static struct addrinfo hints;
-    static struct addrinfo *result;
-    static struct addrinfo *iter;
+    struct addrinfo hints;
+    struct addrinfo *result;
+    struct addrinfo *iter;
     int length = 0;
     int rval = 0;
     char dgram[1];

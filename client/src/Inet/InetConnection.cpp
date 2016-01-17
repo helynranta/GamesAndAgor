@@ -7,16 +7,16 @@
 
 InetConnection::InetConnection() {
 	result = static_cast<addrinfo*>(malloc(sizeof(addrinfo)));
+	hints = {
+		AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
+		PF_UNSPEC,// addrinfo::ai_family
+		SOCK_DGRAM,// addrinfo::ai_socktype
+		IPPROTO_UDP,// addrinfo::ai_protocol
+		0, 0, nullptr, nullptr// unused
+	};
+
+	iter = nullptr;
 }
-
-struct addrinfo InetConnection::hints = {
-AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
-		PF_UNSPEC,                      // addrinfo::ai_family
-		SOCK_DGRAM,                     // addrinfo::ai_socktype
-		IPPROTO_UDP,                    // addrinfo::ai_protocol
-		0, 0, nullptr, nullptr             // unused
-		};
-
 
 std::vector<Message*> messages;
 
@@ -34,7 +34,8 @@ void InetConnection::init(void) {
 		// Go through every returned address and attempt to connect to each
 		for (iter = result; iter != NULL; iter = iter->ai_next) {
 			/* Can socket be created? */
-			if ((listensocket = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
+			if ((listensocket = socket(iter->ai_family, iter->ai_socktype,
+					iter->ai_protocol)) < 0) {
 				std::cout << "Error socket(): " << strerror(errno) << std::endl;
 				exit (EXIT_FAILURE);
 				break;
@@ -71,24 +72,26 @@ void InetConnection::destroy(void) {
  * @params: void
  * @return: bool success. returns success if there was no socket error
  */
-bool InetConnection::send(std::string l_ip, std::string l_port, std::string message) {
+bool InetConnection::send(std::string l_ip, std::string l_port,
+		std::string message) {
 	/* Try to send data to server:
 	 * sendto(socket, data , data length, flags, destination, struct length)
 	 * see 'man sendto'
 	 */
 
 	struct addrinfo * server_addrinfo = nullptr;
-	if (getaddrinfo(l_ip.c_str(), l_port.c_str(), &hints, &server_addrinfo) < 0){
+	if (getaddrinfo(l_ip.c_str(), l_port.c_str(), &hints, &server_addrinfo)
+			< 0) {
 		std::cout << "Cannot resolve address: " << strerror(errno) << std::endl;
 		return false;
 	}
 
-
 	/* send to asdfasdf	 */
-	if ((sendto(listensocket, message.c_str(), BUFFER_SIZE, 0, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) < 0) {
+	if ((sendto(listensocket, message.c_str(), BUFFER_SIZE, 0,
+			server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) < 0) {
 		std::cout << "Error sentto(): " << strerror(errno) << std::endl;
 		return false;
-	}else {
+	} else {
 		std::cout << "Client: Sent datagram" << std::endl;
 	}
 	return true;
@@ -134,7 +137,9 @@ void InetConnection::update() {
 		break;
 	default:
 		std::cout << "Inet update" << std::endl;
-		struct message_header *header = static_cast<struct message_header*>(malloc(sizeof(struct message_header)));
+		struct message_header *header =
+				static_cast<struct message_header*>(malloc(
+						sizeof(struct message_header)));
 
 		uint8_t payloadBuffer[BUFFER_SIZE];
 
@@ -142,7 +147,8 @@ void InetConnection::update() {
 			if (FD_ISSET(socket_fd, &socket_fds)) {
 				std::cout << "Unpacking" << std::endl;
 				Message::UnpackHeader(socket_fd, header, payloadBuffer);
-				MessageFactory::getInstance().getMessageByType(header, payloadBuffer);
+				MessageFactory::getInstance().getMessageByType(header,
+						payloadBuffer);
 			}
 		}
 		break;

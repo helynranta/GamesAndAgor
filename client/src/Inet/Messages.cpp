@@ -3,9 +3,16 @@
 
 #include "Inet/Messages.hpp"
 
+IMessage::IMessage() {
+}
+IMessage::~IMessage() {
+}
+
 Message* MessageFactory::getMessageByType(struct message_header * header,
 		uint8_t * payload) {
+
 	GameMessage* message = GameMessage::Unpack(header->payload_length, payload);
+
 	switch (header->message_type) {
 	case MESSAGE_TYPE::GAME_MESSAGE:
 		switch (message->getMessageType()) {
@@ -88,7 +95,7 @@ void Message::UnpackHeader(int socket_fd, struct message_header *header,
 		uint32_t payload_length;
 		memcpy(&payload_length, &byteBuffer[readByteCount], sizeof(uint32_t));
 		header->payload_length = ntohl(payload_length);
-		std::cout << "Payload lenght: " << header->payload_length << std::endl;
+		std::cout << "Payload length: " << header->payload_length << std::endl;
 		readByteCount += sizeof(uint32_t);
 		std::cout << "location pointer: " << readByteCount << std::endl;
 
