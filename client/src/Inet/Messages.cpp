@@ -170,7 +170,6 @@ GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
 
 void GameMessage::Pack(Message* message){
 	GameMessage * gameMessage = dynamic_cast<GameMessage*>(message);
-
 }
 
 //======= NICK ========//
