@@ -22,8 +22,8 @@ private:
     /* private data */
     ConnectionState m_state = ConnectionState::DISCONNECTED;
     struct addrinfo hints;
-    struct addrinfo *result = nullptr;
-    struct addrinfo *iter = nullptr;
+    struct addrinfo *result;
+    struct addrinfo *iter;
     int length = 0;
     int rval = 0;
     char dgram[1];
@@ -37,15 +37,15 @@ private:
     void unpack_header();
 protected:
     /* protected data */
-    inline InetConnection() {;}
-    inline ~InetConnection() {;}
+    InetConnection();
+    ~InetConnection() {;}
 public:
-    static bool send(std::string l_ip, std::string l_port, std::string message);
-    static bool connect(std::string ip, std::string port);
-    static bool disconnect();
-    static void update();
-    static std::vector<Message*> messages;
-    static void init();
-    static void destroy();
+    bool send(std::string l_ip, std::string l_port, std::string message);
+    bool connect(std::string ip, std::string port);
+    bool disconnect();
+    void update();
+    std::vector<Message*> messages;
+    void init();
+    void destroy();
 };
 #endif
