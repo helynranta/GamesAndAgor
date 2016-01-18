@@ -1,4 +1,24 @@
 #include "structs.h"
 
-int unpackPacket(char *msg);
-int getMsgType(char *msg);
+struct Packet unpackPacket(char *msg, struct sockaddr_storage *from);
+
+#define MAX_NICK 12
+
+/*Struct for game msg/incoming packet */
+struct Packet{
+  uint8_t subType;
+  uint16_t posX, posY;
+  uint16_t dirX, dirY;
+  uint8_t ACKTYPE;
+  char nick[MAX_NICK];
+
+  uint32_t gameTime; /* also known as ACK_PACKET_ID xD */
+  uint16_t ID;
+  uint8_t msgType;
+	uint32_t payloadLength;
+	struct sockaddr_storage senderAddr;
+
+};
+
+enum ackType {JOIN_ACK, NICK_ACK, GAME_END_ACK, PLAYER_OUT_ACK, EXIT_ACK,};
+//enum gameSubType {JOIN, NICK, EXIT};

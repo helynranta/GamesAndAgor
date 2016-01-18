@@ -125,7 +125,17 @@ typedef struct Header {
 enum msg {GAME, ACK, MOVEMENT, CHAT, STAT};
 
 /* Game message types  */
-enum gameMsg {JOIN, NICK, WAIT, EXIT, INIT, START, STOP, GAME_END, GAME_UPDATE};
+enum gameMsg {
+JOIN = 0,
+NICK = 1,
+EXIT = 2,
+RESTART = 3,
+GAME_END = 4,
+GAME_UPDATE = 5,
+POINTS = 6,
+PLAYER_DEAD = 7,
+PLAYER_OUT = 8
+};
 
 /* GAME_UPDATE MSGS */
 /*enum gameUpdate { };*/

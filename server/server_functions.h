@@ -1,7 +1,13 @@
 #include "structs.h"
 #include <math.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 // #define PAYLOAD_INDEX
+
 
 void ComputeNearParticles(Player *sPlayers, Object *sObjects);
 int isWithinRange(int location1[2], int location2[2], int scale);
