@@ -27,7 +27,7 @@
 
 #include "Inet/InetConnection.hpp"
 
-enum GameState { PLAY, PAUSE, EXIT };
+enum GameState { PLAY, PAUSE, QUIT };
 
 using namespace std;
 

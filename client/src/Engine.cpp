@@ -8,7 +8,7 @@
 // statics
 map<string, Scene*> Engine::m_scenes;
 string Engine::m_currentScene = "";
-GameState Engine::gameState = GameState::EXIT;
+GameState Engine::gameState = GameState::QUIT;
 InetConnection* Engine::connection = nullptr;
 Camera* Engine::camera = nullptr;
 ResourceManager* Engine::R = nullptr;
@@ -87,7 +87,7 @@ void Engine::gameLoop() {
 	// count deltaTime
 	Uint32 l_previousTicks = SDL_GetTicks();
 	// main loop starts here
-	while (gameState != GameState::EXIT) {
+	while (gameState != GameState::QUIT) {
 		Uint32 l_startTicks = SDL_GetTicks();
 		Uint32 l_frameTime = l_startTicks - l_previousTicks;
 		l_previousTicks = l_startTicks;
@@ -133,12 +133,12 @@ void Engine::processInput() {
 	while (SDL_PollEvent(&e)) {
 		switch (e.type) {
 		case SDL_QUIT: // user quits window
-			gameState = GameState::EXIT;
+			gameState = GameState::QUIT;
 			break;
 		case SDL_KEYDOWN: // key is down
 			input->pressKey(uint(e.key.keysym.sym));
 			if (e.key.keysym.sym == SDLK_ESCAPE) // if user presses ESC
-				gameState = GameState::EXIT;
+				gameState = GameState::QUIT;
 			break;
 		case SDL_KEYUP:
 			input->releaseKey(uint(e.key.keysym.sym));
