@@ -6,11 +6,14 @@ struct Packet unpackPacket(char *msg, struct sockaddr_storage *from);
 
 /*Struct for game msg/incoming packet */
 struct Packet{
+  int error;
   uint8_t subType;
   uint16_t posX, posY;
   uint16_t dirX, dirY;
   uint8_t ACKTYPE;
   char nick[MAX_NICK];
+  uint16_t pingID;
+  uint16_t ping;
 
   uint32_t gameTime; /* also known as ACK_PACKET_ID xD */
   uint16_t ID;

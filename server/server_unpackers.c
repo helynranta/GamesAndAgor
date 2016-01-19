@@ -23,6 +23,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr_storage *from){
   uint32_t payloadLength = ntohl(*(uint32_t*)&buf[index]);
   index += sizeof(uint32_t);
 
+  /* message subtype */
   uint8_t subtype;
   struct Packet packet;
 
@@ -31,6 +32,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr_storage *from){
   packet.gameTime = gameTime;
   packet.senderAddr = *from;
   packet.msgType = msgType;
+  packet.error = 0;
 
   /* Check msg type and fill the struct based on it */
   switch (msgType) {
@@ -39,7 +41,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr_storage *from){
       subtype = ntohs(*(uint8_t*)&buf[index]);
       index += sizeof(uint8_t);
 
-      /* */
+      /* GAME msg subtypes */
       switch (subtype) {
         case JOIN:
           packet.subType = JOIN;
@@ -65,10 +67,13 @@ struct Packet unpackPacket(char *buf, struct sockaddr_storage *from){
       packet.ACKTYPE = ntohs(*(uint8_t*)&buf[index]);
 
       switch (packet.ACKTYPE) {
-        case JOIN_ACK:
-          return packet;
-          break;
-        case NICK_ACK:
+        case JOIN:
+        case NICK:
+        case EXIT:
+        case GAME_END:
+        case POINTS:
+        case PLAYER_DEAD:
+        case PLAYER_OUT:
           return packet;
           break;
       }
@@ -76,17 +81,46 @@ struct Packet unpackPacket(char *buf, struct sockaddr_storage *from){
       break;
 
     case MOVEMENT:
+      packet.msgType = MOVEMENT;
+
+      /* skip irrelevant info */
+      index += sizeof(uint8_t);
+
+      /* Get the player's position and direction */
+      packet.posX = ntohs(*(uint16_t*)&buf[index]);
+      index += sizeof(uint16_t);
+
+      packet.posY = ntohs(*(uint16_t*)&buf[index]);
+      index += sizeof(uint16_t);
+
+      packet.dirX = ntohs(*(uint16_t*)&buf[index]);
+      index += sizeof(uint16_t);
+
+      packet.dirY = ntohs(*(uint16_t*)&buf[index]);
+
+      return packet;
       break;
 
     case STAT:
+      packet.msgType = STAT;
+      /* Statistics a.k.a ping message */
+      /* ping is in milliseconds */
+      packet.pingID = ntohs(*(uint16_t*)&buf[index]);
+      index += sizeof(uint16_t);
+      packet.ping = ntohs(*(uint16_t*)&buf[index]);
+
+      return packet;
       break;
 
     default:
       printf("Unknown msg\n");
   }
 
-}
+  /* If we get here, error has occured */
+  packet.error=1;
+  return packet;
 
+}
 
 
 /*//PACK
@@ -97,10 +131,3 @@ uint16_t retrieved_value = ntohs(*(uint16_t*)&buffer_holding_data[position_from_
 
 /* Main function to shut the compiler up */
 int main(){}
-/*
-/* Message types
-enum msg {GAME, ACK, MOVEMENT, CHAT, STAT};
-
-/* Game message types
-enum gameMsg {JOIN, NICK, WAIT, EXIT, INIT, START, STOP, GAME_END, GAME_UPDATE};
-*/
