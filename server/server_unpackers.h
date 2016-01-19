@@ -1,6 +1,6 @@
 #include "structs.h"
 
-struct Packet unpackPacket(char *msg, struct sockaddr_storage *from);
+struct Packet unpackPacket(char *msg, struct sockaddr *from);
 
 #define MAX_NICK 12
 
@@ -19,7 +19,7 @@ struct Packet{
   uint16_t ID;
   uint8_t msgType;
 	uint32_t payloadLength;
-	struct sockaddr_storage senderAddr;
+	struct sockaddr senderAddr;
 
 };
 

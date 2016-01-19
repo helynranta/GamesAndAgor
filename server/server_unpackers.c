@@ -3,7 +3,7 @@
 
 
 /* unpack packet from network */
-struct Packet unpackPacket(char *buf, struct sockaddr_storage *from){
+struct Packet unpackPacket(char *buf, struct sockaddr *from){
 
   int index = 0;
 
