@@ -11,7 +11,7 @@ int main(int argc, char const *argv[]){
 	for (i = 0; i < 10; i++) {
 		newPlayer(&TestList);
 	}
-	
+
 	clearListPlayer(&TestList);
 	
 	Tester->pParticle = TestList;
