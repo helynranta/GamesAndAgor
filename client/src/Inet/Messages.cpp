@@ -8,7 +8,7 @@ IMessage::IMessage() {
 IMessage::~IMessage() {
 }
 
-Message* MessageFactory::getMessageByType(struct MessageHeader * header,
+Message* MessageFactory::getMessageByType(MessageHeader * header,
 		uint8_t * payload) {
 
 	// TODO Make better solution here
@@ -16,7 +16,7 @@ Message* MessageFactory::getMessageByType(struct MessageHeader * header,
 
 	switch (header->message_type) {
 	case MESSAGE_TYPE::GAME_MESSAGE:
-		message = GameMessage::Unpack(header->payload_length, payload);
+		message = GameMessage::Unpack(*header, header->payload_length, payload);
 		switch (message->getMessageType()) {
 		case GAME_MESSAGE_TYPE::JOIN:
 			return dynamic_cast<Join*>(message);
@@ -111,7 +111,7 @@ uint8_t GameMessage::UnpackHeader(uint8_t * payload) {
 	return 1;
 }
 
-GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
+GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	int readByteCount = 0;
 
 	// Unpack MSG_SUBTYPE (UINT_8)
@@ -135,21 +135,21 @@ GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
 
 	switch (messageSubtype) {
 	case GAME_MESSAGE_TYPE::JOIN:
-		return Join::Unpack(remainingPayloadLength, remainingPayload);
+		return Join::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::NICK:
-		return Nick::Unpack(remainingPayloadLength, remainingPayload);
+		return Nick::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::EXIT:
-		return Exit::Unpack(remainingPayloadLength, remainingPayload);
+		return Exit::Unpack(header ,remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::GAME_END:
-		return GameEnd::Unpack(remainingPayloadLength, remainingPayload);
+		return GameEnd::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::GAME_UPDATE:
-		return GameMessage::Unpack(remainingPayloadLength, remainingPayload);
+		return GameMessage::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::POINTS:
-		return Points::Unpack(remainingPayloadLength, remainingPayload);
+		return Points::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-		return PlayerDead::Unpack(remainingPayloadLength, remainingPayload);
+		return PlayerDead::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::PLAYER_OUT:
-		return PlayerOut::Unpack(remainingPayloadLength, remainingPayload);
+		return PlayerOut::Unpack(header, remainingPayloadLength, remainingPayload);
 	default:
 		return nullptr;
 	}
@@ -162,8 +162,8 @@ void GameMessage::Pack(Message* message) {
 }
 
 //======= NICK ========//
-Nick * Nick::Unpack(uint32_t length, uint8_t * payload) {
-	Nick * player_nick = new Nick();
+Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+	Nick * player_nick = new Nick(header);
 
 	// Unpack Nick (char [11])
 	memcpy(&player_nick->nick, payload, length);
@@ -175,7 +175,7 @@ Nick * Nick::Unpack(uint32_t length, uint8_t * payload) {
 }
 
 //======= GAME_UPDATE ========//
-GameUpdate * GameUpdate::Unpack(uint32_t length, uint8_t * payload) {
+GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	int bufferPosition = 0;
 
 	// Unpack OWN_POS_X
@@ -207,13 +207,13 @@ GameUpdate * GameUpdate::Unpack(uint32_t length, uint8_t * payload) {
 	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(length - bufferPosition));
 	memcpy(remainingPayload, &payload[bufferPosition], length - bufferPosition);
 
-	return new GameUpdate(pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects);
+	return new GameUpdate(header, pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects);
 
 }
 
 //======= POINTS ========//
-Points * Points::Unpack(uint32_t length, uint8_t * payload) {
-	Points * pointScoreObject = new Points();
+Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+	Points * pointScoreObject = new Points(header);
 	int readByteCount = 0;
 
 	// Unpack player count (UINT_16)
