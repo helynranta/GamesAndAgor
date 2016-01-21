@@ -14,4 +14,4 @@ remake:
 	make clean && make
 .PHONY: clean
 clean:
-	rm -f *~ *.o test
+	rm -f *~ *.o $(TARGET)
