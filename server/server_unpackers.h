@@ -1,4 +1,7 @@
+#ifndef STRUCTS_H
+#define STRUCTS_H
 #include "structs.h"
+#endif
 
 struct Packet unpackPacket(char *msg, struct sockaddr *from);
 

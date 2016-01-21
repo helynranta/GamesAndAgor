@@ -1,8 +1,8 @@
 #define UDP_PORT 8888
 #define TCP_PORT 8889
-#define BUFFERSIZE 1024
 
 #include "server_functions.h"
+#include "server_unpackers.h"
 
 void createGameWorld();
 void endGame();

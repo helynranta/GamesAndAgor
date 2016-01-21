@@ -1,4 +1,8 @@
+#ifndef STRUCTS_H
+#define STRUCTS_H
 #include "structs.h"
+#endif
+
 #include <math.h>
 #include <errno.h>
 #include <sys/types.h>

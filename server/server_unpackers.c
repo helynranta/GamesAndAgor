@@ -36,8 +36,8 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
 
   /* Check msg type and fill the struct based on it */
   switch (msgType) {
-    case GAME:
-      packet.msgType = GAME;
+    case GAME_MESSAGE:
+      packet.msgType = GAME_MESSAGE;
       subtype = ntohs(*(uint8_t*)&buf[index]);
       index += sizeof(uint8_t);
 
@@ -80,8 +80,8 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
 
       break;
 
-    case MOVEMENT:
-      packet.msgType = MOVEMENT;
+    case PLAYER_MOVEMENT:
+      packet.msgType = PLAYER_MOVEMENT;
 
       /* skip irrelevant info */
       index += sizeof(uint8_t);
@@ -101,8 +101,8 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
       return packet;
       break;
 
-    case STAT:
-      packet.msgType = STAT;
+    case STATISTICS_MESSAGE:
+      packet.msgType = STATISTICS_MESSAGE;
       /* Statistics a.k.a ping message */
       /* ping is in milliseconds */
       packet.pingID = ntohs(*(uint16_t*)&buf[index]);
@@ -128,6 +128,3 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
 
 //UNPACK
 uint16_t retrieved_value = ntohs(*(uint16_t*)&buffer_holding_data[position_from_to_retrieve]);*/
-
-/* Main function to shut the compiler up */
-int main(){}

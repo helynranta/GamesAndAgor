@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -pedantic -std=c99
 LDFLAGS = -lm
-TARGET = test
-SOURCE = test.c server_functions.c
+TARGET = server
+SOURCE = server.c server_functions.c server_unpackers.c
 OBJECTS = $(SOURCE:.c=.o)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET) $(LDFLAGS) -I.
 
 all:$(TARGET)
 
