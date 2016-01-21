@@ -7,7 +7,10 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#define BUFFERSIZE 1000
+
+
+#define BUFFERSIZE 1500
+
 /*
 char buffer[1000];
 memset($buffer,0,1000);
@@ -95,6 +98,7 @@ typedef struct Game {
 } Game;
 
 /* Message types */
+
 enum MESSAGE_TYPE {
     GAME_MESSAGE = 0,
     ACK = 1,
