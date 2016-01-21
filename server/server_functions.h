@@ -12,4 +12,12 @@ void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
 void newPlayer(Player **pList);
-void headerPacker(int playerID, int gameTime, int msgType, int payloadLength, char **msgBuffer);
+
+/* PACKING FUNCTIONS */
+int msgPacker(char **msgBuffer, Game *pGame, int toPlayerID, int msgType,
+    int msgSubType, int outPlayerID, int status);
+int gameMsgPacker(char **pPL, Game *pGame, int toPlayerID,
+    int msgSubType, int outPlayerID);
+int ackPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType, int status);
+int statPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType);
+Player *getPlayer(int playerID, Player *pPlayer);
