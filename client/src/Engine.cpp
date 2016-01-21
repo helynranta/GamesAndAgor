@@ -73,7 +73,7 @@ int Engine::init() {
 
 
 	// TODO Write inet loading here=
-	// connection->ini
+	connection->init();
 
 
 	// return what ever happened
