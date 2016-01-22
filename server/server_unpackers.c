@@ -24,7 +24,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
   index += sizeof(uint32_t);
 
   /* message subtype */
-  uint8_t subtype;
+  int subtype;
   struct Packet packet;
 
   /* General initialization for packet */
@@ -40,12 +40,12 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
       packet.msgType = GAME_MESSAGE;
       subtype = *(uint8_t*)&buf[index];
       index += sizeof(uint8_t);
+      printf("In unpackers_ subtype: %d\n", subtype);
 
       /* GAME msg subtypes */
       switch (subtype) {
         case JOIN:
           packet.subType = JOIN;
-          printf("In unpackers_ subtype: %d\n", packet.subType);
           return packet;
           break;
 

@@ -245,7 +245,9 @@ int client(char* port, char *serverip)
       index += sizeof(uint32_t);
       *(uint8_t*)&dgram[index] = msgtype;
 			index += sizeof(uint8_t);
-			uint8_t subt = JOIN;
+			*(uint32_t*)&dgram[index] = htonl(1);
+			index += sizeof(uint32_t);
+      uint8_t subt = JOIN;
 			*(uint8_t*)&dgram[index] = subt;
 
 

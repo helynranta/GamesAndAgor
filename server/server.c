@@ -23,6 +23,7 @@ TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 
 
 int server(char* port) {
+	struct Game game;
   int socketfd = -1, activity;
 	fd_set readset;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2;
@@ -110,18 +111,40 @@ int server(char* port) {
 
 					switch (packet.msgType) {
 
+						// Game message packet
 						case GAME_MESSAGE:
 							printf("Game message packet received!\n");
+
+							switch (packet.subType) {
+								
+								case JOIN:
+									printf("Player joins game!\n");
+									newPlayer(&game.sPlayers, packet, game.nPlayers);
+									game.nPlayers++;
+									break;
+
+								case NICK:
+									printf("Player inserts nick!\n");
+									break;
+
+								case EXIT:
+									printf("Player exits the game!\n");
+									break;
+							}
+
 							break;
 
+						// Ack packet
 						case ACK:
 							printf("Ack packet received!\n");
 							break;
 
+						// Player movement packet
 						case PLAYER_MOVEMENT:
 							printf("Player movement packet received!\n");
 							break;
 
+						// Statisic packet
 						case STATISTICS_MESSAGE:
 							printf("Player movement packet received!\n");
 							break;
