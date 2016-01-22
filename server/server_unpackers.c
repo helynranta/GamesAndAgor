@@ -16,7 +16,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
   index += sizeof(uint32_t);
 
   /* message type */
-  uint8_t msgType = ntohs(*(uint8_t*)&buf[index]);
+  uint8_t msgType = *(uint8_t*)&buf[index];
   index += sizeof(uint8_t);
 
   /* payload length */
@@ -38,7 +38,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
   switch (msgType) {
     case GAME_MESSAGE:
       packet.msgType = GAME_MESSAGE;
-      subtype = ntohs(*(uint8_t*)&buf[index]);
+      subtype = *(uint8_t*)&buf[index];
       index += sizeof(uint8_t);
 
       /* GAME msg subtypes */
@@ -64,7 +64,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
     case ACK:
       packet.msgType = ACK;
       index += sizeof(uint32_t); /* skip irrelevant packet_id */
-      packet.ACKTYPE = ntohs(*(uint8_t*)&buf[index]);
+      packet.ACKTYPE = *(uint8_t*)&buf[index];
 
       switch (packet.ACKTYPE) {
         case JOIN:
