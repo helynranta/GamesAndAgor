@@ -28,7 +28,7 @@ int server(char* port) {
 	struct timeval tvSelect, tvUpdate;
 
   struct addrinfo hints = { .ai_flags = AI_PASSIVE,	/* Get addresses suitable for bind */
-                            .ai_family = PF_UNSPEC,
+                            .ai_family = PF_UNSPEC,git sta
                             .ai_socktype = SOCK_DGRAM,	/* Datagram socket - UDP */
                             .ai_protocol = IPPROTO_UDP};/* UDP protocol */
 
