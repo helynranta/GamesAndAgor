@@ -45,6 +45,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
       switch (subtype) {
         case JOIN:
           packet.subType = JOIN;
+          printf("In unpackers_ subtype: %d\n", packet.subType);
           return packet;
           break;
 
