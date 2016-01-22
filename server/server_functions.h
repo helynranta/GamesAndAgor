@@ -23,7 +23,7 @@ void append2ListObject(Object **pList, Object *pNew);
 void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
-void newPlayer(Player **pList, struct Packet packet);
+void newPlayer(Player **pList, struct Packet packet, int nPlayers);
 
 /* PACKING FUNCTIONS */
 int msgPacker(char **msgBuffer, Game *pGame, int toPlayerID, int msgType,
