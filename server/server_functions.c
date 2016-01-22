@@ -19,8 +19,11 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 
 	// Go through each player
 	for(p1 = sPlayers; p1->pNext != NULL; p1 = p1->pNext){
+		if (p1->state != ALIVE){continue;}
+
 		// Calculate distances to each player
 		for(p2 = p1->pNext; p2 != NULL; p2 = p2->pNext){
+			if (p2->state != ALIVE){continue;}
 			if(isWithinRange(p1->location, p2->location, p1->scale)){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
