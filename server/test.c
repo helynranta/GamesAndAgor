@@ -240,10 +240,14 @@ int client(char* port, char *serverip)
       *(uint16_t*)&dgram[index] = htons(uid);
       index += sizeof(uint16_t);
       uint32_t gametime = 23;
-      uint8_t msgtype = JOIN;
+      uint8_t msgtype = GAME_MESSAGE;
       *(uint32_t*)&dgram[index] = htonl(gametime);
       index += sizeof(uint32_t);
       *(uint8_t*)&dgram[index] = msgtype;
+			index += sizeof(uint8_t);
+			uint8_t subt = JOIN;
+			*(uint8_t*)&dgram[index] = subt;
+
 
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
         perror("sendto()");
