@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <time.h>
 // #define PAYLOAD_INDEX
 
 
@@ -32,3 +33,4 @@ int gameMsgPacker(char **pPL, Game *pGame, int toPlayerID,
 int ackPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType, int status);
 int statPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType);
 Player *getPlayer(int playerID, Player *pPlayer);
+void randomLocation(int *location);

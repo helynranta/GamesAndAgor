@@ -154,7 +154,7 @@ void newPlayer(Player **pList, struct Packet packet){
   p->ID = packet.ID;
   p->address = packet.senderAddr;
   memcpy(p->nick, packet.nick, 12);
-  //randomLocation(p->location);
+  randomLocation(p->location);
 
   /* Set initial values */
   p->scale = 1;
@@ -359,4 +359,10 @@ Player *getPlayer(int playerID, Player *pPlayer){
 		pPla = pPla->pNext;
 
 	return pPla;
+}
+
+void randomLocation(int *location){
+    srand(time(NULL));
+    location[0] = rand() % LIMIT_X;
+    location[1] = rand() % LIMIT_Y;
 }
