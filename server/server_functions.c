@@ -145,12 +145,27 @@ void clearListObject(Object **pList){
 	*pList = NULL;
 }
 
-void newPlayer(Player **pList){
+void newPlayer(Player **pList, struct Packet packet){
 	Player *p = NULL;
-	if (!(p = calloc(1,sizeof(Player))))
-		perror("calloc");
-	append2ListPlayer(pList, p);
-	p->address = (struct sockaddr*)&(p->addressStorage);
+  if (!(p = calloc(1,sizeof(Player))))
+    perror("Calloc");
+
+  /* Get uid, nick, address from packet */
+  p->ID = packet.ID;
+  p->address = packet.senderAddr;
+  memcpy(p->nick, packet.nick, 12);
+  //randomLocation(p->location);
+
+  /* Set initial values */
+  p->scale = 1;
+  p->points = 0;
+  p->state = 1;
+  p->ping = 0;
+  p->nearPlayers = NULL;
+  p->nearObjects = NULL;
+
+  /* Add new player to the list */
+  append2ListPlayer(pList, p);
 }
 
 

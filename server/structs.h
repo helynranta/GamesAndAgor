@@ -12,6 +12,8 @@
 
 
 #define BUFFERSIZE 1500
+#define MAX_NICK 12
+
 
 /*
 char buffer[1000];
@@ -66,7 +68,7 @@ typedef struct Player {
 
 	// For storing player's IP address //
 	struct sockaddr_storage addressStorage;
-	struct sockaddr* address;
+	struct sockaddr address;
 	/* NOTE: this pointer must point to addressStorage. It can't be done here,
 	 * it must be typecasted in a new player function:
 	 * address = (struct sockaddr*)&addressStorage; */
@@ -122,6 +124,25 @@ enum GAME_MESSAGE_TYPE {
     PLAYER_DEAD = 7,
     PLAYER_OUT = 8,
 	PING = 9
+};
+
+/*Struct for game msg/incoming packet */
+struct Packet{
+  int error;
+  uint8_t subType;
+  uint16_t posX, posY;
+  uint16_t dirX, dirY;
+  uint8_t ACKTYPE;
+  char nick[MAX_NICK];
+  uint16_t pingID;
+  uint16_t ping;
+
+  uint32_t gameTime; /* also known as ACK_PACKET_ID xD */
+  uint16_t ID;
+  uint8_t msgType;
+	uint32_t payloadLength;
+	struct sockaddr senderAddr;
+
 };
 
 /* GAME_UPDATE MSGS */
