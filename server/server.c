@@ -23,7 +23,9 @@ TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 
 
 int server(char* port) {
-  int socketfd = -1;
+  int socketfd = -1, activity;
+	fd_set readset;
+	struct timeval tvSelect, tvUpdate;
 
   struct addrinfo hints = { .ai_flags = AI_PASSIVE,	/* Get addresses suitable for bind */
                             .ai_family = PF_UNSPEC,
@@ -63,6 +65,7 @@ int server(char* port) {
         perror("bind()");
         return -1;
       }
+
       break;
     }
 
@@ -79,18 +82,66 @@ int server(char* port) {
     addrlen = sizeof(client_addr);
     struct sockaddr* client_address = (struct sockaddr*) &client_addr;
 
-    /* Try to receive something (expecting a char - length = 1 byte).. */
-    dgramlen = recvfrom(socketfd,&recvbuffer,SIZE,0,client_address,&addrlen);
-    struct Packet packet;
-    packet = unpackPacket(recvbuffer, client_address);
-    printf("PacketID: %d\n", packet.ID);
-    printf("msgType: %d\n", packet.msgType);
+		while (1) {
 
-    /* TASK: Get the sender address and port and print it*/
-    memset(&hostbuffer,0,NI_MAXHOST);
-    memset(&portbuffer,0,NI_MAXSERV);
+			// Refresh select() set
+			FD_ZERO(&readset);
+			FD_SET(socketfd, &readset);
 
-    printf("Server: Got %d bytes from %s:%s\n",dgramlen,hostbuffer,portbuffer);
+			tvSelect.tv_sec = 0;
+			tvSelect.tv_usec = 1000000;
+
+
+			// Start waiting for socket activity
+			activity = select(socketfd+1, &readset, NULL, NULL, &tvSelect);
+
+			// UPD activity
+			if (FD_ISSET(socketfd, &readset)) {
+					/* Try to receive something (expecting a char - length = 1 byte).. */
+					dgramlen = recvfrom(socketfd,&recvbuffer,SIZE,0,client_address,&addrlen);
+					struct Packet packet;
+					packet = unpackPacket(recvbuffer, client_address);
+
+					switch (packet.msgType) {
+
+						case GAME_MESSAGE:
+							printf("Game message packet received!\n");
+							break;
+
+						case ACK:
+							printf("Ack packet received!\n");
+							break;
+
+						case PLAYER_MOVEMENT:
+							printf("Player movement packet received!\n");
+							break;
+
+						default:
+							printf("Invalid packet received!\n");
+
+					}
+
+					printf("PacketID: %d\n", packet.ID);
+					printf("msgType: %d\n", packet.msgType);
+
+					/* TASK: Get the sender address and port and print it*/
+					memset(&hostbuffer,0,NI_MAXHOST);
+					memset(&portbuffer,0,NI_MAXSERV);
+
+					printf("Server: Got %d bytes from %s:%s\n",dgramlen,hostbuffer,portbuffer);
+			}
+
+			// TCP activity
+			else if (0) {
+
+			}
+
+			printf("Check if game update should be ran...\n");
+
+			// Run game update if enough time passed since last update
+
+
+	}
 
 /* Question:
 * Since we know the address and port client is using, it should be easy to send something
@@ -102,7 +153,7 @@ int server(char* port) {
     close(socketfd); /* REMEMBER ME! */
   }
   else {
-    printf("Server: Invalid port. Choose something between 1 - 65000\n");
+    printf("Server: Invalid port. Choose something between 1024 - 65000\n");
     return -1;
   }
 
@@ -147,7 +198,7 @@ int client(char* port, char *serverip)
       *(uint16_t*)&dgram[index] = htons(gt);
       index += sizeof(uint16_t);
       uint32_t gametime = 23;
-      uint8_t msgtype = 3;
+      uint8_t msgtype = 1;
       *(uint32_t*)&dgram[index] = htonl(gametime);
       index += sizeof(uint32_t);
       *(uint8_t*)&dgram[index] = msgtype;
