@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -pedantic -std=c99
+CFLAGS = -Wall -pedantic -std=gnu99
 LDFLAGS = -lm
 TARGET = server
 SOURCE = server.c server_functions.c server_unpackers.c
