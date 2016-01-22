@@ -233,12 +233,14 @@ int client(char* port, char *serverip)
       * sendto(socket, data , data length, flags, destination, struct length)
       * see 'man sendto'
       */
+			/* Dummy Join Test */
+
       int index = 0;
-      uint16_t gt = 32;
-      *(uint16_t*)&dgram[index] = htons(gt);
+      uint16_t uid = 0;
+      *(uint16_t*)&dgram[index] = htons(uid);
       index += sizeof(uint16_t);
       uint32_t gametime = 23;
-      uint8_t msgtype = 1;
+      uint8_t msgtype = JOIN;
       *(uint32_t*)&dgram[index] = htonl(gametime);
       index += sizeof(uint32_t);
       *(uint8_t*)&dgram[index] = msgtype;
