@@ -25,10 +25,11 @@ TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 int server(char* port) {
   int socketfd = -1, activity;
 	fd_set readset;
-	struct timeval tvSelect, tvUpdate;
+	struct timeval tvSelect, tvUpdate1, tvUpdate2;
+	long time1, time2;
 
   struct addrinfo hints = { .ai_flags = AI_PASSIVE,	/* Get addresses suitable for bind */
-                            .ai_family = PF_UNSPEC,git sta
+                            .ai_family = PF_UNSPEC,
                             .ai_socktype = SOCK_DGRAM,	/* Datagram socket - UDP */
                             .ai_protocol = IPPROTO_UDP};/* UDP protocol */
 
@@ -82,6 +83,12 @@ int server(char* port) {
     addrlen = sizeof(client_addr);
     struct sockaddr* client_address = (struct sockaddr*) &client_addr;
 
+		gettimeofday(&tvUpdate1, NULL);
+		gettimeofday(&tvUpdate2, NULL);
+
+		time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
+		time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
+
 		while (1) {
 
 			// Refresh select() set
@@ -90,7 +97,6 @@ int server(char* port) {
 
 			tvSelect.tv_sec = 0;
 			tvSelect.tv_usec = 1000000;
-
 
 			// Start waiting for socket activity
 			activity = select(socketfd+1, &readset, NULL, NULL, &tvSelect);
@@ -116,6 +122,10 @@ int server(char* port) {
 							printf("Player movement packet received!\n");
 							break;
 
+						case STATISTICS_MESSAGE:
+							printf("Player movement packet received!\n");
+							break;
+
 						default:
 							printf("Invalid packet received!\n");
 
@@ -136,7 +146,14 @@ int server(char* port) {
 
 			}
 
-			printf("Check if game update should be ran...\n");
+			if ((time2 - time1) >= 5000) {
+				printf("Game update!\n");
+				gettimeofday(&tvUpdate1, NULL);
+				time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
+			}
+			gettimeofday(&tvUpdate2, NULL);
+			time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
+
 
 			// Run game update if enough time passed since last update
 

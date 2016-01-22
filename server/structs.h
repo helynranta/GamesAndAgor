@@ -126,6 +126,13 @@ enum GAME_MESSAGE_TYPE {
 	PING = 9
 };
 
+enum PLAYER_STATUS {
+		JOINING = 0,
+		ALIVE = 1,
+		DEAD = 2,
+		OUT = 3
+};
+
 /*Struct for game msg/incoming packet */
 struct Packet{
   int error;
