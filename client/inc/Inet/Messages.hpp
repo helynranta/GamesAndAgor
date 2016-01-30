@@ -8,79 +8,63 @@
 #include <string>
 #include <vector>
 
-#define BUFFER_SIZE 1500
+#define BUFFER_SIZE 15000
+#define HEADER_SIZE 88
 
 class Message;
 class Points;
 class GameMessage;
 
 enum MESSAGE_TYPE {
-	GAME_MESSAGE = 0,
-	ACK = 1,
-	PLAYER_MOVEMENT = 2,
-	PLAYER_CHAT_MESSAGE = 3,
-	STATISTICS_MESSAGE = 4
+	GAME_MESSAGE = 0, ACK = 1, PLAYER_MOVEMENT = 2, PLAYER_CHAT_MESSAGE = 3, STATISTICS_MESSAGE = 4
 
 };
 
 enum GAME_MESSAGE_TYPE {
-	JOIN = 0,
-	NICK = 1,
-	EXIT = 2,
-	RESTART = 3,
-	GAME_END = 4,
-	GAME_UPDATE = 5,
-	POINTS = 6,
-	PLAYER_DEAD = 7,
-	PLAYER_OUT = 8
+	JOIN = 0, NICK = 1, EXIT = 2, RESTART = 3, GAME_END = 4, GAME_UPDATE = 5, POINTS = 6, PLAYER_DEAD = 7, PLAYER_OUT = 8
 
 };
 
 inline uint32_t UnpackUINT32_T(uint8_t * payload, int bufferPosition) {
 	uint32_t uint32Variable;
-	memcpy(&uint32Variable, payload, sizeof(uint32_t));
-	std::cout << "Location pointer: " << bufferPosition << std::endl;
+	memcpy(&uint32Variable, &payload[bufferPosition], sizeof(uint32_t));
+	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 	return ntohl(uint32Variable);
 }
 
 inline uint16_t UnpackUINT16_T(uint8_t * payload, int bufferPosition) {
 	uint16_t uint16Variable;
-	memcpy(&uint16Variable, payload, sizeof(uint16_t));
-	std::cout << "Location pointer: " << bufferPosition << std::endl;
+	memcpy(&uint16Variable, &payload[bufferPosition], sizeof(uint16_t));
+	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 	return ntohs(uint16Variable);
 }
 
 inline uint8_t UnpackUINT8_T(uint8_t * payload, int bufferPosition) {
 	uint8_t uint8Variable;
-	memcpy(&uint8Variable, payload, sizeof(uint8_t));
-	std::cout << "Location pointer: " << bufferPosition << std::endl;
+	memcpy(&uint8Variable, &payload[bufferPosition], sizeof(uint8_t));
 	return uint8Variable;
 }
 
-inline void PackUINT32ToPayload(uint32_t variableToPack, uint8_t * payload,
-		int bufferPosition) {
+inline void PackUINT32ToPayload(uint32_t variableToPack, uint8_t * payload, int bufferPosition) {
 	uint32_t uint32Variable = htonl(variableToPack);
+	std::cout << variableToPack << std::endl;
 	memcpy(&payload[bufferPosition], &uint32Variable, sizeof(uint32_t));
-	std::cout << "Location pointer: " << bufferPosition << std::endl;
+	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 }
 
-inline void PackUINT16ToPayload(uint16_t variableToPack, uint8_t * payload,
-		int bufferPosition) {
+inline void PackUINT16ToPayload(uint16_t variableToPack, uint8_t * payload, int bufferPosition) {
 	uint16_t uint16Variable = htons(variableToPack);
 	memcpy(&payload[bufferPosition], &uint16Variable, sizeof(uint16_t));
-	std::cout << "Location pointer: " << bufferPosition << std::endl;
+	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 }
 
-inline void PackUINT8ToPayload(uint8_t variableToPack, uint8_t * payload,
-		int bufferPosition) {
+inline void PackUINT8ToPayload(uint8_t variableToPack, uint8_t * payload, int bufferPosition) {
 	memcpy(&payload[bufferPosition], &variableToPack, sizeof(uint8_t));
-	std::cout << "Location pointer: " << bufferPosition << std::endl;
+	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 }
 
-inline uint8_t * CreateGameMessageACKHeader(uint32_t packetID,
-		GAME_MESSAGE_TYPE type) {
-	uint8_t * buffer = static_cast<uint8_t*>(malloc(
-			sizeof(uint32_t) + sizeof(uint8_t))); // Size of header
+inline uint8_t * CreateGameMessageACKHeader(uint32_t packetID, GAME_MESSAGE_TYPE type) {
+	uint8_t * buffer = static_cast<uint8_t*>(malloc(sizeof(uint32_t) + sizeof(uint8_t))); // Size of header
 	int bufferPosition = 0;
 	PackUINT32ToPayload(packetID, buffer, bufferPosition);
 	bufferPosition += sizeof(uint32_t);
@@ -91,11 +75,11 @@ inline uint8_t * CreateGameMessageACKHeader(uint32_t packetID,
 
 struct MessageHeader {
 		uint16_t user_id = 0;
-		uint32_t game_time;
-		uint8_t message_type;
-		uint32_t payload_length;
-		socklen_t addrlen;
-		struct sockaddr_storage sender_addr;
+		uint32_t game_time = 0;
+		uint8_t message_type = 0;
+		uint32_t payload_length = 0;
+		socklen_t addrlen = 0;
+		struct sockaddr_storage sender_addr = {};
 };
 
 class IMessage {
@@ -105,19 +89,20 @@ class IMessage {
 		virtual void Pack(Message*) = 0;
 		virtual void Update() = 0;
 		static Message * Unpack(MessageHeader, uint32_t, uint8_t*);
-		virtual void Ack(uint8_t*, int) = 0;
+		virtual int Ack(uint8_t*) = 0;
 };
 
 class Message: public IMessage {
 	public:
-		inline Message(uint32_t pPacketID, MESSAGE_TYPE pMessageType) {
-			packetID = pPacketID;
+		inline Message(MessageHeader header, MESSAGE_TYPE pMessageType) {
+			packetID = header.game_time;
+			userID = header.user_id;
 			messageType = pMessageType;
 		}
 		inline ~Message() {
 			;
 		}
-		void Pack() {
+		void Pack(Message *) {
 		}
 		;
 
@@ -126,12 +111,12 @@ class Message: public IMessage {
 		}
 		;
 
-		inline void Ack(uint8_t* payload, int bufferPosition) {
+		inline int Ack(uint8_t* payload) {
+			return 0;
 		}
 		;
 
-		static void UnpackHeader(int socket_fd, struct MessageHeader*,
-				uint8_t*);
+		static void UnpackHeader(int socket_fd, struct MessageHeader*, uint8_t*);
 
 		static void Unpack(MessageHeader, uint32_t, uint8_t*);
 
@@ -139,13 +124,70 @@ class Message: public IMessage {
 			return packetID;
 		}
 		;
+		inline uint32_t getUserID() const {
+			return userID;
+		}
+		;
+
+		inline uint32_t getPayloadSize() const {
+			return payloadSize;
+		}
+		;
+
+		inline int addPayloadSize(int size) {
+			payloadSize += size;
+			return size;
+		}
+		;
+
 		inline MESSAGE_TYPE getMessageType() const {
 			return messageType;
 		}
 		;
+
+		inline static int CreateHeader(Message * message, uint8_t * buffer) {
+			int bufferPosition = 0;
+
+			// insert USER_ID to buffer
+			uint16_t userID = static_cast<uint16_t>(message->getUserID());
+			PackUINT16ToPayload(userID, buffer, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// insert GAME_TIME to buffer
+			uint32_t gameTime = static_cast<uint32_t>(message->getpacketID());
+			PackUINT32ToPayload(gameTime, buffer, bufferPosition);
+			bufferPosition += sizeof(uint32_t);
+			//int asd = bufferPosition - (sizeof(uint32_t));
+			//std::cout <<  "Buffer pos: " << bufferPosition << " checked position: " << asd << " :: "  << UnpackUINT32_T(buffer, asd) << std::endl;
+
+			// insert MESSAGE_TYPE to buffer
+			std::cout << "MessageType: " << message->getMessageType() << std::endl;
+			uint8_t type = static_cast<uint8_t>(message->getMessageType());
+			PackUINT8ToPayload(type, buffer, bufferPosition);
+			bufferPosition += sizeof(uint8_t);
+			//asd = bufferPosition - (sizeof(uint8_t));
+			//std::cout <<  "Buffer pos: " << bufferPosition << " checked position: " << asd << " :: "  << UnpackUINT8_T(buffer, asd) << std::endl;
+
+			// insert payloadSize to buffer
+			uint32_t payloadSize = static_cast<uint32_t>(message->getPayloadSize());
+			PackUINT32ToPayload(payloadSize, buffer, bufferPosition);
+			bufferPosition += sizeof(uint32_t);
+
+			return bufferPosition;
+		}
+
+		uint32_t getHeaderSize(){
+			return headerSize;
+		}
+
+
+
 	protected:
 		uint32_t packetID;
+		uint32_t userID;
+		uint32_t payloadSize = 0;
 		MESSAGE_TYPE messageType;
+		static const uint32_t headerSize = 11;
 
 };
 
@@ -153,7 +195,7 @@ class GameMessage: public Message {
 	public:
 
 		inline GameMessage(MessageHeader header, GAME_MESSAGE_TYPE pGameMessageType) :
-				Message(header.game_time, MESSAGE_TYPE::GAME_MESSAGE) {
+				Message(header, MESSAGE_TYPE::GAME_MESSAGE) {
 			gameMessageType = pGameMessageType;
 		}
 		;
@@ -197,10 +239,48 @@ class Join: public GameMessage {
 		}
 		;
 
-		inline void Ack(uint8_t* payload, int bufferPosition) {
-			// insert MESSAGE_TYPE to buffer
+		inline int PackSelf(uint8_t * payload){
+
+			int bufferPosition = getHeaderSize();
+
+
+			// insert MSG_SUBTYPE to buffer
+			std::cout << "GameMessageType: " << getGameMessageType() << std::endl;
+			PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
+			bufferPosition += addPayloadSize(sizeof(uint8_t));
+
+//			// insert USER_ID to buffer
+//			PackUINT32ToPayload(getUserID(), payload, bufferPosition);
+//			bufferPosition += addPayloadSize(sizeof(uint32_t));
+//
+//			// insert GAME_MESSAGE_TYPE to buffer
+//			PackUINT8ToPayload(static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN), payload, bufferPosition);
+//			bufferPosition += addPayloadSize(sizeof(uint8_t));
+
+			// insert PAYLOAD_SIZE to buffer
+//			PackUINT32ToPayload(0, payload, bufferPosition);
+//			bufferPosition += addPayloadSize(sizeof(uint32_t));
+
+			CreateHeader(this, payload);
+			std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
+
+			return bufferPosition;
+		};
+
+
+		inline int Ack(uint8_t * payload) {
+			int bufferPosition = 0;
+			bufferPosition += CreateHeader(this, payload);
+
+			// insert USER_ID to buffer
+			uint32_t userID = static_cast<uint32_t>(getUserID());
+			PackUINT32ToPayload(userID, payload, bufferPosition);
+			bufferPosition += sizeof(uint32_t);
+
+			// insert GAME_MESSAGE_TYPE to buffer
 			uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN);
 			PackUINT8ToPayload(type, payload, bufferPosition);
+			return bufferPosition;
 		}
 		;
 };
@@ -217,10 +297,15 @@ class Nick: public GameMessage {
 		}
 		;
 
-		void Ack(uint8_t* payload, int bufferPosition) {
+		int Ack(uint8_t* payload) {
+
+			int bufferPosition = 0;
+			bufferPosition = Message::CreateHeader(dynamic_cast<Message*>(this), payload);
+
 			// insert MESSAGE_TYPE to buffer
 			uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::NICK);
 			PackUINT8ToPayload(type, payload, bufferPosition);
+			return bufferPosition;
 		}
 		;
 
@@ -241,11 +326,13 @@ class Exit: public GameMessage {
 		}
 		;
 
-		void Ack(uint8_t* payload, int bufferPosition) {
+		int Ack(uint8_t* payload) {
+			int bufferPosition = 0;
 			// insert MESSAGE_TYPE to buffer
 			uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN);
 			payload = CreateGameMessageACKHeader(packetID, getGameMessageType());
 			PackUINT8ToPayload(type, payload, bufferPosition);
+			return bufferPosition;
 		}
 		;
 };
@@ -262,10 +349,12 @@ class Restart: public GameMessage {
 		}
 		;
 
-		void Ack(uint8_t* payload, int bufferPosition) {
+		int Ack(uint8_t* payload) {
+			int bufferPosition = 0;
 			// insert MESSAGE_TYPE to buffer
 			uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN);
 			PackUINT8ToPayload(type, payload, bufferPosition);
+			return bufferPosition;
 		}
 		;
 
@@ -303,16 +392,17 @@ class GameEnd: public GameMessage {
 		}
 		;
 
-		inline static GameEnd * Unpack(MessageHeader header, uint32_t lenght,
-				uint8_t * payload) {
+		inline static GameEnd * Unpack(MessageHeader header, uint32_t lenght, uint8_t * payload) {
 			return new GameEnd(header, Points::Unpack(header, lenght, payload));
 		}
 		;
 
-		void Ack(uint8_t* payload, int bufferPosition) {
+		int Ack(uint8_t* payload) {
+			int bufferPosition = 0;
 			// insert MESSAGE_TYPE to buffer
 			uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN);
 			PackUINT8ToPayload(type, payload, bufferPosition);
+			return bufferPosition;
 		}
 		;
 
@@ -332,8 +422,7 @@ class PlayerDead: public GameMessage {
 			;
 		}
 		;
-		inline static PlayerDead* Unpack(MessageHeader header, uint32_t length,
-				uint8_t* payload) {
+		inline static PlayerDead* Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
 			uint16_t playerID = UnpackUINT16_T(payload, 0);
 			return new PlayerDead(header, playerID);
 		}
@@ -359,8 +448,7 @@ class PlayerOut: public GameMessage {
 			;
 		}
 		;
-		inline static PlayerOut * Unpack(MessageHeader header, uint32_t length,
-				uint8_t* payload) {
+		inline static PlayerOut * Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
 			uint16_t playerID = UnpackUINT16_T(payload, 0);
 			return new PlayerOut(header, playerID);
 		}
@@ -375,9 +463,8 @@ class PlayerOut: public GameMessage {
 
 class GameUpdate: public GameMessage {
 	public:
-		inline GameUpdate(MessageHeader header, uint16_t pPos_x,
-				uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y,
-				uint8_t pNumber_of_players, uint16_t pNnumber_of_objects) :
+		inline GameUpdate(MessageHeader header, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint8_t pNumber_of_players,
+				uint16_t pNnumber_of_objects) :
 				GameMessage(header, GAME_MESSAGE_TYPE::GAME_UPDATE) {
 			pos_x = pPos_x;
 			pos_y = pPos_y;
@@ -406,8 +493,7 @@ class GameUpdate: public GameMessage {
 
 class GamePlayer {
 	public:
-		inline GamePlayer(uint16_t pPlayerID, uint16_t pPos_x, uint16_t pPos_y,
-				uint16_t pDir_x, uint16_t pDir_y, uint32_t pSize) {
+		inline GamePlayer(uint16_t pPlayerID, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint32_t pSize) {
 			playerID = pPlayerID;
 			pos_x = pPos_x;
 			pos_y = pPos_y;
@@ -427,8 +513,7 @@ class GamePlayer {
 
 class GameObject {
 	public:
-		inline GameObject(uint16_t pObjectID, uint16_t pLoc_x,
-				uint16_t pLoc_y) {
+		inline GameObject(uint16_t pObjectID, uint16_t pLoc_x, uint16_t pLoc_y) {
 			objectID = pObjectID;
 			loc_x = pLoc_x;
 			loc_y = pLoc_y;
@@ -460,5 +545,6 @@ class ChatMessage: public Message {
 		virtual ~ChatMessage();
 		static ChatMessage * Unpack(MessageHeader, uint32_t, uint8_t*);
 };
+
 
 #endif

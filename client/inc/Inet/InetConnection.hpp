@@ -27,26 +27,29 @@ private:
     int length = 0;
     int rval = 0;
     char dgram[1];
-    std::string ip = "";
-    std::string port = "";
+    std::string serverIP = "";
+    std::string serverPort = "";
     fd_set socket_fds;
     fd_set socket_fds_temp;
     struct timeval timeout;
-    int listensocket = -1;
-    int biggestsocket = -1;
+    int tcp_socket_fd = -1;
+    int udpListensocket = -1;
+    int biggestSocket = -1;
     void unpack_header();
     std::vector<Message*> m_messages;
 protected:
+
+public:
     /* protected data */
     InetConnection();
     ~InetConnection() {;}
-public:
-    bool send(std::string l_ip, std::string l_port, std::string message);
-    bool connect(std::string ip, std::string port);
+    int createTCPSocket(std::string serverip, std::string port);
+    bool send(uint8_t *, int);
+    bool startConnection(std::string ip, std::string port);
     bool disconnect();
     void update();
     std::vector<Message*> messages;
-    void init();
+    void init(std::string l_ip, std::string l_port);
     void destroy();
     std::vector<ChatMessage*> getChatMessages();
     std::vector<PlayerDead*> getDeadPayers();

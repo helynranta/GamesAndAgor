@@ -16,11 +16,15 @@ InetConnection::InetConnection() {
 	};
 
 	iter = nullptr;
+
 }
 
 std::vector<Message*> messages;
 
-void InetConnection::init(void) {
+void InetConnection::init(std::string l_ip, std::string l_port) {
+	m_state = ConnectionState::CONNECTING;
+	serverIP = l_ip;
+	serverPort = l_port;
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
@@ -34,20 +38,21 @@ void InetConnection::init(void) {
 		// Go through every returned address and attempt to connect to each
 		for (iter = result; iter != NULL; iter = iter->ai_next) {
 			/* Can socket be created? */
-			if ((listensocket = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
+			if ((udpListensocket = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
 				std::cout << "Error socket(): " << strerror(errno) << std::endl;
 				exit (EXIT_FAILURE);
 				break;
 			}
-			if (bind(listensocket, iter->ai_addr, iter->ai_addrlen) < 0) {
-				close(listensocket); /* Even when bind fails, socket remains, close it */
+			if (bind(udpListensocket, iter->ai_addr, iter->ai_addrlen) < 0) {
+				close(udpListensocket); /* Even when bind fails, socket remains, close it */
 				std::cout << "Error bind(): " << strerror(errno) << std::endl;
 				break;
 			}
 			break;
 		}
 	}
-	std::cout << "Listening socket" << listensocket << std::endl;
+	m_state = ConnectionState::CONNECTED;
+	std::cout << "Listening socket" << udpListensocket << std::endl;
 }
 
 /** deconstructor
@@ -71,20 +76,21 @@ void InetConnection::destroy(void) {
  * @params: void
  * @return: bool success. returns success if there was no socket error
  */
-bool InetConnection::send(std::string l_ip, std::string l_port, std::string message) {
+//bool InetConnection::send(std::string l_ip, std::string l_port, std::string message) {
+bool InetConnection::send(uint8_t * message, int size) {
 	/* Try to send data to server:
 	 * sendto(socket, data , data length, flags, destination, struct length)
 	 * see 'man sendto'
 	 */
 
 	struct addrinfo * server_addrinfo = nullptr;
-	if (getaddrinfo(l_ip.c_str(), l_port.c_str(), &hints, &server_addrinfo) < 0) {
+	if (getaddrinfo(serverIP.c_str(), serverPort.c_str(), &hints, &server_addrinfo) < 0) {
 		std::cout << "Cannot resolve address: " << strerror(errno) << std::endl;
 		return false;
 	}
 
-	/* send to asdfasdf	 */
-	if ((sendto(listensocket, message.c_str(), BUFFER_SIZE, 0, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) < 0) {
+	/* send to server	 */
+	if ((sendto(udpListensocket, message, size, 0, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) < 0) {
 		std::cout << "Error sentto(): " << strerror(errno) << std::endl;
 		return false;
 	} else {
@@ -100,9 +106,60 @@ bool InetConnection::send(std::string l_ip, std::string l_port, std::string mess
  * @params: string ip, string port. Port and IP of the server we are connecting.
  * @return: bool success. returns success if there was no socket error
  */
-bool InetConnection::connect(std::string l_ip, std::string l_port) {
-	return false;
+bool InetConnection::startConnection(std::string l_ip, std::string l_port) {
+	// CREATE TCP CONNECTION
+	std::cout << "Connecting TCP to server at " << l_ip << ":" << l_port << std::endl;
+	tcp_socket_fd = createTCPSocket(l_ip, l_port);
+	if (tcp_socket_fd == -1) {
+		std::cout << "Error creating tcp stream" << std::endl;
+		exit (EXIT_FAILURE);
+	}
+
+	return true;
 }
+
+int InetConnection::createTCPSocket(std::string serverip, std::string port) {
+	int tcp_socket_fd = -1, yes = 1;
+
+	struct addrinfo hints = {
+	AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
+			AF_UNSPEC,  // addrinfo::ai_family
+			SOCK_STREAM,  // addrinfo::ai_socktype
+			0, 0, nullptr, nullptr  // unused
+			};
+
+	struct addrinfo *result = NULL, *iter = NULL, *client_tcp_addrinfo = NULL;
+
+	if (getaddrinfo(serverip.c_str(), port.c_str(), &hints, &result)) {
+		std::cout << "Cannot resolve address. Exiting" << std::endl;
+		exit (EXIT_FAILURE);
+	} else {
+		for (iter = result; iter != NULL; iter = iter->ai_next) {
+
+			if ((tcp_socket_fd = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
+				perror("socket()");
+				break;
+			}
+
+			if (setsockopt(tcp_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0) {
+				perror("sockopts()");
+				break;
+			}
+
+			client_tcp_addrinfo = iter;
+			break;
+		}
+	}
+	if (connect(tcp_socket_fd, client_tcp_addrinfo->ai_addr, client_tcp_addrinfo->ai_addrlen) < 0) {
+	//if (connect(tcp_socket_fd, (const sockaddr*) &client_tcp_addrinfo->ai_addr, sizeof(client_tcp_addrinfo)) < 0) {
+		perror("connect()");
+		return -1;
+	}
+
+	freeaddrinfo(result);
+	return tcp_socket_fd;
+}
+
 bool InetConnection::disconnect() {
 	if (result == nullptr)
 		freeaddrinfo(result);
@@ -112,19 +169,19 @@ bool InetConnection::disconnect() {
 
 void InetConnection::update() {
 	memset(&timeout, 0, sizeof(timeout));
-	biggestsocket = 0;
+	biggestSocket = 0;
 	timeout.tv_usec = 1000; // microseconds
-	timeout.tv_sec = 2; // seconds
+	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 
 // Add listening socket to the set and check if it is the biggest socket number
-	FD_SET(listensocket, &socket_fds);
-	if (listensocket > biggestsocket) {
-		std::cout << "We have a descriptor: " << listensocket << std::endl;
-		biggestsocket = listensocket;
+	FD_SET(udpListensocket, &socket_fds);
+	if (udpListensocket > biggestSocket) {
+		std::cout << "We have a descriptor: " << udpListensocket << std::endl;
+		biggestSocket = udpListensocket;
 	}
 	Message * unpackedMessage;
-	switch (select(biggestsocket + 1, &socket_fds, NULL, NULL, &timeout)) {
+	switch (select(biggestSocket + 1, &socket_fds, NULL, NULL, &timeout)) {
 	case (-1):
 		std::cout << "Error -1" << std::endl;
 		break;
@@ -137,7 +194,7 @@ void InetConnection::update() {
 
 		uint8_t payloadBuffer[BUFFER_SIZE];
 
-		for (int socket_fd = 0; socket_fd <= biggestsocket; socket_fd++) {
+		for (int socket_fd = 0; socket_fd <= biggestSocket; socket_fd++) {
 			if (FD_ISSET(socket_fd, &socket_fds)) {
 				std::cout << "Unpacking" << std::endl;
 				Message::UnpackHeader(socket_fd, header, payloadBuffer);
@@ -146,13 +203,18 @@ void InetConnection::update() {
 		}
 		break;
 	}
-
+	int payloadLength = 0;
+	uint8_t  senderPayload[BUFFER_SIZE];
 	switch (unpackedMessage->getMessageType()) {
 	case MESSAGE_TYPE::GAME_MESSAGE:
-//		switch (unpackedMessage->getMessageType()) {
-//		case GAME_MESSAGE_TYPE::JOIN:
-//			message = dynamic_cast<Join*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::NICK:
+		switch (static_cast<const GameMessage*>(unpackedMessage)->getGameMessageType()) {
+		case GAME_MESSAGE_TYPE::JOIN:
+			// DO JOIN STUFF
+			payloadLength = dynamic_cast<Join*>(unpackedMessage)->Ack(senderPayload);
+			std::string message(reinterpret_cast<char*>(&senderPayload));
+			// send(message);
+
+		//case GAME_MESSAGE_TYPE::NICK:
 //			return dynamic_cast<Nick*>(unpackedMessage);
 //		case GAME_MESSAGE_TYPE::EXIT:
 //			return dynamic_cast<Exit*>(unpackedMessage);
@@ -168,7 +230,7 @@ void InetConnection::update() {
 //			return dynamic_cast<PlayerDead*>(unpackedMessage);
 //		case GAME_MESSAGE_TYPE::PLAYER_OUT:
 //			return dynamic_cast<PlayerOut*>(unpackedMessage);
-//		}
+		}
 		break;
 	case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE:
 		break;
