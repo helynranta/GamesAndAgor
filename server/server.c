@@ -8,10 +8,7 @@
 * Contains simple UDP client that connects to given IP address and sends
 * characters then quits.
 *
-* Author:
-*   Jussi Laakkonen
-*   1234567
-*   jussi.laakkonen@lut.fi
+
 
 TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 */
@@ -21,6 +18,10 @@ TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 #define SIZE 256
 #define TCPPORT "2056"
 
+
+int sendAck(struct sockaddr *to, struct Ack *ack, struct Packet packet){
+
+}
 
 
 int server(char* port) {
@@ -170,6 +171,8 @@ int server(char* port) {
 							FD_SET(newfd, &master);
 							if(newfd > fdmax)
 								fdmax = newfd;
+
+								/* Add tcp connection to player */
 						}
 					}
 						else if(i == socketfd) {
