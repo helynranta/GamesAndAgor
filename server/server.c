@@ -18,9 +18,11 @@ TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 #define SIZE 256
 #define TCPPORT "2056"
 
+int addAckToList(){
 
-int sendAck(struct sockaddr *to, struct Ack *ack, struct Packet packet){
-
+}
+int sendMsg(struct sockaddr *to, struct Ack *ack, struct Packet packet){
+/* Wait what? !? */
 }
 
 
@@ -42,6 +44,7 @@ int server(char* port) {
   char hostbuffer[NI_MAXHOST] = { 0 };
   char portbuffer[NI_MAXSERV] = { 0 };
   char recvbuffer[SIZE] = { 0 };
+	char sendbuffer[SIZE] = {0};
 	tv.tv_usec = 1000000;
 	tv.tv_sec = 0;
 
@@ -194,6 +197,8 @@ int server(char* port) {
 											printf("Player joins game!\n");
 											newPlayer(&game.sPlayers, packet, game.nPlayers);
 											game.nPlayers++;
+											msgPacker(sendbuffer, &game, packet.ID, ACK, JOIN, 0,1);
+											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 											break;
 
 										case NICK:

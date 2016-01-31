@@ -172,7 +172,7 @@ void newPlayer(Player **pList, struct Packet packet, int nPlayers){
 }
 
 
-int msgPacker(char **msgBuffer, Game *pGame, int toPlayerID, int msgType,
+int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
 	int msgSubType, int outPlayerID, int status){
 	/* toPlayerID: to Which player (ID) the message is
 	 * outPlayerID: ID of a player which is either OUT or DEAD
@@ -187,7 +187,7 @@ int msgPacker(char **msgBuffer, Game *pGame, int toPlayerID, int msgType,
 	 */
 
 	int ind = 0, plLength;
-	char **pPL = &msgBuffer[PLIND];  // pointer to PAYLOAD
+	char *pPL = &msgBuffer[PLIND];  // pointer to PAYLOAD
 
 	memset(msgBuffer,'\0',BUFFERSIZE);
 
@@ -224,7 +224,7 @@ int msgPacker(char **msgBuffer, Game *pGame, int toPlayerID, int msgType,
 	return 0;
 }
 
-int gameMsgPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType,
+int gameMsgPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType,
 	int outPlayerID){
 
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
@@ -312,7 +312,7 @@ int gameMsgPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType,
 	return -1;
 }
 
-int ackPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType, int status){
+int ackPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType, int status){
 	int ind = 0;
 
 	*(uint32_t*) &pPL[ind] = htonl(pGame->gameTime);
@@ -342,7 +342,7 @@ int ackPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType, int statu
 	return -1;
 }
 
-int statPacker(char **pPL, Game *pGame, int toPlayerID, int msgSubType){
+int statPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType){
 	Player *pPla = getPlayer(toPlayerID, pGame->sPlayers);
 	int ind = 0;
 	if (pPla == NULL)
