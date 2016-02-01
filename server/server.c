@@ -207,6 +207,11 @@ int server(char* port) {
 										case NICK:
 											printf("Player inserted nick!\n");
 											printf("Nick: %s\n", packet.nick);
+											int nickStatus = -1;
+
+											/* Check nick */
+											/* If nick OK, send ACK:NICK:OK */
+											/* Else nick not OK, send ACK:NICK:NOT_OK */
 											break;
 
 										case EXIT:
@@ -219,11 +224,15 @@ int server(char* port) {
 								// Ack packet
 								case ACK:
 									printf("Ack packet received!\n");
+									/* Handle ack */
+									/* remove ack from server's own ack list */
 									break;
 
 								// Player movement packet
 								case PLAYER_MOVEMENT:
 									printf("Player movement packet received!\n");
+									/* Do game functions:
+									calculate nearby objects etc. */
 									break;
 
 								// Statisic packet
