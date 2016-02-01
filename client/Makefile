@@ -34,7 +34,7 @@ SOURCES		:=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS     := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.$(OBJEXT)))
 
 # Defauilt Make
-all: scene resources $(TARGET)
+all: resources $(TARGET)
 
 run: all
 	$(TARGETDIR)/$(TARGET)

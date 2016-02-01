@@ -47,5 +47,6 @@ public:
     std::vector<Message*> messages;
     void init();
     void destroy();
+    inline const ConnectionState& getState() const { return m_state; }
 };
 #endif

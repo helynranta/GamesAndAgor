@@ -6,6 +6,7 @@
 #include "core/Scene.hpp"
 
 // statics
+map<int, function<void()>> Engine::_functions;
 map<string, Scene*> Engine::m_scenes;
 string Engine::m_currentScene = "";
 GameState Engine::gameState = GameState::QUIT;
@@ -30,15 +31,24 @@ Engine::~Engine() {
 	for (auto& it : m_scenes) {
 		delete it.second;
 	}
-	m_scenes.empty();
+	m_scenes.clear();
+	_functions.clear();
 
+	camera->destroy();
 	R->destroy();
 	input->empty();
 	connection->disconnect();
+	connection->destroy();
 	window->destroy();
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
+
+	delete connection;
+	delete camera;
+	delete R;
+	delete input;
+	delete window;
 }
 int Engine::init() {
 	int success = 1;
@@ -120,6 +130,7 @@ void Engine::update() {
 		m_scenes[m_currentScene]->update(m_deltaTime);
 		m_scenes[m_currentScene]->updateGUI();
 		camera->update();
+		invokeTimeout();
 	}
 }
 void Engine::processInput() {
@@ -158,6 +169,14 @@ void Engine::processInput() {
 				debugging = false;
 			else
 				debugging = true;
+		}
+	}
+}
+void Engine::invokeTimeout() {
+	for(auto it = _functions.begin(); it != _functions.end(); it++) {
+		if(SDL_GetTicks() > it->first) {
+			it->second();
+			_functions.erase(it);
 		}
 	}
 }

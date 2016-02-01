@@ -2,13 +2,15 @@
 #define _ENGINE_HPP
 
 #include <initializer_list>
-
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <memory>
 #include <map>
 #include <string>
 #include <vector>
+#include <stdarg.h>
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_events.h"
@@ -26,6 +28,7 @@
 #include "GUI/GUIText.hpp"
 
 #include "Inet/InetConnection.hpp"
+
 
 enum GameState { PLAY, PAUSE, QUIT };
 
@@ -53,6 +56,9 @@ private:
     float m_deltaTime;
     static unsigned int debugKey;
     static bool debugging;
+    // vector of lambda functions
+    static map<int, function<void()>> _functions;
+    static void invokeTimeout();
 protected:
     /* protected data */
     static map<string, Scene*> m_scenes;
@@ -77,6 +83,9 @@ public:
     static ResourceManager* R;
     static InputManager* input;
     static Window* window;
+    static inline void setTimeout(int _ms, function<void()> function) {
+        _functions.insert({SDL_GetTicks()+_ms, function});
+    }
 };
 
 #endif
