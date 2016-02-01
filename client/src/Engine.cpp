@@ -131,6 +131,7 @@ void Engine::update() {
 		m_scenes[m_currentScene]->update(m_deltaTime);
 		m_scenes[m_currentScene]->updateGUI();
 		camera->update();
+		connection->update();
 		invokeTimeout();
 	}
 }

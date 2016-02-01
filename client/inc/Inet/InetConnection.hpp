@@ -11,10 +11,13 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "Inet/Messages.hpp"
 
-enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, TIMING_OUT, EXITING };
+using namespace std;
+
+enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, REFUSED, TIMING_OUT, EXITING };
 
 class InetConnection {
 friend class Engine;
@@ -22,8 +25,11 @@ private:
     /* private data */
     ConnectionState m_state = ConnectionState::DISCONNECTED;
     struct addrinfo hints;
-    struct addrinfo *result;
+    struct addrinfo *res;
     struct addrinfo *iter;
+    
+    struct sockaddr_in server_addr; // lassi uses this
+    struct hostent* server;
     int length = 0;
     int rval = 0;
     char dgram[1];
@@ -32,8 +38,11 @@ private:
     fd_set socket_fds;
     fd_set socket_fds_temp;
     struct timeval timeout;
+    
     int listensocket = -1;
     int biggestsocket = -1;
+    
+    int sockettcp;
     void unpack_header();
     std::vector<Message*> m_messages;
 protected:
@@ -42,7 +51,7 @@ protected:
     ~InetConnection() {;}
 public:
     bool send(std::string l_ip, std::string l_port, std::string message);
-    bool connect(std::string ip, std::string port);
+    bool connect(const std::string& ip, const std::string& port);
     bool disconnect();
     void update();
     std::vector<Message*> messages;

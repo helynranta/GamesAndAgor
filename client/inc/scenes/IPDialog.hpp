@@ -2,6 +2,7 @@
 #define _IPDIALOG_HPP
 
 #include <iostream>
+#include <cerrno>
 
 #include "Engine.hpp"
 #include "core/Scene.hpp"
@@ -30,12 +31,11 @@ public:
             // show right text
             gui->getText("hint")->setText("Trying to connect to server...");
             gui->getInput("input")->hide();
-            // put here if connect returns true
-            if(true) Engine::startScene("NickDialog");
-            else gui->getText("hint")->setText("Connection failed, give new IP");
+            Engine::connection->connect("127.0.0.1", "3000");
         } else if(Engine::connection->getState() == ConnectionState::DISCONNECTED)
             gui->getInput("input")->show();
-
+        if(Engine::connection->getState() == ConnectionState::CONNECTED)
+          Engine::startScene("NickDialog");
     }
 
     inline void end() override {}

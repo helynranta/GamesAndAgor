@@ -6,21 +6,26 @@
 #define UDP_BUFMAX "1500"
 
 InetConnection::InetConnection() {
-	result = static_cast<addrinfo*>(malloc(sizeof(addrinfo)));
-	hints = {
+	//result = static_cast<addrinfo*>(malloc(sizeof(addrinfo)));
+	/*hints = {
 		AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
 		PF_UNSPEC,// addrinfo::ai_family
-		SOCK_DGRAM,// addrinfo::ai_socktype
+		SOCK_STREAM,// addrinfo::ai_socktype
 		IPPROTO_UDP,// addrinfo::ai_protocol
 		0, 0, nullptr, nullptr// unused
 	};
-
+	*/
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
 	iter = nullptr;
 }
 
 std::vector<Message*> messages;
 
 void InetConnection::init(void) {
+  /*
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
@@ -33,14 +38,13 @@ void InetConnection::init(void) {
 		std::cout << "getaddrinfo success" << std::endl;
 		// Go through every returned address and attempt to connect to each
 		for (iter = result; iter != NULL; iter = iter->ai_next) {
-			/* Can socket be created? */
 			if ((listensocket = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
 				std::cout << "Error socket(): " << strerror(errno) << std::endl;
 				exit (EXIT_FAILURE);
 				break;
 			}
 			if (bind(listensocket, iter->ai_addr, iter->ai_addrlen) < 0) {
-				close(listensocket); /* Even when bind fails, socket remains, close it */
+				close(listensocket);
 				std::cout << "Error bind(): " << strerror(errno) << std::endl;
 				break;
 			}
@@ -48,6 +52,7 @@ void InetConnection::init(void) {
 		}
 	}
 	std::cout << "Listening socket" << listensocket << std::endl;
+	*/
 }
 
 void InetConnection::destroy(void) {
@@ -58,11 +63,6 @@ void InetConnection::destroy(void) {
 	// empty whole vector
 	messages.clear();
 }
-/** send
- * this function sends socket messages
- * @params: void
- * @return: bool success. returns success if there was no socket error
- */
 bool InetConnection::send(std::string l_ip, std::string l_port, std::string message) {
 	/* Try to send data to server:
 	 * sendto(socket, data , data length, flags, destination, struct length)
@@ -85,6 +85,7 @@ bool InetConnection::send(std::string l_ip, std::string l_port, std::string mess
 	return true;
 
 }
+// http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
 /**
  * connect
  * this function tries to connect to given server crediterials.
@@ -92,17 +93,60 @@ bool InetConnection::send(std::string l_ip, std::string l_port, std::string mess
  * @params: string ip, string port. Port and IP of the server we are connecting.
  * @return: bool success. returns success if there was no socket error
  */
-bool InetConnection::connect(std::string l_ip, std::string l_port) {
+bool InetConnection::connect(const std::string& l_ip, const std::string& l_port) {
+  if(m_state != ConnectionState::CONNECTING) {
+    cout << "Trying to connect to host" << endl;
+    // get server address information
+    ip = l_ip;
+    port = l_port;
+    if(getaddrinfo(ip.c_str(), port.c_str(),&hints, &res) != 0) {
+      cerr << "getaddrinfo error "<< strerror(errno) << endl;
+      return false;
+    }
+    // create socket
+  	if((sockettcp = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol))< 0) {
+  	  cerr << "cannot create socket for tcp connection " << strerror(errno) << endl;
+  	  return false;
+  	}
+  	if(::connect(sockettcp, res->ai_addr, res->ai_addrlen)<0) {
+  	  cout << strerror(errno) << endl;
+  	}
+
+  }
+	//try to connect
+	m_state = ConnectionState::CONNECTING;
+	//memset(static_cast<char*>(&me_addr), 0, sizeof(me_addr)):
+	
 	return false;
 }
 bool InetConnection::disconnect() {
-	if (result == nullptr)
-		freeaddrinfo(result);
-	//close(socketfd);
+	if (res == nullptr) freeaddrinfo(res);
+	close(sockettcp);
 	return true;
 }
 
 void InetConnection::update() {
+  // if connecting
+  
+  if(m_state == ConnectionState::CONNECTING) {
+    void* err;
+    socklen_t len;
+    getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len);
+    cout << err << endl;
+    /*
+    if(success < 0) {
+      cout << errno << endl;
+      if(errno == 111)
+        m_state = ConnectionState::REFUSED;
+      if(errno == 114 || errno == 115)
+        m_state = ConnectionState::CONNECTING;
+    } else {
+      cout << "should be connected" << endl;
+    }
+    */
+    return;
+  }
+  /*
 	memset(&timeout, 0, sizeof(timeout));
 	biggestsocket = 0;
 	timeout.tv_usec = 1000; // microseconds
@@ -173,7 +217,7 @@ void InetConnection::update() {
 	default:
 		break;
 	}
-
+  */
 	/*
 	 switch msg{
 	 case JOIN_ACK:
