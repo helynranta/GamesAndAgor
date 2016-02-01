@@ -1,12 +1,19 @@
+#pragma once
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
+
+#define BUFFERSIZE 1500
+#define MAX_NICK 12
+
 
 /*
 char buffer[1000];
@@ -39,7 +46,7 @@ Static objects are referred to as 'objects' and 'particle' can be either a
 
 // List for particles that are near
 typedef struct Near {
-	void *pParticle;
+	void *pParticle;  // typecasted to either *Player or *Object
 	struct Near *pNext;
 } Near;
 
@@ -51,19 +58,20 @@ typedef struct Player {
 	int location[2];  // | X ¦ Y |
 	int direction[2];  // | X ¦ Y |
 	int scale;
+	int points;
 	int state;  // | alive | eaten | exited |
+	int ping;
 
-	// For stroring players and objects nearby
+	// For storing players and objects nearby
 	Near *nearPlayers;
 	Near *nearObjects;
 
 	// For storing player's IP address //
 	struct sockaddr_storage addressStorage;
-
-	/* NOTE: this pointer must point to addressStorage. This can't be initialized here,
+	struct sockaddr address;
+	/* NOTE: this pointer must point to addressStorage. It can't be done here,
 	 * it must be typecasted in a new player function:
 	 * address = (struct sockaddr*)&addressStorage; */
-	struct sockaddr* address;
 
 	struct Player *pNext;
 } Player;
@@ -85,46 +93,64 @@ typedef struct Ack{
 
 typedef struct Game {
 	int gameTime;
+	int nPlayers;
 	Player *sPlayers;
 	Object *sObjects;
 	Ack *sAcks; // List of messages that haven't been acknowledged
 	int packetID; // Increasing integer value to serialize ack packets
+	int pingID; // Increasing integer value to serialize ping packets
 } Game;
 
-// Used to give arguments to and receive data from packet handling functions
-typedef struct unknown {
-	int msgType;
-	int playerID;
-	int packetID;
-	Player *pPlayers;
-	Object *pObjects;
-	int ackType;
-	int ackStatus; // if any
-	int newPlayerID; // in case of Join
-
-} unknown;
-
-
-/**************************************
-DATA STRUCTURE FOR PROTOCOL'S MESSAGES
-**************************************/
-
-
-/* The data that will be sent over the network */
-
-typedef struct Header {
-	uint16_t ID;
-	uint32_t gameTime;
-	uint8_t msgType;
-	uint32_t payloadLength;
-	void *payload;
-} Header;
-
 /* Message types */
-enum msg {GAME, ACK, MOVEMENT, CHAT, STAT};
 
-/* Game message types  */
-enum gameMsg {JOIN, NICK, WAIT, EXIT, INIT, START, STOP, GAME_END, GAME_UPDATE};
+enum MESSAGE_TYPE {
+    GAME_MESSAGE = 0,
+    ACK = 1,
+    PLAYER_MOVEMENT = 2,
+    PLAYER_CHAT_MESSAGE = 3,
+    STATISTICS_MESSAGE = 4
+
+};
+
+/* Message subtypes*/
+enum GAME_MESSAGE_TYPE {
+    JOIN = 0,
+    NICK = 1,
+    EXIT = 2,
+    RESTART = 3,
+    GAME_END = 4,
+    GAME_UPDATE = 5,
+    POINTS = 6,
+    PLAYER_DEAD = 7,
+    PLAYER_OUT = 8,
+	PING = 9
+};
+
+enum PLAYER_STATUS {
+		JOINING = 0,
+		ALIVE = 1,
+		DEAD = 2,
+		OUT = 3
+};
+
+/*Struct for game msg/incoming packet */
+struct Packet{
+  int error;
+  uint8_t subType;
+  uint16_t posX, posY;
+  uint16_t dirX, dirY;
+  uint8_t ACKTYPE;
+  char nick[MAX_NICK];
+  uint16_t pingID;
+  uint16_t ping;
+
+  uint32_t gameTime; /* also known as ACK_PACKET_ID xD */
+  uint16_t ID;
+  uint8_t msgType;
+	uint32_t payloadLength;
+	struct sockaddr senderAddr;
+
+};
 
 /* GAME_UPDATE MSGS */
-enum gameUpdate { };
+// enum gameUpdate { };

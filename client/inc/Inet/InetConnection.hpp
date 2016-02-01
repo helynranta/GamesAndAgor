@@ -35,6 +35,7 @@ private:
     int listensocket = -1;
     int biggestsocket = -1;
     void unpack_header();
+    std::vector<Message*> m_messages;
 protected:
     /* protected data */
     InetConnection();
@@ -47,6 +48,11 @@ public:
     std::vector<Message*> messages;
     void init();
     void destroy();
+
     inline const ConnectionState& getState() const { return m_state; }
+
+    std::vector<ChatMessage*> getChatMessages();
+    std::vector<PlayerDead*> getDeadPayers();
+
 };
 #endif

@@ -1,17 +1,29 @@
 #define LIMIT_X 3
 #define LIMIT_Y 4
 #define LIMIT_R 5
+#define OK 1
+#define NOT_OK 0
+#define PLIND 11 // Payload index location
 #include "server_functions.h"
 
 void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 	Player *p1 = NULL, *p2 = NULL;
 	Near *temp = NULL;
-	// Object *pObj;
+	Object *pObj;
+
+	// Clear the previous Near lists of players
+	for(p1 = sPlayers; p1->pNext != NULL; p1 = p1->pNext){
+		clearListNear(&(p1->nearPlayers));
+		clearListNear(&(p1->nearObjects));
+	}
 
 	// Go through each player
 	for(p1 = sPlayers; p1->pNext != NULL; p1 = p1->pNext){
+		if (p1->state != ALIVE){continue;}
+
 		// Calculate distances to each player
 		for(p2 = p1->pNext; p2 != NULL; p2 = p2->pNext){
+			if (p2->state != ALIVE){continue;}
 			if(isWithinRange(p1->location, p2->location, p1->scale)){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
@@ -27,6 +39,18 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 
 				temp->pParticle = p1;
 				append2ListNear(&(p2->nearPlayers), temp);
+				temp = NULL;
+			}
+		}
+
+		// Calculate distances to each object
+		for(pObj = sObjects; pObj != NULL; pObj = pObj->pNext){
+			if(isWithinRange(p1->location, pObj->location, p1->scale)){
+				if(!(temp = calloc(1,sizeof(Near))))
+					perror("calloc");
+
+				temp->pParticle = pObj;
+				append2ListNear(&(p1->nearObjects), temp);
 				temp = NULL;
 			}
 		}
@@ -124,61 +148,224 @@ void clearListObject(Object **pList){
 	*pList = NULL;
 }
 
-void newPlayer(Player **pList){
+void newPlayer(Player **pList, struct Packet packet, int nPlayers){
 	Player *p = NULL;
-	if (!(p = calloc(1,sizeof(Player))))
-		perror("calloc");
-	append2ListPlayer(pList, p);
-	p->address = (struct sockaddr*)&(p->addressStorage);
+  if (!(p = calloc(1,sizeof(Player))))
+    perror("Calloc");
+
+  /* Get uid, nick, address from packet */
+  p->ID = nPlayers+1;
+  p->address = packet.senderAddr;
+  //memcpy(p->nick, packet.nick, 12);
+  randomLocation(p->location);
+
+  /* Set initial values */
+  p->scale = 1;
+  p->points = 0;
+  p->state = JOINING;
+  p->ping = 0;
+  p->nearPlayers = NULL;
+  p->nearObjects = NULL;
+
+  /* Add new player to the list */
+  append2ListPlayer(pList, p);
 }
 
-void headerPacker(char **msgBuffer, int playerID, int gameTime, int msgType, ...){
-	int index = 0, argList[10] = {-1}, msgSubType;
-	int msgPayloadIndex, payloadLengthIndex;
-	char *msg = *buffer;
-	va_list ap;
 
-	// Pack the header first
-	*(uint16_t*)&msg[index] = htons(playerID);
-	index += sizeof(uint16_t);
-	*(uint32_t*)&msg[index] = htonl(gameTime);
-	index += sizeof(uint32_t);
-	*(uint8_t*)&msg[index] = msgType;
-	index += sizeof(uint8_t);
-	// *(uint32_t*)&msg[index] = htonl(payloadLength);
-	// index += sizeof(uint32_t)
+int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
+	int msgSubType, int outPlayerID, int status){
+	/* toPlayerID: to Which player (ID) the message is
+	 * outPlayerID: ID of a player which is either OUT or DEAD
+	 * (otherwise, set to e.g. 0)
+	 * status: used only in (JOIN/NICK) ACK packets, (otherwise, set to e.g. 0)
+	 * msgSubType: ACK or GAME_MESSAGE type (otherwise, set to e.g. 0)
+	 *
+	 * EXAMPLE: sending a message to player 1 that number 2 is out:
+	 * 		msgPacker(buffer, sGame, 1, GAME_MESSAGE, PLAYER_OUT, 2, 0);
+	 *
+	 * Funtion returns int < 0 in case of a failure;
+	 */
 
-	// Store payload length's index and message's payload's index in different
-	// variables
-	payloadLengthIndex=index;
-	msgPayloadIndex = index + sizeof(uint32_t);
+	int ind = 0, plLength;
+	char *pPL = &msgBuffer[PLIND];  // pointer to PAYLOAD
 
-	// Act based upon the message type
-	// If the message type is one that contains payload, go through the rest of
-	// the arguments
-	switch (msgType) {
-		case GAME:
-			payloadLength = packGameMessage(playerID, &msg[msgPayloadIndex]);
+	memset(msgBuffer,'\0',BUFFERSIZE);
+
+	/* HEADER */
+	*(uint16_t*)&msgBuffer[ind] = 0;
+	ind += sizeof(uint16_t);
+	*(uint32_t*)&msgBuffer[ind] = htonl(pGame->gameTime);
+	ind += sizeof(uint32_t);
+	*(uint8_t*) &msgBuffer[ind] = msgType;
+	ind += sizeof(uint8_t);
+
+	/* PAYLOAD */
+	switch (msgType){
+		case GAME_MESSAGE:
+			plLength = gameMsgPacker(pPL, pGame, toPlayerID, msgSubType, outPlayerID);
 			break;
-		case ACK:
+	    case ACK:
+			plLength = ackPacker(pPL, pGame, toPlayerID, msgSubType, status);
 			break;
-		case CHAT:
+	    case STATISTICS_MESSAGE:
+			plLength = statPacker(pPL, pGame, toPlayerID, msgSubType);
 			break;
-		case STAT:
+		default:
+			plLength = -1;
 			break;
 	}
 
-	switch (/* expression */) {
-		case /* value */:
+	/* PAYLOAD LENGTH TO HEADER */
+	if (plLength < 0)
+		return -1;
+	else
+		*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
+
+	return 0;
+}
+
+int gameMsgPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType,
+	int outPlayerID){
+
+	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
+	Near *pNear = NULL;
+	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
+	Object *pObj = NULL;
+
+	*(uint8_t*) &pPL[ind] = msgSubType;
+	ind += sizeof(uint8_t);
+
+	switch (msgSubType) {
+		case GAME_END:  // similar to POINTS
+		case POINTS:
+			// Go through the list of players, add the IDs and points to buffer
+			*(uint16_t*) &pPL[ind] = htons(pGame->nPlayers);
+			ind += sizeof(uint16_t);
+			for(; pPlayer != NULL; pPlayer = pPlayer->pNext){
+				*(uint16_t*) &pPL[ind] = htons(pPlayer->ID);
+				ind += sizeof(uint16_t);
+				*(uint32_t*) &pPL[ind] = htonl(pPlayer->points);
+				ind += sizeof(uint32_t);
+			}
+			return ind;
+    	case GAME_UPDATE:
+			/* FIND CORRESPONDING PLAYER */
+			pPlayer = getPlayer(toPlayerID, pPlayer);
+
+			/* PLAYERS OWN INFORMATION */
+			*(uint16_t *) &pPL[ind] = htons(pPlayer->location[0]);
+			ind += sizeof(uint16_t);
+			*(uint16_t *) &pPL[ind] = htons(pPlayer->location[1]);
+			ind += sizeof(uint16_t);
+			*(uint16_t *) &pPL[ind] = htons(pPlayer->direction[0]);
+			ind += sizeof(uint16_t);
+			*(uint16_t *) &pPL[ind] = htons(pPlayer->direction[1]);
+			ind += sizeof(uint16_t);
+			*(uint32_t *) &pPL[ind] = htonl(pPlayer->scale);
+			ind += sizeof(uint32_t);
+
+			indNPla = ind;  // store index of nPlayers
+			ind += sizeof(uint8_t);
+			indNObj = ind;  // store index of nObjects
+			ind += sizeof(uint16_t);
+
+			/* PACK NEARBY OBJECTS */
+			for(pNear = pPlayer->nearObjects; pNear != NULL; pNear = pNear->pNext, nObjects++){
+				pObj = (Object *)(pNear->pParticle);
+				*(uint16_t *) &pPL[ind] = htons(pObj->ID);
+				ind += sizeof(uint16_t);
+				*(uint16_t *) &pPL[ind] = htons(pObj->location[0]);
+				ind += sizeof(uint16_t);
+				*(uint16_t *) &pPL[ind] = htons(pObj->location[1]);
+				ind += sizeof(uint16_t);
+			}
+			*(uint16_t *) &pPL[indNObj] = htons(nObjects);
+
+			/* PACK NEARBY PLAYERS */
+			for(pNear = pPlayer->nearPlayers; pNear != NULL; pNear = pNear->pNext, nPlayers++){
+				pPla = (Player *)(pNear->pParticle);
+				*(uint16_t *) &pPL[ind] = htons(pPla->ID);
+				ind += sizeof(uint16_t);
+				*(uint16_t *) &pPL[ind] = htons(pPla->location[0]);
+				ind += sizeof(uint16_t);
+				*(uint16_t *) &pPL[ind] = htons(pPla->location[1]);
+				ind += sizeof(uint16_t);
+				*(uint16_t *) &pPL[ind] = htons(pPla->direction[0]);
+				ind += sizeof(uint16_t);
+				*(uint16_t *) &pPL[ind] = htons(pPla->direction[1]);
+				ind += sizeof(uint16_t);
+				*(uint32_t *) &pPL[ind] = htons(pPla->scale);
+				ind += sizeof(uint32_t);
+			}
+			*(uint8_t *) &pPL[indNPla] = nPlayers;
+
+			return ind;
+    	case PLAYER_DEAD:  // similar to PLAYER_OUT
+    	case PLAYER_OUT:
+			// add the corresponding playerID (given as parameter) to buffer
+			*(uint16_t*) &pPL[ind] = htons(outPlayerID);
+			ind += sizeof(uint16_t);
+			return ind;
 	}
-	if(msgType == GAME || msgType == ACK){
-		va_start(ap, msgType);
-		msgSubType = va_arg(ap, int);
-		// while()
+
+	// If msgSubType is not identified
+	return -1;
+}
+
+int ackPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType, int status){
+	int ind = 0;
+
+	*(uint32_t*) &pPL[ind] = htonl(pGame->gameTime);
+	ind += sizeof(uint32_t);
+
+	*(uint8_t*) &pPL[ind] = msgSubType;
+	ind += sizeof(uint8_t);
+
+	switch (msgSubType) {
+		case JOIN:
+			*(uint8_t*) &pPL[ind] = status;
+			ind += sizeof(uint8_t);
+
+			if(status == OK){
+				*(uint16_t*) &pPL[ind] = toPlayerID;
+				ind += sizeof(uint16_t);
+			}
+
+			return ind;
+		case NICK:
+			*(uint8_t*) &pPL[ind] = status;
+			ind += sizeof(uint8_t);
+			return ind;
+		case PING:
+			return ind;
 	}
+	return -1;
+}
 
+int statPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType){
+	Player *pPla = getPlayer(toPlayerID, pGame->sPlayers);
+	int ind = 0;
+	if (pPla == NULL)
+		return -1;
+	else{
+		if (pPla->ping > 0){
+			*(uint16_t*) &pPL[ind] = htons(pPla->ping);
+			ind += sizeof(uint16_t);
+		}
+		return ind;
+	}
+}
 
-	// FOKIT
+Player *getPlayer(int playerID, Player *pPlayer){
+	Player *pPla = pPlayer;
+	while (pPla != NULL && pPla->ID != playerID)
+		pPla = pPla->pNext;
 
+	return pPla;
+}
 
+void randomLocation(int *location){
+    srand(time(NULL));
+    location[0] = rand() % LIMIT_X;
+    location[1] = rand() % LIMIT_Y;
 }

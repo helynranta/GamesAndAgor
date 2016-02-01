@@ -51,9 +51,9 @@ private:
     // updates input manager, reads ALL sdl input events
     void processInput();
     // time related
-    float m_fps;
+    float m_fps = 0;
     // delta time reference: http://gafferongames.com/game-physics/fix-your-timestep/
-    float m_deltaTime;
+    float m_deltaTime = 0;
     static unsigned int debugKey;
     static bool debugging;
     // vector of lambda functions

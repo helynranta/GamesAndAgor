@@ -8,40 +8,16 @@ IMessage::IMessage() {
 IMessage::~IMessage() {
 }
 
-Message* MessageFactory::getMessageByType(struct MessageHeader * header,
-		uint8_t * payload) {
+Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payload) {
 
 	// TODO Make better solution here
 	GameMessage* message;
 
 	switch (header->message_type) {
 	case MESSAGE_TYPE::GAME_MESSAGE:
-		message = GameMessage::Unpack(header->payload_length, payload);
-		switch (message->getMessageType()) {
-		case GAME_MESSAGE_TYPE::JOIN:
-			return dynamic_cast<Join*>(message);
-		case GAME_MESSAGE_TYPE::NICK:
-			return dynamic_cast<Nick*>(message);
-		case GAME_MESSAGE_TYPE::EXIT:
-			return dynamic_cast<Exit*>(message);
-		case GAME_MESSAGE_TYPE::RESTART:
-			return dynamic_cast<Restart*>(message);
-		case GAME_MESSAGE_TYPE::GAME_END:
-			return dynamic_cast<GameEnd*>(message);
-		case GAME_MESSAGE_TYPE::GAME_UPDATE:
-			return dynamic_cast<GameUpdate*>(message);
-		case GAME_MESSAGE_TYPE::POINTS:
-			return dynamic_cast<Points*>(message);
-		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-			return dynamic_cast<PlayerDead*>(message);
-		case GAME_MESSAGE_TYPE::PLAYER_OUT:
-			return dynamic_cast<PlayerOut*>(message);
-		default:
-			return nullptr;
-		}
+		message = GameMessage::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::ACK:
-
 		break;
 	case MESSAGE_TYPE::PLAYER_MOVEMENT:
 		return nullptr;
@@ -56,16 +32,13 @@ Message* MessageFactory::getMessageByType(struct MessageHeader * header,
 	return nullptr;
 }
 
-void Message::UnpackHeader(int socket_fd, struct MessageHeader *header,
-		uint8_t* payload) {
+void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t* payload) {
 	int bufferPosition = 0;
 	uint8_t socketByteBuffer[BUFFER_SIZE];
 	memset(socketByteBuffer, 0, sizeof(struct MessageHeader));
 	header->addrlen = sizeof(header->sender_addr);
 
-	int bytesRead = recvfrom(socket_fd, socketByteBuffer, BUFFER_SIZE, 0,
-			reinterpret_cast<struct sockaddr*>(&header->sender_addr),
-			&header->addrlen);
+	int bytesRead = recvfrom(socket_fd, socketByteBuffer, BUFFER_SIZE, 0, reinterpret_cast<struct sockaddr*>(&header->sender_addr), &header->addrlen);
 	if (bytesRead > 0) {
 
 		// Unpack USER_ID (UINT_16)
@@ -80,7 +53,7 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header,
 
 		// Unpack MESSAGE_TYPE (UINT_8)
 		header->message_type = UnpackUINT8_T(socketByteBuffer, bufferPosition);
-		std::cout << "Message.cpp: Message type: " << unsigned(header->message_type)	<< std::endl;
+		std::cout << "Message.cpp: Message type: " << unsigned(header->message_type) << std::endl;
 		bufferPosition += sizeof(uint8_t);
 
 		// Unpack PAYLOAD_LENGTH (UINT_32)
@@ -111,7 +84,7 @@ uint8_t GameMessage::UnpackHeader(uint8_t * payload) {
 	return 1;
 }
 
-GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
+GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	int readByteCount = 0;
 
 	// Unpack MSG_SUBTYPE (UINT_8)
@@ -129,27 +102,26 @@ GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
 
 	// Copy rest of the payload to new variable and pass it to next Unpacker
 	uint32_t remainingPayloadLength = length - readByteCount;
-	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(
-			remainingPayloadLength));
+	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadLength));
 	memcpy(remainingPayload, &payload[readByteCount], remainingPayloadLength);
 
 	switch (messageSubtype) {
 	case GAME_MESSAGE_TYPE::JOIN:
-		return Join::Unpack(remainingPayloadLength, remainingPayload);
+		return Join::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::NICK:
-		return Nick::Unpack(remainingPayloadLength, remainingPayload);
+		return Nick::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::EXIT:
-		return Exit::Unpack(remainingPayloadLength, remainingPayload);
+		return Exit::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::GAME_END:
-		return GameEnd::Unpack(remainingPayloadLength, remainingPayload);
+		return GameEnd::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::GAME_UPDATE:
-		return GameMessage::Unpack(remainingPayloadLength, remainingPayload);
+		return GameMessage::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::POINTS:
-		return Points::Unpack(remainingPayloadLength, remainingPayload);
+		return Points::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-		return PlayerDead::Unpack(remainingPayloadLength, remainingPayload);
+		return PlayerDead::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::PLAYER_OUT:
-		return PlayerOut::Unpack(remainingPayloadLength, remainingPayload);
+		return PlayerOut::Unpack(header, remainingPayloadLength, remainingPayload);
 	default:
 		return nullptr;
 	}
@@ -158,24 +130,24 @@ GameMessage* GameMessage::Unpack(uint32_t length, uint8_t * payload) {
 
 void GameMessage::Pack(Message* message) {
 
-
 }
 
 //======= NICK ========//
-Nick * Nick::Unpack(uint32_t length, uint8_t * payload) {
-	Nick * player_nick = new Nick();
+Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+	Nick * player_nick = new Nick(header);
 
 	// Unpack Nick (char [11])
 	memcpy(&player_nick->nick, payload, length);
 	player_nick->nick[player_nick->nick.length()] = '\0';
-	std::cout << "Message.cpp: New player named" << player_nick->nick << " joined"
-			<< std::endl;
+	std::cout << "Message.cpp: New player named" << player_nick->nick << " joined" << std::endl;
 	return player_nick;
+
+
 
 }
 
 //======= GAME_UPDATE ========//
-GameUpdate * GameUpdate::Unpack(uint32_t length, uint8_t * payload) {
+GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	int bufferPosition = 0;
 
 	// Unpack OWN_POS_X
@@ -207,13 +179,13 @@ GameUpdate * GameUpdate::Unpack(uint32_t length, uint8_t * payload) {
 	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(length - bufferPosition));
 	memcpy(remainingPayload, &payload[bufferPosition], length - bufferPosition);
 
-	return new GameUpdate(pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects);
+	return new GameUpdate(header, pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects);
 
 }
 
 //======= POINTS ========//
-Points * Points::Unpack(uint32_t length, uint8_t * payload) {
-	Points * pointScoreObject = new Points();
+Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+	Points * pointScoreObject = new Points(header);
 	int readByteCount = 0;
 
 	// Unpack player count (UINT_16)
@@ -236,8 +208,7 @@ Points * Points::Unpack(uint32_t length, uint8_t * payload) {
 		pointScoreObject->player_points.push_back(ntohl(player_point));
 		readByteCount += sizeof(uint32_t);
 
-		std::cout << "Message.cpp: Player " << player_id << " got " << player_point
-				<< " points." << std::endl;
+		std::cout << "Message.cpp: Player " << player_id << " got " << player_point << " points." << std::endl;
 
 	}
 
