@@ -205,52 +205,52 @@ void InetConnection::update() {
 		break;
 	}
 
-	int payloadLength = 0;
-	uint8_t senderPayload[BUFFER_SIZE];
-	memset(senderPayload, 0, sizeof(uint8_t[1500]));
-	switch (unpackedMessage->getMessageType()) {
-	case MESSAGE_TYPE::GAME_MESSAGE:
-		switch (static_cast<const GameMessage*>(unpackedMessage)->getGameMessageType()) {
-		case GAME_MESSAGE_TYPE::JOIN:
-			messages.push_back(dynamic_cast<Join*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::NICK:
-			payloadLength = dynamic_cast<Nick*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		case GAME_MESSAGE_TYPE::EXIT:
-			payloadLength = dynamic_cast<Exit*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		case GAME_MESSAGE_TYPE::RESTART:
-			payloadLength = dynamic_cast<Restart*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		case GAME_MESSAGE_TYPE::GAME_END:
-			payloadLength = dynamic_cast<GameEnd*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		case GAME_MESSAGE_TYPE::GAME_UPDATE:
-			payloadLength = dynamic_cast<GameUpdate*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		case GAME_MESSAGE_TYPE::POINTS:
-			payloadLength = dynamic_cast<Points*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-			payloadLength = dynamic_cast<PlayerDead*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		case GAME_MESSAGE_TYPE::PLAYER_OUT:
-			payloadLength = dynamic_cast<PlayerOut*>(unpackedMessage)->Ack(senderPayload);
-			break;
-		}
-		break;
-	case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE:
-		break;
-	case MESSAGE_TYPE::PLAYER_MOVEMENT:
-		break;
-	case MESSAGE_TYPE::ACK:
-		break;
-	case MESSAGE_TYPE::STATISTICS_MESSAGE:
-		break;
-	default:
-		break;
-	}
+//	int payloadLength = 0;
+//	uint8_t senderPayload[BUFFER_SIZE];
+//	memset(senderPayload, 0, sizeof(uint8_t[1500]));
+//	switch (unpackedMessage->getMessageType()) {
+//	case MESSAGE_TYPE::GAME_MESSAGE:
+//		switch (static_cast<const GameMessage*>(unpackedMessage)->getGameMessageType()) {
+//		case GAME_MESSAGE_TYPE::JOIN:
+//			messages.push_back(dynamic_cast<Join*>(unpackedMessage));
+//			break;
+//		case GAME_MESSAGE_TYPE::NICK:
+//			payloadLength = dynamic_cast<Nick*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		case GAME_MESSAGE_TYPE::EXIT:
+//			payloadLength = dynamic_cast<Exit*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		case GAME_MESSAGE_TYPE::RESTART:
+//			payloadLength = dynamic_cast<Restart*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		case GAME_MESSAGE_TYPE::GAME_END:
+//			payloadLength = dynamic_cast<GameEnd*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		case GAME_MESSAGE_TYPE::GAME_UPDATE:
+//			payloadLength = dynamic_cast<GameUpdate*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		case GAME_MESSAGE_TYPE::POINTS:
+//			payloadLength = dynamic_cast<Points*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+//			payloadLength = dynamic_cast<PlayerDead*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		case GAME_MESSAGE_TYPE::PLAYER_OUT:
+//			payloadLength = dynamic_cast<PlayerOut*>(unpackedMessage)->Ack(senderPayload);
+//			break;
+//		}
+//		break;
+//	case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE:
+//		break;
+//	case MESSAGE_TYPE::PLAYER_MOVEMENT:
+//		break;
+//	case MESSAGE_TYPE::ACK:
+//		break;
+//	case MESSAGE_TYPE::STATISTICS_MESSAGE:
+//		break;
+//	default:
+//		break;
+//	}
 
 	/*
 	 switch msg{
