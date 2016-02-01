@@ -47,8 +47,8 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t*
 		bufferPosition += sizeof(uint16_t);
 
 		// Unpack GAME_TIME (UINT_32)
-		header->game_time = UnpackUINT16_T(socketByteBuffer, bufferPosition);
-		std::cout << "Message.cpp: GAME TIME: " << header->game_time << std::endl;
+		header->gameTime = UnpackUINT16_T(socketByteBuffer, bufferPosition);
+		std::cout << "Message.cpp: GAME TIME: " << header->gameTime << std::endl;
 		bufferPosition += sizeof(uint32_t);
 
 		// Unpack MESSAGE_TYPE (UINT_8)
@@ -132,18 +132,21 @@ void GameMessage::Pack(Message* message) {
 
 }
 
+//======= Join ========//
+Join * Join::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+	Join * playerJoin = new Join(header);
+	return playerJoin;
+}
+
 //======= NICK ========//
 Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
-	Nick * player_nick = new Nick(header);
+	Nick * playerNick = new Nick(header);
 
 	// Unpack Nick (char [11])
-	memcpy(&player_nick->nick, payload, length);
-	player_nick->nick[player_nick->nick.length()] = '\0';
-	std::cout << "Message.cpp: New player named" << player_nick->nick << " joined" << std::endl;
-	return player_nick;
-
-
-
+	memcpy(&playerNick->nick, payload, length);
+	playerNick->nick[playerNick->nick.length()] = '\0';
+	std::cout << "Message.cpp: New player named" << playerNick->nick << " joined" << std::endl;
+	return playerNick;
 }
 
 //======= GAME_UPDATE ========//

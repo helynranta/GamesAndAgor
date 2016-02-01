@@ -53,5 +53,7 @@ public:
     void destroy();
     std::vector<ChatMessage*> getChatMessages();
     std::vector<PlayerDead*> getDeadPayers();
+    std::vector<Join*> getJoinMessages();
+    std::vector<Join*> getJoinAckMessages();
 };
 #endif

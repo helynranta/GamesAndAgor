@@ -151,7 +151,7 @@ int InetConnection::createTCPSocket(std::string serverip, std::string port) {
 		}
 	}
 	if (connect(tcp_socket_fd, client_tcp_addrinfo->ai_addr, client_tcp_addrinfo->ai_addrlen) < 0) {
-	//if (connect(tcp_socket_fd, (const sockaddr*) &client_tcp_addrinfo->ai_addr, sizeof(client_tcp_addrinfo)) < 0) {
+		//if (connect(tcp_socket_fd, (const sockaddr*) &client_tcp_addrinfo->ai_addr, sizeof(client_tcp_addrinfo)) < 0) {
 		perror("connect()");
 		return -1;
 	}
@@ -170,16 +170,17 @@ bool InetConnection::disconnect() {
 void InetConnection::update() {
 	memset(&timeout, 0, sizeof(timeout));
 	biggestSocket = 0;
-	timeout.tv_usec = 1000; // microseconds
+	timeout.tv_usec = 3000; // microseconds
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 
-// Add listening socket to the set and check if it is the biggest socket number
+	// Add listening socket to the set and check if it is the biggest socket number
 	FD_SET(udpListensocket, &socket_fds);
 	if (udpListensocket > biggestSocket) {
-		std::cout << "We have a descriptor: " << udpListensocket << std::endl;
+//		std::cout << "We have a descriptor: " << udpListensocket << std::endl;
 		biggestSocket = udpListensocket;
 	}
+
 	Message * unpackedMessage;
 	switch (select(biggestSocket + 1, &socket_fds, NULL, NULL, &timeout)) {
 	case (-1):
@@ -196,40 +197,47 @@ void InetConnection::update() {
 
 		for (int socket_fd = 0; socket_fd <= biggestSocket; socket_fd++) {
 			if (FD_ISSET(socket_fd, &socket_fds)) {
-				std::cout << "Unpacking" << std::endl;
+//				std::cout << "Unpacking" << std::endl;
 				Message::UnpackHeader(socket_fd, header, payloadBuffer);
 				unpackedMessage = MessageFactory::getInstance().getMessageByType(header, payloadBuffer);
 			}
 		}
 		break;
 	}
+
 	int payloadLength = 0;
-	uint8_t  senderPayload[BUFFER_SIZE];
+	uint8_t senderPayload[BUFFER_SIZE];
+	memset(senderPayload, 0, sizeof(uint8_t[1500]));
 	switch (unpackedMessage->getMessageType()) {
 	case MESSAGE_TYPE::GAME_MESSAGE:
 		switch (static_cast<const GameMessage*>(unpackedMessage)->getGameMessageType()) {
 		case GAME_MESSAGE_TYPE::JOIN:
-			// DO JOIN STUFF
-			payloadLength = dynamic_cast<Join*>(unpackedMessage)->Ack(senderPayload);
-			std::string message(reinterpret_cast<char*>(&senderPayload));
-			// send(message);
-
-		//case GAME_MESSAGE_TYPE::NICK:
-//			return dynamic_cast<Nick*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::EXIT:
-//			return dynamic_cast<Exit*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::RESTART:
-//			return dynamic_cast<Restart*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::GAME_END:
-//			return dynamic_cast<GameEnd*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::GAME_UPDATE:
-//			return dynamic_cast<GameUpdate*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::POINTS:
-//			return dynamic_cast<Points*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-//			return dynamic_cast<PlayerDead*>(unpackedMessage);
-//		case GAME_MESSAGE_TYPE::PLAYER_OUT:
-//			return dynamic_cast<PlayerOut*>(unpackedMessage);
+			messages.push_back(dynamic_cast<Join*>(unpackedMessage));
+			break;
+		case GAME_MESSAGE_TYPE::NICK:
+			payloadLength = dynamic_cast<Nick*>(unpackedMessage)->Ack(senderPayload);
+			break;
+		case GAME_MESSAGE_TYPE::EXIT:
+			payloadLength = dynamic_cast<Exit*>(unpackedMessage)->Ack(senderPayload);
+			break;
+		case GAME_MESSAGE_TYPE::RESTART:
+			payloadLength = dynamic_cast<Restart*>(unpackedMessage)->Ack(senderPayload);
+			break;
+		case GAME_MESSAGE_TYPE::GAME_END:
+			payloadLength = dynamic_cast<GameEnd*>(unpackedMessage)->Ack(senderPayload);
+			break;
+		case GAME_MESSAGE_TYPE::GAME_UPDATE:
+			payloadLength = dynamic_cast<GameUpdate*>(unpackedMessage)->Ack(senderPayload);
+			break;
+		case GAME_MESSAGE_TYPE::POINTS:
+			payloadLength = dynamic_cast<Points*>(unpackedMessage)->Ack(senderPayload);
+			break;
+		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+			payloadLength = dynamic_cast<PlayerDead*>(unpackedMessage)->Ack(senderPayload);
+			break;
+		case GAME_MESSAGE_TYPE::PLAYER_OUT:
+			payloadLength = dynamic_cast<PlayerOut*>(unpackedMessage)->Ack(senderPayload);
+			break;
 		}
 		break;
 	case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE:
@@ -262,11 +270,39 @@ void InetConnection::update() {
 }
 std::vector<ChatMessage*> InetConnection::getChatMessages() {
 	std::vector<ChatMessage*> messages;
-	for (auto& message : m_messages) {
-		if (message->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
-			//messages.push_back(dynamic_cast<ChatMessage*>(message));
-			//message = m_messages.end();
-			//m_messages.pop_back();
+	for (uint32_t i = 0; i < m_messages.size(); i++) {
+		if (m_messages[i]->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
+			messages.push_back(static_cast<ChatMessage*>(m_messages[i]));
+			m_messages[i] = messages.back();
+			m_messages.pop_back();
+		}
+	}
+	return messages;
+}
+
+std::vector<Join*> InetConnection::getJoinMessages() {
+	std::vector<Join*> messages;
+	for (uint32_t i = 0; i < m_messages.size(); i++) {
+		if (m_messages[i]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
+			if (dynamic_cast<GameMessage*>(m_messages[i])->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN) {
+				messages.push_back(dynamic_cast<Join*>(m_messages[i]));
+				m_messages[i] = messages.back();
+				m_messages.pop_back();
+			}
+		}
+	}
+	return messages;
+}
+
+std::vector<Join*> InetConnection::getJoinAckMessages() {
+	std::vector<Join*> messages;
+	for (uint32_t i = 0; i < m_messages.size(); i++) {
+		if (m_messages[i]->getMessageType() == MESSAGE_TYPE::ACK) {
+			if (dynamic_cast<GameMessage*>(m_messages[i])->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN) {
+				messages.push_back(dynamic_cast<Join*>(m_messages[i]));
+				m_messages[i] = messages.back();
+				m_messages.pop_back();
+			}
 		}
 	}
 	return messages;
