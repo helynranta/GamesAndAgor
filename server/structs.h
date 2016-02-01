@@ -89,7 +89,6 @@ typedef struct Ack{
 	int msgLength;
 	char msg[BUFFERSIZE];
 	struct Ack *pNext;
-	struct Ack *pPrev;
 } Ack;
 
 typedef struct Game {
