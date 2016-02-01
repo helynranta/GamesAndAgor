@@ -86,6 +86,7 @@ typedef struct Object {
 typedef struct Ack{
 	int packetID;
 	int gameTimeSent;
+	int msgLength;
 	char msg[BUFFERSIZE];
 	struct Ack *pNext;
 	struct Ack *pPrev;
