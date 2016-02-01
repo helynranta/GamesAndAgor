@@ -40,6 +40,7 @@ Engine::~Engine() {
 	connection->disconnect();
 	connection->destroy();
 	window->destroy();
+	
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();

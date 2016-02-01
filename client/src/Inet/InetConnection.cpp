@@ -50,21 +50,13 @@ void InetConnection::init(void) {
 	std::cout << "Listening socket" << listensocket << std::endl;
 }
 
-/** deconstructor
- * frees all used memory and empties messages vector
- * @params: void
- *
-
- */
 void InetConnection::destroy(void) {
-	delete result;
-	delete iter;
 	// delete messages behind pointers
 	for (auto& it : messages) {
 		delete it;
 	}
 	// empty whole vector
-	messages.empty();
+	messages.clear();
 }
 /** send
  * this function sends socket messages

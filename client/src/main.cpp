@@ -14,18 +14,6 @@ using namespace std;
 #include <map>
 
 int main(void) {
-    /*function<void()> f = bind([](int x)  {cout << x << endl;}, 1);
-    map<int, function<void()>> _functionMap;
-    _functionMap.insert({100,
-        bind([](int x)  {
-            cout << x << endl;
-        }, 10)
-    });
-    for(auto& it : _functionMap) {
-        it.second();
-    }
-    */
-
     Engine* engine = new Engine();
     engine->addScenes({
         {"Game",new Game()},

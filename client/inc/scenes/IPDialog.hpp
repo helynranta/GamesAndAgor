@@ -23,11 +23,6 @@ public:
         gui->getText("hint")->setAlign(TEXT_ALIGN::CENTER_XY);
         gui->getInput("input")->setMaxLength(15);
         gui->getInput("input")->setX(Engine::camera->getWidth()/2.0f-200)->setY(Engine::camera->getHeight()/2.0f+30);
-
-        Engine::setTimeout(2000, []() {
-            cout << "test"<< endl;
-        });
-
     }
 
     inline void update(float dt) override {
@@ -36,7 +31,7 @@ public:
             gui->getText("hint")->setText("Trying to connect to server...");
             gui->getInput("input")->hide();
             // put here if connect returns true
-            if(false) Engine::startScene("Game");
+            if(true) Engine::startScene("NickDialog");
             else gui->getText("hint")->setText("Connection failed, give new IP");
         } else if(Engine::connection->getState() == ConnectionState::DISCONNECTED)
             gui->getInput("input")->show();
