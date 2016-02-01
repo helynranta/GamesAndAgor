@@ -141,6 +141,9 @@ int server(char* port) {
 		FD_SET(socketfd, &master);
 		FD_SET(listener, &master);
 		fdmax = listener+1;
+
+		/* Create a game */
+		Game game;
 		while (1) {
 
 			// Refresh select() set
@@ -202,7 +205,8 @@ int server(char* port) {
 											break;
 
 										case NICK:
-											printf("Player inserts nick!\n");
+											printf("Player inserted nick!\n");
+											printf("Nick: %s\n", packet.nick);
 											break;
 
 										case EXIT:
@@ -283,6 +287,7 @@ int client(char* port, char *serverip)
 {
   int socketfd = -1, length = 0, rval = 0;
   char dgram[SIZE];
+	char readbuf[SIZE];
 
   struct addrinfo hints = { .ai_flags = AI_NUMERICHOST|AI_NUMERICSERV,
                             .ai_family = PF_UNSPEC,
@@ -292,6 +297,7 @@ int client(char* port, char *serverip)
   struct addrinfo *result = NULL, *iter = NULL;
 
   memset(&dgram,1,SIZE);
+	memset(&readbuf,1,SIZE);
 
   printf("| - - - - - C L I E N T - - - - - |\n");
 
@@ -313,6 +319,7 @@ int client(char* port, char *serverip)
       * see 'man sendto'
 			GAME_MESSAGE:JOIN  packet
       */
+			/*
 			int index = 0;
       uint16_t uid = 32;
       *(uint16_t*)&dgram[index] = htons(uid);
@@ -332,6 +339,33 @@ int client(char* port, char *serverip)
 
 			uint8_t subtype = JOIN;
 			*(uint8_t*)&dgram[index] = subtype;
+			*/
+			/*END OF GAME_MESSAGE:JOIN*/
+
+			/*START OF GAME_MESSAGE:NICK*/
+			int index = 0;
+      uint16_t uid = 32;
+      *(uint16_t*)&dgram[index] = htons(uid);
+      index += sizeof(uint16_t);
+
+      uint32_t gametime = 25;
+      *(uint32_t*)&dgram[index] = htonl(gametime);
+      index += sizeof(uint32_t);
+
+			uint8_t msgtype = GAME_MESSAGE;
+      *(uint8_t*)&dgram[index] = msgtype;
+			index += sizeof(uint8_t);
+
+			uint32_t pllength = 23;
+			*(uint32_t*)&dgram[index] = htonl(gametime);
+      index += sizeof(uint32_t);
+
+			uint8_t subtype = NICK;
+			*(uint8_t*)&dgram[index] = subtype;
+			index += sizeof(uint8_t);
+
+			char nicki[MAX_NICK] = "Testi";
+			memcpy(&dgram[index], nicki, MAX_NICK);
 
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
         perror("sendto()");
@@ -340,6 +374,17 @@ int client(char* port, char *serverip)
       }
       else printf("Client: Sent datagram length = %d\n", length);
 
+			printf("%s\n", "Pitäis receavata!\n");
+			int readlength = -1;
+			/* Get Join Ack */
+			if((readlength = recvfrom(socketfd, &readbuf,SIZE,0,iter->ai_addr, &iter->ai_addrlen)) <= 0){
+				printf("%s\n", "Nada");
+			}
+			else
+				printf("tuli %d tavua perille\n", readlength);
+			struct Packet packet;
+			packet = unpackPacket(readbuf, iter->ai_addr);
+			printf("Packet msgType: %d\n", packet.msgType);
     }
   }
 
