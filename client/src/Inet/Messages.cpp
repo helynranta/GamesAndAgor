@@ -171,23 +171,6 @@ int Join::PackSelf(uint8_t * payload) {
 	return bufferPosition;
 }
 
-int Join::Ack(uint8_t * payload) {
-	int bufferPosition = getHeaderSize();
-
-	// insert USER_ID to buffer
-	uint32_t userID = static_cast<uint32_t>(getUserID());
-	PackUINT32ToPayload(userID, payload, bufferPosition);
-	bufferPosition += sizeof(uint32_t);
-
-	// insert GAME_MESSAGE_TYPE to buffer
-	uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN);
-	PackUINT8ToPayload(type, payload, bufferPosition);
-
-	CreateHeader(this, payload);
-
-	return bufferPosition;
-};
-
 //======= NICK ========//
 Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	Nick * playerNick = new Nick(header);
@@ -217,8 +200,6 @@ int Nick::PackSelf(uint8_t * payload) {
 
 	return bufferPosition;
 }
-
-int Nick::Ack(uint8_t * payload){return 0;};
 
 //======= GAME_UPDATE ========//
 GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
@@ -303,16 +284,16 @@ int Exit::Ack(uint8_t* payload) {
 	payload = CreateGameMessageACKHeader(gameTime, getGameMessageType());
 	PackUINT8ToPayload(type, payload, bufferPosition);
 	return bufferPosition;
-};
+}
 
 
 ////======= PLAYER_DEAD ========//
 PlayerDead* PlayerDead::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
 	uint16_t playerID = UnpackUINT16_T(payload, 0);
-//	return new PlayerDead(header, playerID);
+	return new PlayerDead(header, playerID);
 }
 
-inline int PlayerDead::PackSelf(uint8_t * payload) {
+int PlayerDead::PackSelf(uint8_t * payload) {
 	return 0;
 }
 
@@ -323,7 +304,7 @@ PlayerOut * PlayerOut::Unpack(MessageHeader header, uint32_t length, uint8_t * p
 	uint16_t playerID = UnpackUINT16_T(payload, 0);
 	std::cout << "Message.cpp: Played id: " << playerID << " had disappeared" << std::endl;
 
-//	return new PlayerOut(header, playerID);
+	return new PlayerOut(header, playerID);
 }
 
 int PlayerOut::PackSelf(uint8_t * payload) {

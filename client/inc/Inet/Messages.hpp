@@ -92,7 +92,6 @@ class IMessage {
 		// Currently only Join and Nick need Packing functions
 		virtual int PackSelf(uint8_t*) = 0;
 		static Message * Unpack(MessageHeader, uint32_t, uint8_t*);
-		virtual int Ack(uint8_t*) = 0;
 };
 
 class Message: public IMessage {
@@ -108,13 +107,12 @@ class Message: public IMessage {
 
 		void Update() = 0;
 
-		inline int Ack(uint8_t* payload) {
+		inline int PackSelf(uint8_t * payload) {
 			return 0;
-		};
+		}
 
 		static void UnpackHeader(int socket_fd, struct MessageHeader*, uint8_t*);
 
-		static void Unpack(MessageHeader, uint32_t, uint8_t*);
 
 		inline uint32_t getgameTime() const {
 			return gameTime;
@@ -164,19 +162,13 @@ class GameMessage: public Message {
 
 		inline void Update(){};
 
-		inline void UnpackPayload(){};
 
 		static GameMessage * Unpack(MessageHeader, uint32_t, uint8_t*);
-
-		static uint8_t UnpackHeader(uint8_t*);
 
 		inline GAME_MESSAGE_TYPE getGameMessageType() const {
 			return gameMessageType;
 		};
 
-		inline int Ack(uint8_t* payload) {
-			return 0;
-		};
 
 	protected:
 		GAME_MESSAGE_TYPE gameMessageType;
@@ -194,7 +186,6 @@ class Join: public GameMessage {
 
 		static Join * Unpack(MessageHeader, uint32_t, uint8_t*);
 
-		int Ack(uint8_t * payload);
 };
 
 class Nick : public GameMessage {
@@ -212,8 +203,6 @@ class Nick : public GameMessage {
 		int PackSelf(uint8_t * payload);
 
 		static Nick * Unpack(MessageHeader, uint32_t, uint8_t*);
-
-		int Ack(uint8_t * payload);
 
 	private:
 		std::string nick;
@@ -233,16 +222,6 @@ class Restart: public GameMessage {
 		// Constructor & Destructor
 		inline Restart(MessageHeader header) : GameMessage(header, GAME_MESSAGE_TYPE::RESTART) {};
 		inline ~Restart() {};
-
-		int Ack(uint8_t* payload) {
-			int bufferPosition = 0;
-
-			// insert MESSAGE_TYPE to buffer
-			uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN);
-			PackUINT8ToPayload(type, payload, bufferPosition);
-			return bufferPosition;
-		}
-		;
 
 		static Restart * Unpack(MessageHeader, uint32_t, uint8_t*);
 };
@@ -273,19 +252,11 @@ class GameEnd: public GameMessage {
 		inline ~GameEnd() {};
 
 		inline static GameEnd * Unpack(MessageHeader header, uint32_t lenght, uint8_t * payload) {
-//			return new GameEnd(header, Points::Unpack(header, lenght, payload));
-		};
+			return new GameEnd(header, Points::Unpack(header, lenght, payload));
+		}
 
 		inline int PackSelf(uint8_t * payload) {
 			return 0;
-		};
-
-		int Ack(uint8_t* payload) {
-			int bufferPosition = 0;
-			// insert MESSAGE_TYPE to buffer
-			uint8_t type = static_cast<uint8_t>(GAME_MESSAGE_TYPE::JOIN);
-			PackUINT8ToPayload(type, payload, bufferPosition);
-			return bufferPosition;
 		};
 
 	private:
@@ -302,8 +273,8 @@ class PlayerDead: public GameMessage {
 
 		inline ~PlayerDead() {};
 
-
 		int PackSelf(uint8_t * payload);
+
 		static PlayerDead* Unpack(MessageHeader header, uint32_t length, uint8_t* payload);
 	private:
 		uint16_t playerID;
