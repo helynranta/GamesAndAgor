@@ -426,16 +426,16 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 	}
 }
 /* Check nick, new nick must be available */
-/* Return Status: 0 OK,  1 NOT OK */
+/* Return Status: 1 OK,  0 NOT OK */
 int checkNick(char *nick,Player *pPlayer){
 	Player *tmp = pPlayer;
-	int result = 0;
+	int result = 1;
 	while(tmp != NULL){
 		result = strncmp(nick, pPlayer->nick, 12);
 		if(result == 0){
-			return 1;
+			return 0;
 		}
 		tmp = pPlayer->pNext;
 	}
-	return 0;
+	return 1;
 }

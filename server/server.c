@@ -198,8 +198,7 @@ int server(char* port) {
 
 										case JOIN:
 											printf("Player joins game!\n");
-											newPlayer(&game.sPlayers, packet, game.nPlayers);
-											game.nPlayers++;
+
 											msgPacker(sendbuffer, &game, packet.ID, ACK, JOIN, 0,1);
 											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 											break;
@@ -208,6 +207,17 @@ int server(char* port) {
 											printf("Player inserted nick!\n");
 											printf("Nick: %s\n", packet.nick);
 											int nickStatus = -1;
+											nickStatus = checkNick(packet.nick, game.sPlayers);
+											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
+											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+
+											/* If nick OK add new player */
+											if(nickStatus == 1){
+												newPlayer(&game.sPlayers, packet, game.nPlayers);
+												game.nPlayers++;
+												/* add the tcp connection for this new player */
+											}
+
 
 											/* Check nick */
 											/* If nick OK, send ACK:NICK:OK */
