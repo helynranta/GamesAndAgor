@@ -216,12 +216,8 @@ int server(char* port) {
 												newPlayer(&game.sPlayers, packet, game.nPlayers);
 												game.nPlayers++;
 												/* add the tcp connection for this new player */
+												/* Actually no, let's not do it so we can have some fun */
 											}
-
-
-											/* Check nick */
-											/* If nick OK, send ACK:NICK:OK */
-											/* Else nick not OK, send ACK:NICK:NOT_OK */
 											break;
 
 										case EXIT:
@@ -343,7 +339,7 @@ int client(char* port, char *serverip)
       * see 'man sendto'
 			GAME_MESSAGE:JOIN  packet
       */
-
+			/*
 			int index = 0;
       uint16_t uid = 32;
       *(uint16_t*)&dgram[index] = htons(uid);
@@ -363,11 +359,11 @@ int client(char* port, char *serverip)
 
 			uint8_t subtype = JOIN;
 			*(uint8_t*)&dgram[index] = subtype;
-
+			*/
 			/*END OF GAME_MESSAGE:JOIN*/
 
 			/*START OF GAME_MESSAGE:NICK*/
-			/*
+
 			int index = 0;
       uint16_t uid = 32;
       *(uint16_t*)&dgram[index] = htons(uid);
@@ -391,7 +387,7 @@ int client(char* port, char *serverip)
 
 			char nicki[MAX_NICK] = "Testi";
 			memcpy(&dgram[index], nicki, MAX_NICK);
-			*/
+			
 
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
         perror("sendto()");
