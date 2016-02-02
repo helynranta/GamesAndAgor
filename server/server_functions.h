@@ -35,6 +35,7 @@ void newPlayer(Player **pList, struct Packet packet, int nPlayers);
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen);
 int checkNick(char *nick, Player *playerlist);
 
+
 /* PACKING FUNCTIONS */
 int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
     int msgSubType, int outPlayerID, int status);
