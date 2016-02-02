@@ -93,7 +93,7 @@ bool InetConnection::send(std::string l_ip, std::string l_port, std::string mess
 * @params: string ip, string port. Port and IP of the server we are connecting.
 * @return: bool success. returns success if there was no socket error
 */
-bool InetConnection::connect(const std::string& l_ip, const std::string& l_port) {
+bool InetConnection::connectTCP(const std::string& l_ip, const std::string& l_port) {
 	if(sockettcp != 0) close(sockettcp);
 	if(m_state != ConnectionState::CONNECTING) {
 		// get server address information
@@ -161,16 +161,12 @@ void InetConnection::update() {
 			if(FD_ISSET(sockettcp, &socket_fds)) {
 				char buffer[1024];
 				recv(sockettcp, buffer, sizeof(buffer), 0);
-				cout << buffer << endl;
-				//m_state = ConnectionState::CONNECTED;
+				//cout << buffer << endl;
+				if(strlen(buffer)>0) m_state = ConnectionState::CONNECTED;
 			}
 		} else
 			strerrno = strerror(err);
-
-		//cout << strerror(err) << " " << sockettcp << endl;
 		return;
-	} else {
-
 	}
 /*
 memset(&timeout, 0, sizeof(timeout));
@@ -254,8 +250,7 @@ default:
 std::cout << "Undefined message error"  << std::endl;
 }
 */
-//if(m_state == ConnectionState::CONNECTING)
-//
+
 for (auto& it : messages) {
 	it->Update();
 }

@@ -2,9 +2,11 @@
 
 #include "Engine.hpp"
 
+#include <stdlib.h> // rand()
+#include <time.h> // time
+
 void Game::awake() {
 
-    m_player.init();
     gui->addText("PAUSED", new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
     //gui->getText("PAUSED")->hide();
     gui->getText("PAUSED");
@@ -35,13 +37,21 @@ void Game::awake() {
     gui->addText("player-pos", new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
     gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY);
     gui->getText("player-pos")->setColor({50,50,50,255});
+    
+    
+    srand(time(NULL));
+    m_enemies.emplace_back(Player("enemy", rand()&255,rand()%255,rand()%255));
+    m_player.init();
+    m_enemies[0].init();
+    gui->addText(m_enemies[0].getNick(), new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
+    gui->addText(m_player.getNick(), new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
 /*    */
 }
 void Game::update(float dt) {
     m_player.update(dt);
     // this is how camera behaves in real gameplay
-    //Engine::camera->setPos(m_player.getX(), m_player.getY());
-    //Engine::camera->setScale(float(m_player.getR())/100);
+    Engine::camera->setPos(m_player.getX(), m_player.getY());
+    Engine::camera->setScale(float(m_player.getR())/100);
 
     if(Engine::input->isKeyDown(SDLK_q))
         Engine::camera->scale(-0.5f);
@@ -58,9 +68,22 @@ void Game::update(float dt) {
 
 }
 void Game::draw() {
-    SDL_Rect l_ppos = Engine::camera->transformToWorldCordinates(m_player.getDestRect());
+    SDL_Rect l_ppos;
+    // draw all "enemies"
+    for(auto& circle : m_enemies) {
+        Color c = circle.getColor();
+        l_ppos = Engine::camera->transformToWorldCordinates(circle.getDestRect());
+        SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), c.r, c.g, c.b);
+        SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
+        gui->getText(circle.getNick())->setPos(l_ppos.x+l_ppos.w/3.0f, l_ppos.y+l_ppos.h/2.4f)->show();
+        gui->getText(circle.getNick())->setScale(0.5f/Engine::camera->getScale());
+    }
+    // draw player
+    l_ppos = Engine::camera->transformToWorldCordinates(m_player.getDestRect());
+    SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), 255, 255, 255);
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos );
-
+    gui->getText(m_player.getNick())->setPos(l_ppos.x+l_ppos.w/3, l_ppos.y+l_ppos.h/2.4)->show();
+    
     if(Engine::gameState == GameState::PAUSE)
         gui->getText("PAUSED")->show();
     else
@@ -79,7 +102,7 @@ void Game::draw() {
         gui->getText("cam-scale")->setText("cam-scale: "+l_scale.str())->show();
         gui->getText("player-pos")->setText("("+std::to_string(m_player.getX())+","+std::to_string(m_player.getY())+")");
         gui->getText("player-pos")->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
-        gui->getText("player-pos")->setScale(0.6f/Engine::camera->getScale());
+        gui->getText("player-pos")->setScale(0.6f);
     } else {
         gui->getText("player-pos")->hide();
         gui->getText("d-topleft")->hide();

@@ -115,7 +115,7 @@ class Message: public IMessage {
 			messageType = pMessageType;
 		}
 		inline ~Message() {
-			;
+      ;
 		}
 		void Pack() {
 		}

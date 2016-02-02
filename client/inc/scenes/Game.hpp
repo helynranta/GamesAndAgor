@@ -15,7 +15,9 @@
 class Game : public Scene {
 private:
     // player circle
-    Player m_player;
+    Player m_player = Player("player", 255, 255, 255);
+    vector<Player> m_enemies;
+    vector<Player> m_statics;
 public:
     inline Game () : Scene() {}
     inline ~Game () {}

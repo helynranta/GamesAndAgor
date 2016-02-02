@@ -85,7 +85,7 @@ int Engine::init() {
 
 	// TODO Write inet loading here=
 	connection->init();
-
+    SDL_SetRenderDrawBlendMode(window->getRenderer(), SDL_BLENDMODE_ADD);
 
 	// return what ever happened
 	return success;
@@ -176,7 +176,7 @@ void Engine::processInput() {
 }
 void Engine::invokeTimeout() {
 	for(auto it = _functions.begin(); it != _functions.end(); it++) {
-		if(SDL_GetTicks() > it->first) {
+		if(SDL_GetTicks() > uint(it->first)) {
 			it->second();
 			_functions.erase(it);
 		}
