@@ -260,7 +260,28 @@ int server(char* port) {
 							/* TCP CHAT MSG */
 							if((nbytes = recv(i, recvbuffer, sizeof(recvbuffer), 0)) <= 0){
 								/* Connection closed or error */
+								if(nbytes == 0){
+									/* connection closed */
+								}
+								else{
+									perror("recv");
+								}
+								close(i);
+								FD_CLR(i, &master);
 
+							}
+							else {
+								/* TCP chat */
+								for(int j = 0; j <= fdmax; j++){
+									if(FD_ISSET(j, &master)) {
+										/* skip listener */
+										if(j != listener) {
+											if(send(j, recvbuffer, nbytes, 0) == -1) {
+												perror("TCP chat send to all");
+											}
+										}
+									}
+								}
 							}
 						}
 					}
@@ -387,7 +408,7 @@ int client(char* port, char *serverip)
 
 			char nicki[MAX_NICK] = "Testi";
 			memcpy(&dgram[index], nicki, MAX_NICK);
-			
+
 
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
         perror("sendto()");
