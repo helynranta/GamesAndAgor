@@ -129,8 +129,9 @@ enum GAME_MESSAGE_TYPE {
 enum PLAYER_STATUS {
 		JOINING = 0,
 		ALIVE = 1,
-		DEAD = 2,
-		OUT = 3
+		EATEN = 2,
+		DEAD = 3,
+		OUT = 4
 };
 
 /*Struct for game msg/incoming packet */
