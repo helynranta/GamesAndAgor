@@ -24,7 +24,7 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 		// Calculate distances to each player
 		for(p2 = p1->pNext; p2 != NULL; p2 = p2->pNext){
 			if (p2->state != ALIVE){continue;}
-			if(isWithinRange(p1->location, p2->location, p1->scale)){
+			if(isWithinRange(p1->location, p2->location, p1->scale, p2->scale)){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
 
@@ -33,7 +33,7 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 				temp = NULL;
 			}
 
-			else if (isWithinRange(p1->location, p2->location, p2->scale)){
+			else if (isWithinRange(p1->location, p2->location, p2->scale, p1->scale)){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
 
@@ -45,7 +45,7 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 
 		// Calculate distances to each object
 		for(pObj = sObjects; pObj != NULL; pObj = pObj->pNext){
-			if(isWithinRange(p1->location, pObj->location, p1->scale)){
+			if(isWithinRange(p1->location, pObj->location, p1->scale,OBJ_SIZE)){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
 
@@ -57,29 +57,68 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 	}
 }
 
-int isWithinRange(int location1[2], int location2[2], int scale){
+
+int isWithinRange(int location1[2], int location2[2], int scale1, int scale2){
 	int deltaX, deltaY;
-	/* Which kind of calculation do we want to implement? Rectangle or circle?
-	 * Rectangle would minimize packet size (no particles misclassified as near)
+    float range = scale1/PLA_SIZE;
+
+    float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
+
 	// RECTANGLE
-	deltaX = abs(location2[0] - location1[0]);
-	deltaY = abs(location2[1] - location1[1]);
+	deltaY = abs(location2[1] - location1[1]) - scale2/2;
+	deltaX = abs(location2[0] - location1[0]) - scale2/2;
 
-	if (deltaX < LIMIT_X * scale && deltaY < LIMIT_Y * scale)
+    if (deltaX < rangeX && deltaY < rangeY)
 		return 1;
 	else
 		return 0;
-	*/
+}
 
-	// CIRCLE
-	deltaX = pow(location2[0] - location1[0], 2);
-	deltaY = pow(location2[1] - location1[1], 2);
+void addAck2List(Ack **pAckList, char *msg, int gameTime, int msgLength, int packetID){
+    Ack *pAck = NULL;
+    if ((pAck = calloc(1, sizeof(Ack))) == NULL) { perror("calloc"); }
 
-	if(deltaX + deltaY < pow(LIMIT_R * scale, 2))
-		return 1;
-	else
-		return 0;
+    pAck->gameTimeSent = gameTime;
+    memcpy(pAck->msg, msg, msgLength);
+    pAck->msgLength = msgLength;
+    pAck->packetID = packetID;
 
+    /* Add the ack to the start of the linked list */
+    append2ListAck(pAckList,pAck);
+}
+
+void append2ListAck(Ack **pList, Ack *pNew){
+	// For functional explanation, see append2ListNear
+	Ack *temp = NULL, *p = NULL;
+	p = *pList;
+	temp = p;
+	p = pNew;
+	p->pNext = temp;
+	*pList = p;
+}
+
+
+void removeAck(Ack **pList, Ack *pAck){
+    Ack *p = *pList, *prev = NULL;
+
+    if (p == pAck) {
+        p = pAck->pNext;
+        free(pAck);
+        *pList = p;
+    }
+    else {
+        while(p != pAck){
+            if(p->pNext == NULL) {
+                return;
+            }
+            else {
+                prev = p;
+                p = p->pNext;
+            }
+            prev->pNext = pAck->pNext;
+            free(pAck);
+        }
+    }
 }
 
 void append2ListNear(Near **pList, Near *pNew){
@@ -156,7 +195,7 @@ void newPlayer(Player **pList, struct Packet packet, int nPlayers){
   /* Get uid, nick, address from packet */
   p->ID = nPlayers+1;
   p->address = packet.senderAddr;
-	printf("p->addr: %d, packet.senderAddr: %d\n",sizeof(p->address), sizeof(packet.senderAddr) );
+
   //memcpy(p->nick, packet.nick, 12);
   randomLocation(p->location);
 
