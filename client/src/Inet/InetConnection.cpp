@@ -132,30 +132,45 @@ bool InetConnection::connect(const std::string& l_ip, const std::string& l_port)
 bool InetConnection::disconnect() {
 	if (res == nullptr) freeaddrinfo(res);
 	close(sockettcp);
+	sockettcp = 0;
+	m_state = ConnectionState::DISCONNECTED;
 	return true;
 }
 
 void InetConnection::update() {
 	// if connecting tcp
+	FD_ZERO(&socket_fds);
+	FD_SET(sockettcp, &socket_fds);
 	if(m_state == ConnectionState::CONNECTING) {
 		int err;
 		socklen_t len = sizeof(err);
 		if(getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len)<0) {
 			cerr << "getsockopt error: " << strerror(errno) << endl;
 			strerrno = strerror(errno);
-		}
-		if(err == ECONNREFUSED) {
 			cout << strerror(err) << endl;
 			m_state = ConnectionState::REFUSED;
 		} else if(err == EINPROGRESS)
 			m_state = ConnectionState::CONNECTING;
-		else if(err == 0)
-			m_state = ConnectionState::CONNECTED;
-		else
+		else if(err == 0) {
+			timeout.tv_usec=100;
+			timeout.tv_sec = 0;
+			int ret = 0;
+			if((ret = select(sockettcp+1, &socket_fds, NULL, NULL, &timeout))<0) {
+				cout << ret << endl;
+			}
+			if(FD_ISSET(sockettcp, &socket_fds)) {
+				char buffer[1024];
+				recv(sockettcp, buffer, sizeof(buffer), 0);
+				cout << buffer << endl;
+				//m_state = ConnectionState::CONNECTED;
+			}
+		} else
 			strerrno = strerror(err);
 
-		cout << strerror(err) << " " << sockettcp << endl;
+		//cout << strerror(err) << " " << sockettcp << endl;
 		return;
+	} else {
+
 	}
 /*
 memset(&timeout, 0, sizeof(timeout));

@@ -27,11 +27,18 @@ public:
     }
 
     inline void update(float dt) override {
-        if(Engine::input->isKeyPressed(SDLK_RETURN)) {
+        if(Engine::input->isKeyPressed(SDLK_d)) {
+            Engine::connection->disconnect();
+            gui->getText("hint")->setText("Enter server IP address");
+            gui->getInput("input")->show();
+        }
+        else if(Engine::input->isKeyPressed(SDLK_RETURN) &&
+            Engine::connection->getState() != ConnectionState::CONNECTING
+        ) {
             // show right text
-            gui->getText("hint")->setText("Trying to connect to server...");
+            gui->getText("hint")->setText("Trying to connect to server... press d to return");
             gui->getInput("input")->hide();
-            Engine::connection->connect("127.0.0.1", "5200");
+            Engine::connection->connect("127.0.0.1", "80");
         } else if(Engine::connection->getState() == ConnectionState::DISCONNECTED)
             gui->getInput("input")->show();
         if(Engine::connection->getState() == ConnectionState::CONNECTED)
