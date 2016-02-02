@@ -156,6 +156,7 @@ void newPlayer(Player **pList, struct Packet packet, int nPlayers){
   /* Get uid, nick, address from packet */
   p->ID = nPlayers+1;
   p->address = packet.senderAddr;
+	printf("p->addr: %d, packet.senderAddr: %d\n",sizeof(p->address), sizeof(packet.senderAddr) );
   //memcpy(p->nick, packet.nick, 12);
   randomLocation(p->location);
 
@@ -368,4 +369,19 @@ void randomLocation(int *location){
     srand(time(NULL));
     location[0] = rand() % LIMIT_X;
     location[1] = rand() % LIMIT_Y;
+}
+
+/* Sends game update to everyone */
+void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
+	Player *pPla = game->sPlayers;
+	while(pPla != NULL){
+
+		/* Pack msg */
+		msgPacker(buf, game, pPla->ID, GAME_MESSAGE, GAME_UPDATE, 0, 0);
+		/* Send msg */
+		/* TODO: fix magic numeber 256 to --> SIZE or something */
+		sendto(socket, buf, 256, 0, &pPla->address, addrlen);
+		/* Move on to the next player */
+		pPla = pPla->pNext;
+	}
 }

@@ -135,7 +135,7 @@ int server(char* port) {
 		time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
 
 		tvSelect.tv_sec = 0;
-		tvSelect.tv_usec = 1000000;
+		tvSelect.tv_usec = 1000;
 
 		// Add socket to the master set
 		FD_SET(socketfd, &master);
@@ -152,12 +152,12 @@ int server(char* port) {
 			readset = master; // /* Copy master fd_set, so that won't change*/
 
 			/* rest timeout values */
-			//tvSelect.tv_sec = 0;
-			//tvSelect.tv_usec = 1000000;
+			tvSelect.tv_sec = 0;
+			tvSelect.tv_usec = 1000;
 
 
 			// Start waiting for socket activity
-			if((activity = select(fdmax+1, &readset, NULL, NULL, NULL)) == -1){
+			if((activity = select(fdmax+1, &readset, NULL, NULL, &tvSelect)) == -1){
 				perror("select");
 				exit(4);
 			}
@@ -259,18 +259,25 @@ int server(char* port) {
 						}
 					}
 				}
+				printf("%s\n", "Testi looppaako?\n");
+				if ((time2 - time1) >= 500) {
+					printf("Game update!\n");
+					gettimeofday(&tvUpdate1, NULL);
+					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
+
+					/* Send game update to everyone */
+					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+					}
+					gettimeofday(&tvUpdate2, NULL);
+					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
+				}
+
 			}
 
 			// UPD activity
 
-			
-			if ((time2 - time1) >= 5000) {
-				printf("Game update!\n");
-				gettimeofday(&tvUpdate1, NULL);
-				time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
-			}
-			gettimeofday(&tvUpdate2, NULL);
-			time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
+
+
 
 
 /* Question:
@@ -280,8 +287,8 @@ int server(char* port) {
 * someone else?
 */
 
-    close(socketfd); /* REMEMBER ME! */
-  }
+
+
   else {
     printf("Server: Invalid port. Choose something between 1024 - 65000\n");
     return -1;
@@ -326,7 +333,7 @@ int client(char* port, char *serverip)
       * see 'man sendto'
 			GAME_MESSAGE:JOIN  packet
       */
-			/*
+
 			int index = 0;
       uint16_t uid = 32;
       *(uint16_t*)&dgram[index] = htons(uid);
@@ -346,10 +353,11 @@ int client(char* port, char *serverip)
 
 			uint8_t subtype = JOIN;
 			*(uint8_t*)&dgram[index] = subtype;
-			*/
+
 			/*END OF GAME_MESSAGE:JOIN*/
 
 			/*START OF GAME_MESSAGE:NICK*/
+			/*
 			int index = 0;
       uint16_t uid = 32;
       *(uint16_t*)&dgram[index] = htons(uid);
@@ -373,6 +381,7 @@ int client(char* port, char *serverip)
 
 			char nicki[MAX_NICK] = "Testi";
 			memcpy(&dgram[index], nicki, MAX_NICK);
+			*/
 
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
         perror("sendto()");
@@ -380,19 +389,20 @@ int client(char* port, char *serverip)
         break;
       }
       else printf("Client: Sent datagram length = %d\n", length);
-
-			printf("%s\n", "Pitäis receavata!\n");
-			int readlength = -1;
-			/* Get Join Ack */
-			if((readlength = recvfrom(socketfd, &readbuf,SIZE,0,iter->ai_addr, &iter->ai_addrlen)) <= 0){
-				printf("%s\n", "Nada");
-			}
-			else
-				printf("tuli %d tavua perille\n", readlength);
-			struct Packet packet;
-			packet = unpackPacket(readbuf, iter->ai_addr);
-			printf("Packet msgType: %d\n", packet.msgType);
+			while(1){
+				printf("%s\n", "Pitäis receavata!\n");
+				int readlength = -1;
+				/* Get Join Ack */
+				if((readlength = recvfrom(socketfd, &readbuf,SIZE,0,iter->ai_addr, &iter->ai_addrlen)) <= 0){
+					printf("%s\n", "Nada");
+				}
+				else
+					printf("tuli %d tavua perille\n", readlength);
+				struct Packet packet;
+				packet = unpackPacket(readbuf, iter->ai_addr);
+				printf("Packet msgType: %d\n", packet.msgType);
     }
+		}
   }
 
   freeaddrinfo(result);
