@@ -20,7 +20,7 @@ int main(void) {
         {"NickDialog", new NickDialog()},
         {"IPDialog", new IPDialog()}
     });
-    engine->run("IPDialog");
+    engine->run("Game");
     delete engine;
     
     return 0;

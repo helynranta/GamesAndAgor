@@ -52,7 +52,7 @@ protected:
 public:
     string strerrno = "";
     bool send(std::string l_ip, std::string l_port, std::string message);
-    bool connect(const std::string& ip, const std::string& port);
+    bool connectTCP(const std::string& ip, const std::string& port);
     bool disconnect();
     void update();
     std::vector<Message*> messages;

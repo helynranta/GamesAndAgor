@@ -38,7 +38,7 @@ public:
             // show right text
             gui->getText("hint")->setText("Trying to connect to server... press d to return");
             gui->getInput("input")->hide();
-            Engine::connection->connect("127.0.0.1", "80");
+            Engine::connection->connectTCP("127.0.0.1", "80");
         } else if(Engine::connection->getState() == ConnectionState::DISCONNECTED)
             gui->getInput("input")->show();
         if(Engine::connection->getState() == ConnectionState::CONNECTED)
