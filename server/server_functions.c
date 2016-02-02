@@ -425,6 +425,7 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 		pPla = pPla->pNext;
 	}
 }
+
 /* Check nick, new nick must be available */
 /* Return Status: 1 OK,  0 NOT OK */
 int checkNick(char *nick,Player *pPlayer){
