@@ -27,7 +27,7 @@ private:
     struct addrinfo hints;
     struct addrinfo *res;
     struct addrinfo *iter;
-    
+
     struct sockaddr_in server_addr; // lassi uses this
     struct hostent* server;
     int length = 0;
@@ -38,11 +38,11 @@ private:
     fd_set socket_fds;
     fd_set socket_fds_temp;
     struct timeval timeout;
-    
+
     int listensocket = -1;
     int biggestsocket = -1;
-    
-    int sockettcp;
+
+    int sockettcp = 0;
     void unpack_header();
     std::vector<Message*> m_messages;
 protected:
@@ -50,6 +50,7 @@ protected:
     InetConnection();
     ~InetConnection() {;}
 public:
+    string strerrno = "";
     bool send(std::string l_ip, std::string l_port, std::string message);
     bool connect(const std::string& ip, const std::string& port);
     bool disconnect();
