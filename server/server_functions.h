@@ -26,6 +26,9 @@ void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
 void newPlayer(Player **pList, struct Packet packet, int nPlayers);
 
+/* ltr did this, blame me if something bad happens */
+void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen);
+
 /* PACKING FUNCTIONS */
 int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
     int msgSubType, int outPlayerID, int status);
