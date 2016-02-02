@@ -263,7 +263,7 @@ int server(char* port) {
 
 			// UPD activity
 
-
+			
 			if ((time2 - time1) >= 5000) {
 				printf("Game update!\n");
 				gettimeofday(&tvUpdate1, NULL);
@@ -272,8 +272,6 @@ int server(char* port) {
 			gettimeofday(&tvUpdate2, NULL);
 			time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
 
-
-			// Run game update if enough time passed since last update
 
 /* Question:
 * Since we know the address and port client is using, it should be easy to send something
