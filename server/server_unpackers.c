@@ -52,6 +52,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
         case NICK:
           packet.subType = NICK;
           memcpy(packet.nick, &buf[index], MAX_NICK);
+          packet.nick[11] = '\0';
           return packet;
           break;
 

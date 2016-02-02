@@ -13,6 +13,10 @@
 
 #define BUFFERSIZE 1500
 #define MAX_NICK 12
+#define SCREEN_X 400
+#define SCREEN_Y 300
+#define OBJ_SIZE 40
+#define PLA_SIZE 100
 
 
 /*

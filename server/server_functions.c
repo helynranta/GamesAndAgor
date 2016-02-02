@@ -371,6 +371,7 @@ void randomLocation(int *location){
     location[1] = rand() % LIMIT_Y;
 }
 
+/* ltr to blame from the code below */
 /* Sends game update to everyone */
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 	Player *pPla = game->sPlayers;
@@ -384,4 +385,18 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 		/* Move on to the next player */
 		pPla = pPla->pNext;
 	}
+}
+/* Check nick, new nick must be available */
+/* Return Status: 0 OK,  1 NOT OK */
+int checkNick(char *nick,Player *pPlayer){
+	Player *tmp = pPlayer;
+	int result = 0;
+	while(tmp != NULL){
+		result = strncmp(nick, pPlayer->nick, 12);
+		if(result == 0){
+			return 1;
+		}
+		tmp = pPlayer->pNext;
+	}
+	return 0;
 }
