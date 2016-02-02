@@ -15,10 +15,23 @@ class MessagesAck : public Message {
 class JoinAck: public MessagesAck {
 	public:
 		inline JoinAck(MessageHeader header) :
-				MessagesAck(header, GAME_MESSAGE_TYPE::JOIN) {
-		};
+				MessagesAck(header, GAME_MESSAGE_TYPE::JOIN) {;};
 
-		inline ~JoinAck() {};
+		inline ~JoinAck() {;};
+
+		static JoinAck* PackSelf();
+		static JoinAck* Unpack(uint8_t* payload);
+};
+
+class NickAck: public MessagesAck {
+	public:
+		inline NickAck(MessageHeader header) :
+			MessagesAck(header, GAME_MESSAGE_TYPE::NICK) {;};
+
+		inline ~NickAck(){;};
+
+		static NickAck* PackSelf();
+		static NickAck* Unpack(uint8_t* payload);
 };
 
 #endif /* SRC_INET_MESSAGESACK_HPP_ */
