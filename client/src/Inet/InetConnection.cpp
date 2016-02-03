@@ -222,9 +222,9 @@ vector<ChatMessage*> InetConnection::getChatMessages() {
 	vector<ChatMessage*> lmessages;
 	for (unsigned int it = 0; it < m_inbox.size(); it++) {
 		if (m_inbox[it]->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
-			//messages.push_back(dynamic_cast<ChatMessage*>(message));
-			//message = m_messages.end();
-			//m_messages.pop_back();
+			messages.push_back(dynamic_cast<ChatMessage*>(m_inbox[it]));
+			m_inbox[it] = m_inbox.back();
+			m_inbox.pop_back();
 		}
 	}
 	return lmessages;
@@ -234,12 +234,10 @@ vector<PlayerDead*> InetConnection::getDeadPayers() {
 	vector<PlayerDead*> lmessages;
 	for (unsigned int it = 0; it < m_inbox.size(); it++) {
 		if (m_inbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
-
 			if (dynamic_cast<GameMessage*>(m_inbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_DEAD) {
 				messages.push_back(dynamic_cast<PlayerDead*>(m_inbox[it]));
-				//delete m_messages[it];
-				//m_messages[it] = m_messages.back();
-				//m_messages.pop_back();
+				m_inbox[it] = m_inbox.back();
+				m_inbox.pop_back();
 			}
 		}
 	}
