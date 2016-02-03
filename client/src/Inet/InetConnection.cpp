@@ -1,61 +1,36 @@
 #include <sys/select.h>
 
 #include "Inet/InetConnection.hpp"
+#include "Engine.hpp"
 
 #define PORT "3393"
 #define UDP_BUFMAX "1500"
 
+vector<Message*> messages;
+
 InetConnection::InetConnection() {
-	//result = static_cast<addrinfo*>(malloc(sizeof(addrinfo)));
-	/*hints = {
-	AI_NUMERICHOST | AI_NUMERICSERV,  // addrinfo::ai_flags
-	PF_UNSPEC,// addrinfo::ai_family
-	SOCK_STREAM,// addrinfo::ai_socktype
-	IPPROTO_UDP,// addrinfo::ai_protocol
-	0, 0, nullptr, nullptr// unused
-};
-*/
-memset(&hints, 0, sizeof hints);
-hints.ai_family = AF_UNSPEC;
-hints.ai_socktype = SOCK_STREAM;
-hints.ai_flags = AI_PASSIVE;
-iter = nullptr;
-}
-
-std::vector<Message*> messages;
-
-void InetConnection::init(void) {
-	/*
 	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-
-	if (getaddrinfo(NULL, PORT, &hints, &result)) {
-	std::cout << "Cannot resolve address. Exiting" << std::endl;
-	exit (EXIT_FAILURE);
-} else {
-std::cout << "getaddrinfo success" << std::endl;
-// Go through every returned address and attempt to connect to each
-for (iter = result; iter != NULL; iter = iter->ai_next) {
-if ((listensocket = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
-std::cout << "Error socket(): " << strerror(errno) << std::endl;
-exit (EXIT_FAILURE);
-break;
 }
-if (bind(listensocket, iter->ai_addr, iter->ai_addrlen) < 0) {
-close(listensocket);
-std::cout << "Error bind(): " << strerror(errno) << std::endl;
-break;
+void InetConnection::init(void) {
+	// fill local addr_in
+	memset(&me_addr, 0, sizeof(struct sockaddr_in));
+	me_addr.sin_family = PF_UNSPEC;
+	me_addr.sin_port = htons(0);
+	// create udp socket and bind it
+	if((socketudp = ::socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		cerr << "was not able to create udp socket!" << endl
+		<< strerror(errno) << endl;
+	}
+	if(::bind(socketudp, reinterpret_cast<struct sockaddr*>(&me_addr), sizeof(me_addr)) < 0) {
+        cerr << "was not able to bind udp port!" << endl
+		<< strerror(errno) << endl;
+    }
 }
-break;
-}
-}
-std::cout << "Listening socket" << listensocket << std::endl;
-*/
-}
-
 void InetConnection::destroy(void) {
+	close(socketudp);
 	// delete messages behind pointers
 	for (auto& it : messages) {
 		delete it;
@@ -63,39 +38,25 @@ void InetConnection::destroy(void) {
 	// empty whole vector
 	messages.clear();
 }
-bool InetConnection::send(std::string l_ip, std::string l_port, std::string message) {
-	/* Try to send data to server:
-	* sendto(socket, data , data length, flags, destination, struct length)
-	* see 'man sendto'
-	*/
-
-	struct addrinfo * server_addrinfo = nullptr;
-	if (getaddrinfo(l_ip.c_str(), l_port.c_str(), &hints, &server_addrinfo) < 0) {
-		std::cout << "Cannot resolve address: " << strerror(errno) << std::endl;
+bool InetConnection::sendChatMessage(const string& message) {
+	// these are all going threw tcp
+	if((::send(sockettcp, message.c_str(), sizeof(message.c_str()), 0))<0) {
+		cerr << "TCP message send failed!" << endl << strerror(errno) << endl;
 		return false;
-	}
-
-	/* send to asdfasdf	 */
-	if ((sendto(listensocket, message.c_str(), BUFFER_SIZE, 0, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) < 0) {
-		std::cout << "Error sentto(): " << strerror(errno) << std::endl;
-		return false;
-	} else {
-		std::cout << "Client: Sent datagram" << std::endl;
 	}
 	return true;
+}
+void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
+	// only adds outgoing message to list. put actual send to update
 
+	//Message* msg = new GameMessage();
+	//m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
 // http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
-/**
-* connect
-* this function tries to connect to given server crediterials.
-* it makes ConnectionState CONNECTING and then tries to send message to connect
-* @params: string ip, string port. Port and IP of the server we are connecting.
-* @return: bool success. returns success if there was no socket error
-*/
 bool InetConnection::connectTCP(const std::string& l_ip, const std::string& l_port) {
 	if(sockettcp != 0) close(sockettcp);
-	if(m_state != ConnectionState::CONNECTING) {
+	iter = nullptr;
+	if(tcpsocketstatus) {
 		// get server address information
 		ip = l_ip;
 		port = l_port;
@@ -110,10 +71,15 @@ bool InetConnection::connectTCP(const std::string& l_ip, const std::string& l_po
 			strerrno = strerror(errno);
 			return false;
 		}
+		// bind to port
+		if(::bind(sockettcp, reinterpret_cast<struct sockaddr*>(&me_addr), sizeof(struct sockaddr))<0) {
+			cerr << "cannot bind tcp socket to random port" << endl << strerror(errno) << endl;
+		}
+		// create unblocking connect process
 		int sock_res = ::connect(sockettcp, res->ai_addr, res->ai_addrlen);
 		if(sock_res < 0) {
 			if(errno == EINPROGRESS) {
-				m_state = ConnectionState::CONNECTING;
+				tcpsocketstatus = false;
 				cout << "Trying to connect to host" << endl;
 				return true;
 			} else if (errno == ECONNREFUSED) m_state = ConnectionState::REFUSED;
@@ -122,7 +88,7 @@ bool InetConnection::connectTCP(const std::string& l_ip, const std::string& l_po
 			return false;
 		}
 		if (sock_res == 0) {
-			m_state = ConnectionState::CONNECTED;
+			tcpsocketstatus = true;
 			cout << "We are now connected to host" << endl;
 			return true;
 		}
@@ -136,12 +102,11 @@ bool InetConnection::disconnect() {
 	m_state = ConnectionState::DISCONNECTED;
 	return true;
 }
-
 void InetConnection::update() {
 	// if connecting tcp
 	FD_ZERO(&socket_fds);
 	FD_SET(sockettcp, &socket_fds);
-	if(m_state == ConnectionState::CONNECTING) {
+	if(!tcpsocketstatus && m_state == ConnectionState::CONNECTED) {
 		int err;
 		socklen_t len = sizeof(err);
 		if(getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len)<0) {
@@ -150,7 +115,7 @@ void InetConnection::update() {
 			cout << strerror(err) << endl;
 			m_state = ConnectionState::REFUSED;
 		} else if(err == EINPROGRESS)
-			m_state = ConnectionState::CONNECTING;
+			tcpsocketstatus = false;
 		else if(err == 0) {
 			timeout.tv_usec=100;
 			timeout.tv_sec = 0;
@@ -162,7 +127,7 @@ void InetConnection::update() {
 				char buffer[1024];
 				recv(sockettcp, buffer, sizeof(buffer), 0);
 				//cout << buffer << endl;
-				if(strlen(buffer)>0) m_state = ConnectionState::CONNECTED;
+				if(strlen(buffer)>0) tcpsocketstatus = true;
 			}
 		} else
 			strerrno = strerror(err);
@@ -255,30 +220,30 @@ for (auto& it : messages) {
 	it->Update();
 }
 }
-std::vector<ChatMessage*> InetConnection::getChatMessages() {
-	std::vector<ChatMessage*> messages;
-	for (auto& message : m_messages) {
-		if (message->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
+vector<ChatMessage*> InetConnection::getChatMessages() {
+	vector<ChatMessage*> lmessages;
+	for (auto& message : m_inbox) {
+		if (message.second->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
 			//messages.push_back(dynamic_cast<ChatMessage*>(message));
 			//message = m_messages.end();
 			//m_messages.pop_back();
 		}
 	}
-	return messages;
+	return lmessages;
 }
 
-std::vector<PlayerDead*> InetConnection::getDeadPayers() {
-	std::vector<PlayerDead*> messages;
-	for (auto& message : m_messages) {
-		if (message->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
+vector<PlayerDead*> InetConnection::getDeadPayers() {
+	vector<PlayerDead*> lmessages;
+	for (auto& message : m_inbox) {
+		if (message.second->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
 
-			if (dynamic_cast<GameMessage*>(message)->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_DEAD) {
-				messages.push_back(dynamic_cast<PlayerDead*>(message));
+			if (dynamic_cast<GameMessage*>(message.second)->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_DEAD) {
+				messages.push_back(dynamic_cast<PlayerDead*>(message.second));
 				//delete m_messages[it];
 				//m_messages[it] = m_messages.back();
 				//m_messages.pop_back();
 			}
 		}
 	}
-	return messages;
+	return lmessages;
 }

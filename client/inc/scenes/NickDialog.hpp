@@ -31,18 +31,6 @@ public:
             // put here if connect returns true
             // Engine::connection->sendNick(gui->getText("hint")->getText())
         }
-        /*
-        switch(Engine::connection->getAck(GAME_MESSAGE_TYPE::NICK)) {
-            case -1: break; // not acked yet
-            case 0: // negative
-                gui->getText("hint")->setText("Username already in use, use other one");
-                gui->getInput("nick")->show();
-                break;
-            case 1: // positive
-                Engine::startScene("Game");
-            default: break;
-        }
-        */
     }
     inline void end() {}
     inline void draw() {}

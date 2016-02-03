@@ -38,15 +38,27 @@ public:
             // show right text
             gui->getText("hint")->setText("Trying to connect to server... press d to return");
             gui->getInput("input")->hide();
-            Engine::connection->connectTCP("127.0.0.1", "80");
+            Engine::connection->sendUDP(GAME_MESSAGE_TYPE::JOIN, "");
         } else if(Engine::connection->getState() == ConnectionState::DISCONNECTED)
             gui->getInput("input")->show();
         if(Engine::connection->getState() == ConnectionState::CONNECTED)
           Engine::startScene("NickDialog");
-        else if(Engine::connection->getState() == ConnectionState::REFUSED) {
-            gui->getText("hint")->setText("Connection refused...");
+        else if(Engine::connection->getState() == ConnectionState::TIMED_OUT) {
+            gui->getText("hint")->setText("Connection timed out...");
             gui->getInput("input")->show();
         }
+        /*
+        switch(Engine::connection->getAck(GAME_MESSAGE_TYPE::NICK)) {
+            case -1: break; // not acked yet
+            case 0: // negative
+                gui->getText("hint")->setText("Username already in use, use other one");
+                gui->getInput("nick")->show();
+                break;
+            case 1: // positive
+                Engine::startScene("Game");
+            default: break;
+        }
+        */
     }
 
     inline void end() override {}
