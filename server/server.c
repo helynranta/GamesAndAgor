@@ -144,6 +144,7 @@ int server(char* port) {
 
 		/* Create a game */
 		Game game;
+		int tavut = -2;
 		while (1) {
 
 			// Refresh select() set
@@ -200,7 +201,8 @@ int server(char* port) {
 											printf("Player joins game!\n");
 
 											msgPacker(sendbuffer, &game, packet.ID, ACK, JOIN, 0,1);
-											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+											tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+											printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
 											break;
 
 										case NICK:
@@ -209,6 +211,7 @@ int server(char* port) {
 											int nickStatus = -1;
 											nickStatus = checkNick(packet.nick, game.sPlayers);
 											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
+											printf("ACKID: %d\n", game.sAcks->packetID);
 											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 
 											/* If nick OK add new player */
@@ -222,6 +225,7 @@ int server(char* port) {
 
 										case EXIT:
 											printf("Player exits the game!\n");
+											msgPacker(sendbuffer, &game, packet.ID, ACK, EXIT, 0, nickStatus);
 											break;
 									}
 
