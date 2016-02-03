@@ -220,8 +220,8 @@ for (auto& it : messages) {
 }
 vector<ChatMessage*> InetConnection::getChatMessages() {
 	vector<ChatMessage*> lmessages;
-	for (auto& message : m_inbox) {
-		if (message.second->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
+	for (unsigned int it = 0; it < m_inbox.size(); it++) {
+		if (m_inbox[it]->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
 			//messages.push_back(dynamic_cast<ChatMessage*>(message));
 			//message = m_messages.end();
 			//m_messages.pop_back();
@@ -232,11 +232,11 @@ vector<ChatMessage*> InetConnection::getChatMessages() {
 
 vector<PlayerDead*> InetConnection::getDeadPayers() {
 	vector<PlayerDead*> lmessages;
-	for (auto& message : m_inbox) {
-		if (message.second->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
+	for (unsigned int it = 0; it < m_inbox.size(); it++) {
+		if (m_inbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
 
-			if (dynamic_cast<GameMessage*>(message.second)->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_DEAD) {
-				messages.push_back(dynamic_cast<PlayerDead*>(message.second));
+			if (dynamic_cast<GameMessage*>(m_inbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_DEAD) {
+				messages.push_back(dynamic_cast<PlayerDead*>(m_inbox[it]));
 				//delete m_messages[it];
 				//m_messages[it] = m_messages.back();
 				//m_messages.pop_back();
