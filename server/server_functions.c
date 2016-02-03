@@ -274,7 +274,7 @@ int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
 				return -1;
 			else{
 				*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
-				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,ind+1,pGame->gameTime);
+				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime);
 				return 0;
 			}
 	    case STATISTICS_MESSAGE:
