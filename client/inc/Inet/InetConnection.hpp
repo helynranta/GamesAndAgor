@@ -14,6 +14,8 @@
 #include <string>
 
 #include "Inet/Messages.hpp"
+#include "Inet/MessagesAck.hpp"
+
 
 using namespace std;
 
@@ -47,22 +49,26 @@ private:
     std::vector<Message*> m_messages;
 protected:
     /* protected data */
-    InetConnection();
     ~InetConnection() {;}
 public:
+    InetConnection();
+
     string strerrno = "";
-    bool send(std::string l_ip, std::string l_port, std::string message);
+    bool send(uint8_t *, int);
     bool connectTCP(const std::string& ip, const std::string& port);
     bool disconnect();
     void update();
     std::vector<Message*> messages;
     void init();
+
     void destroy();
 
     inline const ConnectionState& getState() const { return m_state; }
 
+    std::vector<MessagesAck*> getAcks();
     std::vector<ChatMessage*> getChatMessages();
     std::vector<PlayerDead*> getDeadPayers();
+
 
 };
 #endif

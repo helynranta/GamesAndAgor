@@ -49,7 +49,6 @@ inline uint8_t UnpackUINT8_T(uint8_t * payload, int bufferPosition) {
 
 inline void PackUINT32ToPayload(uint32_t variableToPack, uint8_t * payload, int bufferPosition) {
 	uint32_t uint32Variable = htonl(variableToPack);
-	std::cout << variableToPack << std::endl;
 	memcpy(&payload[bufferPosition], &uint32Variable, sizeof(uint32_t));
 	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 }
@@ -388,5 +387,46 @@ class ChatMessage: public Message {
 		virtual ~ChatMessage();
 		static ChatMessage * Unpack(MessageHeader, uint32_t, uint8_t*);
 };
+
+inline std::string getMessageTypeAsString(uint8_t messageType){
+	switch (messageType) {
+		case MESSAGE_TYPE::GAME_MESSAGE:
+			return "GAME_MESSAGE";
+		case MESSAGE_TYPE::ACK:
+			return "ACK";
+		case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE:
+			return "PLAYER_CHAT_MESSAGE";
+		case MESSAGE_TYPE::PLAYER_MOVEMENT:
+			return "PLAYER_MOVEMENT";
+		case MESSAGE_TYPE::STATISTICS_MESSAGE:
+			return "STATISTICS_MESSAGE";
+	}
+	return "Cannot determinate";
+
+}
+
+inline std::string getSubMessageTypeAsString(uint8_t subType) {
+	switch (subType) {
+	case GAME_MESSAGE_TYPE::JOIN:
+		return "JOIN";
+	case GAME_MESSAGE_TYPE::NICK:
+		return "NICK";
+	case GAME_MESSAGE_TYPE::GAME_UPDATE:
+		return "GAME_UPDATE";
+	case GAME_MESSAGE_TYPE::GAME_END:
+		return "GAME_END";
+	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+		return "PLAYER_DEAD";
+	case GAME_MESSAGE_TYPE::PLAYER_OUT:
+		return "PLAYER_OUT";
+	case GAME_MESSAGE_TYPE::POINTS:
+		return "POINTS";
+	case GAME_MESSAGE_TYPE::RESTART:
+		return "RESTART";
+
+	}
+	return "Cannot determinate";
+
+}
 
 #endif

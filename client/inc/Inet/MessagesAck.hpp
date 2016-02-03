@@ -7,6 +7,7 @@ class MessagesAck : public Message {
 	public:
 		inline MessagesAck(MessageHeader header, GAME_MESSAGE_TYPE pGameMessageType) :
 				Message(header, MESSAGE_TYPE::ACK) {
+			gameMessageType = pGameMessageType;
 		};
 
 		inline ~MessagesAck(){};
@@ -14,6 +15,8 @@ class MessagesAck : public Message {
 		inline GAME_MESSAGE_TYPE getGameMessageType() const {
 			return gameMessageType;
 		};
+
+		static MessagesAck * Unpack(MessageHeader, uint32_t, uint8_t*);
 
 		inline void Update(){};
 
@@ -35,7 +38,7 @@ class JoinAck: public MessagesAck {
 		int PackSelf(uint8_t* payload);
 		static JoinAck* Unpack(MessageHeader header, uint32_t length, uint8_t* payload);
 
-	private:
+	public:
 		uint8_t status;
 		uint16_t id;
 };
