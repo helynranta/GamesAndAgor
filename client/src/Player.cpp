@@ -8,13 +8,13 @@ void Player::update(float dT) {
     Circle::update();
     // extend to some more physics stuff?
     Vector2d l_movementVector(0.0f, 0.0f);
-    if(Engine::input->isKeyDown(SDLK_LEFT))
+    if(Engine::input->isKeyDown(SDLK_a))
         l_movementVector.x -= dT * m_speed;
-    if(Engine::input->isKeyDown(SDLK_RIGHT))
+    if(Engine::input->isKeyDown(SDLK_d))
         l_movementVector.x += dT * m_speed;
-    if(Engine::input->isKeyDown(SDLK_UP))
+    if(Engine::input->isKeyDown(SDLK_w))
         l_movementVector.y += dT * m_speed;
-    if(Engine::input->isKeyDown(SDLK_DOWN))
+    if(Engine::input->isKeyDown(SDLK_s))
         l_movementVector.y -= dT * m_speed;
     m_x += l_movementVector.x;
     m_y += l_movementVector.y;

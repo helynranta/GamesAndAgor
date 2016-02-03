@@ -12,12 +12,13 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <map>
 
 #include "Inet/Messages.hpp"
 
 using namespace std;
 
-enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, REFUSED, TIMING_OUT, EXITING };
+enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, REFUSED, TIMED_OUT, EXITING };
 
 class InetConnection {
 friend class Engine;
@@ -29,6 +30,8 @@ private:
     struct addrinfo *iter;
 
     struct sockaddr_in server_addr; // lassi uses this
+    struct sockaddr_in me_addr;
+
     struct hostent* server;
     int length = 0;
     int rval = 0;
@@ -39,30 +42,31 @@ private:
     fd_set socket_fds_temp;
     struct timeval timeout;
 
-    int listensocket = -1;
-    int biggestsocket = -1;
-
     int sockettcp = 0;
+    int socketudp = 0;
     void unpack_header();
-    std::vector<Message*> m_messages;
+
+    map<int, Message*> m_inbox;
+    map<int, Message*> m_outgoing;
+    bool tcpsocketstatus = false;
 protected:
     /* protected data */
     InetConnection();
     ~InetConnection() {;}
 public:
     string strerrno = "";
-    bool send(std::string l_ip, std::string l_port, std::string message);
-    bool connectTCP(const std::string& ip, const std::string& port);
+    bool sendChatMessage(const string& message);
+    void sendUDP(GAME_MESSAGE_TYPE type, const string& message);
+    bool connectTCP(const string& ip, const string& port);
     bool disconnect();
     void update();
     std::vector<Message*> messages;
     void init();
     void destroy();
-
     inline const ConnectionState& getState() const { return m_state; }
-
-    std::vector<ChatMessage*> getChatMessages();
-    std::vector<PlayerDead*> getDeadPayers();
+    vector<ChatMessage*> getChatMessages();
+    vector<PlayerDead*> getDeadPayers();
+    inline const bool& getTCPStatus() const { return tcpsocketstatus; }
 
 };
 #endif

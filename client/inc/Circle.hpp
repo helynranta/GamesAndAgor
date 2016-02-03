@@ -5,12 +5,19 @@
 
 #include "core/Camera.hpp"
 
+struct Color {
+    int r = 0;
+    int g = 0;
+    int b = 0;
+};
+
 class Circle {
 protected:
     float m_x = 0;
     float m_y = 0;
     float m_r = 100;
     SDL_Rect m_destRect = {int(m_x), int(m_y), int(m_r*2), int(m_r*2)};
+    Color color;
 public:
     inline Circle () {;}
     inline Circle (int x, int y, int r) : m_x(x), m_y(y), m_r(r) {}
@@ -29,6 +36,7 @@ public:
         m_r += x;
         if(m_r < 10) m_r = 10;
     }
+    inline const Color& getColor() const {return color;}
 };
 
 #endif
