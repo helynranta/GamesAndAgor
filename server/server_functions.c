@@ -11,6 +11,8 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 	Near *temp = NULL;
 	Object *pObj;
 
+    int isIn = 0;
+
 	// Clear the previous Near lists of players
 	for(p1 = sPlayers; p1->pNext != NULL; p1 = p1->pNext){
 		clearListNear(&(p1->nearPlayers));
@@ -24,8 +26,17 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 		// Calculate distances to each player
 		for(p2 = p1->pNext; p2 != NULL; p2 = p2->pNext){
 			if (p2->state != ALIVE){continue;}
-			if(isWithinRange(p1->location, p2->location, p1->scale, p2->scale)){
-				if(!(temp = calloc(1,sizeof(Near))))
+
+            isIn = isWithinRange(p1->location, p2->location, p1->scale, p2->scale);
+			if(isIn){
+				if(isIn == -1) { // That p1 fucker just ate p2.
+                    eventEat(p1,p2);
+                }
+                else if (isIn == -2) {// p2 ate p1. p1 totally deserved it.
+                    eventEat(p2,p1);
+                }
+
+                if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
 
 				temp->pParticle = p2;
@@ -60,7 +71,8 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 
 int isWithinRange(int location1[2], int location2[2], int scale1, int scale2){
 	int deltaX, deltaY;
-    float range = scale1/PLA_SIZE;
+    float range = scale1/PLA_SIZE, eucl = 0;
+
 
     float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
 
@@ -68,10 +80,22 @@ int isWithinRange(int location1[2], int location2[2], int scale1, int scale2){
 	deltaY = abs(location2[1] - location1[1]) - scale2/2;
 	deltaX = abs(location2[0] - location1[0]) - scale2/2;
 
-    if (deltaX < rangeX && deltaY < rangeY)
+    /* Euclidean distance */
+    eucl = sqrt(pow(location2[1] - location1[1],2) + pow(location2[0] - location1[0],2));
+
+    if (eucl <  scale1 && scale1 > scale2)
+        return -1;
+    else if (eucl < scale2 && scale1 > scale2)
+        return -2;
+    else if (deltaX < rangeX && deltaY < rangeY)
 		return 1;
 	else
 		return 0;
+}
+
+void eventEat(Player *eater, Player *eaten){
+    eater->scale += floor(eaten->scale/2);
+    eaten->state = EATEN;
 }
 
 void addAck2List(Ack **pAckList, char *msg, int gameTime, int msgLength, int packetID){

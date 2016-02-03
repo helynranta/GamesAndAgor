@@ -20,6 +20,7 @@
 
 void ComputeNearParticles(Player *sPlayers, Object *sObjects);
 int isWithinRange(int location1[2], int location2[2], int scale1, int scale2);
+void eventEat(Player *eater, Player *eaten);
 void addAck2List(Ack **pAckList, char *msg, int gameTime, int msgLength, int packetID);
 void append2ListAck(Ack **pList, Ack *pNew);
 void removeAck(Ack **pList, Ack *pAck);
