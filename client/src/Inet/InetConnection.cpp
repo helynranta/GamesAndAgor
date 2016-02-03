@@ -53,13 +53,11 @@ void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
 	//m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
 // http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
-bool InetConnection::connectTCP(const std::string& l_ip, const std::string& l_port) {
+bool InetConnection::connectTCP() {
 	if(sockettcp != 0) close(sockettcp);
 	iter = nullptr;
 	if(tcpsocketstatus) {
 		// get server address information
-		ip = l_ip;
-		port = l_port;
 		if(getaddrinfo(ip.c_str(), port.c_str(),&hints, &res) != 0) {
 			cerr << "getaddrinfo error "<< strerror(errno) << endl;
 			strerrno = strerror(errno);

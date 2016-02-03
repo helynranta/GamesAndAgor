@@ -24,13 +24,22 @@ public:
         if(Engine::input->isKeyPressed(SDLK_RETURN)) {
             gui->getText("hint")->setText("Checking username availability");
             gui->getInput("nick")->hide();
-            Engine::setTimeout(2000, bind([&](GUIText* text) {
-              if(text != nullptr)
-                text->setText("Hold your horses, this seems to take a lot of time...");
-            }, gui->getText("hint")));
             // put here if connect returns true
-            // Engine::connection->sendNick(gui->getText("hint")->getText())
+            // Engine::connection->sendUDP(GAME_MESSAGE_TYPE::NICK, gui->getText("hint")->getText());
         }
+        /*
+        switch(Engine::connection->getAck(GAME_MESSAGE_TYPE::NICK)) {
+            case -1: break; // not acked yet
+            case 0: // negative
+                gui->getText("hint")->setText("This nick is already in use, choose another one");
+                gui->getInput("nick")->show();
+                break;
+            case 1: // positive
+                Engine::startScene("Game");
+                break;
+            default: break;
+        }
+        */
     }
     inline void end() {}
     inline void draw() {}

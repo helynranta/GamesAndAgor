@@ -57,7 +57,7 @@ public:
     string strerrno = "";
     bool sendChatMessage(const string& message);
     void sendUDP(GAME_MESSAGE_TYPE type, const string& message);
-    bool connectTCP(const string& ip, const string& port);
+    bool connectTCP();
     bool disconnect();
     void update();
     std::vector<Message*> messages;
@@ -67,6 +67,7 @@ public:
     vector<ChatMessage*> getChatMessages();
     vector<PlayerDead*> getDeadPayers();
     inline const bool& getTCPStatus() const { return tcpsocketstatus; }
+    inline void setIP(const string& i) { ip = i; }
 
 };
 #endif

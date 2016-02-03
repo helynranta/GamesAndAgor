@@ -27,38 +27,44 @@ public:
     }
 
     inline void update(float dt) override {
+        ConnectionState cstate = Engine::connection->getState();
+        int tcpstatus = Engine::connection->getTCPStatus();
         if(Engine::input->isKeyPressed(SDLK_d)) {
             Engine::connection->disconnect();
             gui->getText("hint")->setText("Enter server IP address");
             gui->getInput("input")->show();
         }
         else if(Engine::input->isKeyPressed(SDLK_RETURN) &&
-            Engine::connection->getState() != ConnectionState::CONNECTING
+            cstate != ConnectionState::CONNECTING
         ) {
             // show right text
             gui->getText("hint")->setText("Trying to connect to server... press d to return");
             gui->getInput("input")->hide();
-            Engine::connection->sendUDP(GAME_MESSAGE_TYPE::JOIN, "");
-        } else if(Engine::connection->getState() == ConnectionState::DISCONNECTED)
+            Engine::connection->setIP(gui->getInput("input")->getText());
+            //Engine::connection->sendUDP(GAME_MESSAGE_TYPE::JOIN, "");
+        } else if(cstate == ConnectionState::DISCONNECTED)
             gui->getInput("input")->show();
-        if(Engine::connection->getState() == ConnectionState::CONNECTED)
+        if(cstate == ConnectionState::CONNECTED)
           Engine::startScene("NickDialog");
-        else if(Engine::connection->getState() == ConnectionState::TIMED_OUT) {
+        else if(cstate == ConnectionState::TIMED_OUT) {
             gui->getText("hint")->setText("Connection timed out...");
             gui->getInput("input")->show();
         }
         /*
-        switch(Engine::connection->getAck(GAME_MESSAGE_TYPE::NICK)) {
+        switch(Engine::connection->getAck(GAME_MESSAGE_TYPE::JOIN)) {
             case -1: break; // not acked yet
             case 0: // negative
-                gui->getText("hint")->setText("Username already in use, use other one");
+                gui->getText("hint")->setText("connection refused");
                 gui->getInput("nick")->show();
                 break;
             case 1: // positive
-                Engine::startScene("Game");
+                gui->getText("hint")->setText("UDP penetrated, test TCP");
+                Engine::connection->connectTCP();
+                break;
             default: break;
         }
         */
+        if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) Engine::startScene("Game");
     }
 
     inline void end() override {}
