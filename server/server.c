@@ -286,7 +286,7 @@ int server(char* port) {
 						}
 					}
 				}
-				printf("%s\n", "Testi looppaako?\n");
+				//printf("%s\n", "Testi looppaako?\n");
 				if ((time2 - time1) >= 500) {
 					printf("Game update!\n");
 					gettimeofday(&tvUpdate1, NULL);
