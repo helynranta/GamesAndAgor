@@ -46,8 +46,8 @@ private:
     int socketudp = 0;
     void unpack_header();
 
-    map<int, Message*> m_inbox;
-    map<int, Message*> m_outgoing;
+    vector<Message*> m_inbox;
+    vector<Message*> m_outgoing;
     bool tcpsocketstatus = false;
 protected:
     /* protected data */
