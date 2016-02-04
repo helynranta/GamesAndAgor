@@ -2,8 +2,11 @@
 #define UNKNOWNT 99 /* Unknown msg type */
 
 
-/* unpack packet from network */
-struct Packet unpackPacket(char *buf, struct sockaddr *from){
+/* unpack packet from network
+   socket and len only used when client sends STATISTICS_MESSAGE, so we'll
+   reply it back straight away without changing anything
+*/
+struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen_t addrlen){
 
   int index = 0;
 
@@ -77,6 +80,11 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
         case POINTS:
         case PLAYER_DEAD:
         case PLAYER_OUT:
+        case PING:
+          /* move pointer past payloadlength */
+          index += sizeof(uint32_t);
+
+          /* next read  */
           return packet;
           break;
       }
@@ -105,6 +113,9 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
       break;
 
     case STATISTICS_MESSAGE:
+
+      /* Send the buffer right back */
+      sendto(socketfd, buf, strlen(buf), 0, from, addrlen);
       packet.msgType = STATISTICS_MESSAGE;
       /* Statistics a.k.a ping message */
       /* ping is in milliseconds */

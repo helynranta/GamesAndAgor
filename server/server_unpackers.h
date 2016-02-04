@@ -4,7 +4,7 @@
 #include "structs.h"
 #endif
 
-struct Packet unpackPacket(char *msg, struct sockaddr *from);
+struct Packet unpackPacket(char *msg, struct sockaddr *from, int s, socklen_t len);
 
 
 
