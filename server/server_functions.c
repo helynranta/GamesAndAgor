@@ -112,66 +112,47 @@ void addAck2List(Ack **pAckList, char *msg, int gameTime, int msgLength, int pac
 }
 
 void append2ListAck(Ack **pList, Ack *pNew){
-	// For functional explanation, see append2ListNear
-	Ack *temp = NULL, *p = NULL;
-	p = *pList;
-	temp = p;
-	p = pNew;
-	p->pNext = temp;
-	*pList = p;
+	pNew->pNext = *pList;
+	*pList = pNew;
 }
 
 
-void removeAck(Ack **pList, Ack *pAck){
+void removeAck(Ack **pList, uint32_t ackID){
     Ack *p = *pList, *prev = NULL;
 
-    if (p == pAck) {
-        p = pAck->pNext;
-        free(pAck);
+    if (p->packetID == ackID){
+        p = p->pNext;
+        free(*pList);
         *pList = p;
     }
     else {
-        while(p != pAck){
+        while(p->packetID != ackID){
             if(p->pNext == NULL) {
                 return;
             }
             else {
                 prev = p;
                 p = p->pNext;
-            }
-            prev->pNext = pAck->pNext;
-            free(pAck);
+			}
+            prev->pNext = p->pNext;
+            free(p);
         }
     }
 }
 
 void append2ListNear(Near **pList, Near *pNew){
-	Near *temp = NULL, *p = NULL;
-	p = *pList;  // pointer of the list
-	temp = p;  // Store to temp
-	p = pNew;  // New object should be the first
-	p->pNext = temp;  // Previous first is now the second
-	*pList = p;  // Update the pointer of the list
+	pNew->pNext = *pList;
+	*pList = pNew;
 }
 
 void append2ListPlayer(Player **pList, Player *pNew){
-	// For functional explanation, see append2ListNear
-	Player *temp = NULL, *p = NULL;
-	p = *pList;
-	temp = p;
-	p = pNew;
-	p->pNext = temp;
-	*pList = p;
+	pNew->pNext = *pList;
+	*pList = pNew;
 }
 
 void append2ListObject(Object **pList, Object *pNew){
-	// For functional explanation, see append2ListNear
-	Object *temp = NULL, *p = NULL;
-	p = *pList;
-	temp = p;
-	p = pNew;
-	p->pNext = temp;
-	*pList = p;
+	pNew->pNext = *pList;
+	*pList = pNew;
 }
 
 void clearListNear(Near **pList){

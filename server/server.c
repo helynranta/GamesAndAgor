@@ -25,7 +25,7 @@ return 0;
 
 
 int server(char* port) {
-	//struct Game game;
+	struct Game game;
   int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes;
 	fd_set readset, master;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
@@ -39,8 +39,8 @@ int server(char* port) {
   struct addrinfo *result = NULL, *iter = NULL;
   struct sockaddr_storage client_addr;
 
-  //char hostbuffer[NI_MAXHOST] = { 0 };
-  //char portbuffer[NI_MAXSERV] = { 0 };
+  char hostbuffer[NI_MAXHOST] = { 0 };
+  char portbuffer[NI_MAXSERV] = { 0 };
   char recvbuffer[SIZE] = { 0 };
 	char sendbuffer[SIZE] = {0};
 	tv.tv_usec = 1000000;
@@ -87,7 +87,7 @@ int server(char* port) {
 		result = NULL;
 		iter = NULL;
 
-		if(getaddrinfo(NULL,TCPPORT,&hintstcp,&result)) {
+		if(getaddrinfo(NULL,"8889",&hintstcp,&result)) {
       perror("cannot get addresses for server TCP");
       return -1;
     }
