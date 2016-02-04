@@ -15,6 +15,8 @@
 #include <map>
 
 #include "Inet/Messages.hpp"
+#include "Inet/MessagesAck.hpp"
+
 
 using namespace std;
 
@@ -44,30 +46,40 @@ private:
 
     int sockettcp = 0;
     int socketudp = 0;
+    int biggestsocket = -1;
+
     void unpack_header();
 
-    vector<Message*> m_inbox;
+    vector<Message*> messageInbox;
     vector<Message*> m_outgoing;
     bool tcpsocketstatus = false;
 protected:
     /* protected data */
-    InetConnection();
     ~InetConnection() {;}
 public:
+    InetConnection();
+
     string strerrno = "";
     bool sendChatMessage(const string& message);
-    void sendUDP(GAME_MESSAGE_TYPE type, const string& message);
     bool connectTCP();
+    void sendUDP(GAME_MESSAGE_TYPE type, const string& message);
+    bool send(uint8_t *, int);
     bool disconnect();
     void update();
+    int checkUDPConnections();
+	int checkTCPConnection();
+
     std::vector<Message*> messages;
     void init();
+
     void destroy();
     inline const ConnectionState& getState() const { return m_state; }
-    vector<ChatMessage*> getChatMessages();
-    vector<PlayerDead*> getDeadPayers();
     inline const bool& getTCPStatus() const { return tcpsocketstatus; }
     inline void setIP(const string& i) { ip = i; }
+    std::vector<MessagesAck*> getAcks();
+    std::vector<ChatMessage*> getChatMessages();
+    std::vector<PlayerDead*> getDeadPayers();
+
 
 };
 #endif
