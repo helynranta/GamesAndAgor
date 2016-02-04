@@ -463,3 +463,23 @@ int checkNick(char *nick,Player *pPlayer){
 	}
 	return 1;
 }
+
+/* Sends the whole buffer over tcp */
+int sendAllTCP(int socket, char *buf, int *length) {
+	int total = 0;
+	int bytesleft = *length;
+
+	int sent;
+
+	/* Keep on sending while there's stuff to send */
+	while (total < *length) {
+		sent = send(socket, buf+total, bytesleft, 0);
+		if(sent == -1) break;
+		total += sent;
+		bytesleft -= sent;
+	}
+
+	*length = total;
+
+	return sent == -1?-1:0; /* -1 on failure, 0 OK */
+}

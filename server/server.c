@@ -312,8 +312,8 @@ int server(char* port) {
 									if(FD_ISSET(j, &master)) {
 										/* skip listener */
 										if(j != listener) {
-											if(send(j, recvbuffer, nbytes, 0) == -1) {
-												perror("TCP chat send to all");
+											if(sendAllTCP(j, recvbuffer, &nbytes) == -1) {
+												perror("sendAllTCP failure");
 											}
 										}
 									}
