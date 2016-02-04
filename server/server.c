@@ -236,6 +236,7 @@ int server(char* port) {
 									printf("Ack packet received!\n");
 									/* Handle ack */
 									/* remove ack from server's own ack list */
+									
 									break;
 
 								// Player movement packet

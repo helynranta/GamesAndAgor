@@ -150,6 +150,7 @@ struct Packet{
   uint16_t ping;
 
   uint32_t gameTime; /* also known as ACK_PACKET_ID xD */
+	uint32_t ackID;
   uint16_t ID;
   uint8_t msgType;
 	uint32_t payloadLength;

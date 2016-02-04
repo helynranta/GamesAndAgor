@@ -65,7 +65,8 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
 
     case ACK:
       packet.msgType = ACK;
-      index += sizeof(uint32_t); /* skip irrelevant packet_id */
+      packet.ackID = ntohl(*(uint32_t*)&buf[index]);
+      index += sizeof(uint32_t);
       packet.ACKTYPE = *(uint8_t*)&buf[index];
 
       switch (packet.ACKTYPE) {
