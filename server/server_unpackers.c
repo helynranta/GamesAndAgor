@@ -20,7 +20,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from){
   index += sizeof(uint8_t);
 
   /* payload length */
-  uint32_t payloadLength = ntohl(*(uint32_t*)&buf[index]);
+  //uint32_t payloadLength = ntohl(*(uint32_t*)&buf[index]);
   index += sizeof(uint32_t);
 
   /* message subtype */

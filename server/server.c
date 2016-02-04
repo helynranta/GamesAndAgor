@@ -16,18 +16,16 @@ TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 #include "server_unpackers.h"
 #include "server_functions.h"
 #define SIZE 256
-#define TCPPORT "2056"
+#define TCPPORT "8889"
 
-int addAckToList(){
-
-}
 int sendMsg(struct sockaddr *to, struct Ack *ack, struct Packet packet){
 /* Wait what? !? */
+return 0;
 }
 
 
 int server(char* port) {
-	struct Game game;
+	//struct Game game;
   int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes;
 	fd_set readset, master;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
@@ -41,8 +39,8 @@ int server(char* port) {
   struct addrinfo *result = NULL, *iter = NULL;
   struct sockaddr_storage client_addr;
 
-  char hostbuffer[NI_MAXHOST] = { 0 };
-  char portbuffer[NI_MAXSERV] = { 0 };
+  //char hostbuffer[NI_MAXHOST] = { 0 };
+  //char portbuffer[NI_MAXSERV] = { 0 };
   char recvbuffer[SIZE] = { 0 };
 	char sendbuffer[SIZE] = {0};
 	tv.tv_usec = 1000000;
@@ -89,7 +87,7 @@ int server(char* port) {
 		result = NULL;
 		iter = NULL;
 
-		if(getaddrinfo(NULL,"4567",&hintstcp,&result)) {
+		if(getaddrinfo(NULL,TCPPORT,&hintstcp,&result)) {
       perror("cannot get addresses for server TCP");
       return -1;
     }
@@ -236,7 +234,7 @@ int server(char* port) {
 									printf("Ack packet received!\n");
 									/* Handle ack */
 									/* remove ack from server's own ack list */
-									
+									removeAck(&game.sAcks, packet.ackID);
 									break;
 
 								// Player movement packet
@@ -244,6 +242,16 @@ int server(char* port) {
 									printf("Player movement packet received!\n");
 									/* Do game functions:
 									calculate nearby objects etc. */
+									/* update player's position */
+									Player *p = getPlayer(packet.ID, game.sPlayers);
+
+									/* x and y position */
+									p->location[0] = packet.posX;
+									p->location[1] = packet.posY;
+
+									/* dirX and dirY */
+									p->direction[0] = packet.dirX;
+									p->direction[1] = packet.dirY;
 									break;
 
 								// Statisic packet
@@ -291,7 +299,10 @@ int server(char* port) {
 						}
 					}
 				}
-				//printf("%s\n", "Testi looppaako?\n");
+				/* Do game functions */
+				ComputeNearParticles(game.sPlayers, game.sObjects);
+
+				/* If eough time has passed send game update */
 				if ((time2 - time1) >= 500) {
 					printf("Game update!\n");
 					gettimeofday(&tvUpdate1, NULL);
@@ -403,7 +414,7 @@ int client(char* port, char *serverip)
       *(uint8_t*)&dgram[index] = msgtype;
 			index += sizeof(uint8_t);
 
-			uint32_t pllength = 23;
+			//uint32_t pllength = 23;
 			*(uint32_t*)&dgram[index] = htonl(gametime);
       index += sizeof(uint32_t);
 
@@ -433,7 +444,7 @@ int client(char* port, char *serverip)
 				struct Packet packet;
 				packet = unpackPacket(readbuf, iter->ai_addr);
 				printf("Packet msgType: %d\n", packet.msgType);
-    }
+    	}
 		}
   }
 
