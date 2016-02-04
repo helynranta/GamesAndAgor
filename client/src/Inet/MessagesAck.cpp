@@ -57,7 +57,7 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 
 // Join functions
 int JoinAck::PackSelf(uint8_t* payload) {
-	std::cout << "########################################### Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 
 	int bufferPosition = getHeaderSize();
 
@@ -69,7 +69,7 @@ int JoinAck::PackSelf(uint8_t* payload) {
 }
 
 JoinAck* JoinAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
-	std::cout << "########################################### Receiving -> ACK: " << getSubMessageTypeAsString(header.message_type) << std::endl;
+	std::cout << "Receiving -> ACK: " << getSubMessageTypeAsString(header.message_type) << std::endl;
 
 	int bufferPosition = 0;
 
@@ -89,7 +89,7 @@ JoinAck* JoinAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload
 
 // Nick functions
 int NickAck::PackSelf(uint8_t* payload) {
-	std::cout << "########################################### Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 
 	int bufferPosition = getHeaderSize();
 
@@ -103,7 +103,7 @@ int NickAck::PackSelf(uint8_t* payload) {
 }
 
 NickAck* NickAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
-	std::cout << "########################################### Receiving -> ACK: " << getSubMessageTypeAsString(header.message_type) << std::endl;
+	std::cout << "Receiving -> ACK: " << getSubMessageTypeAsString(header.message_type) << std::endl;
 
 	int bufferPosition = 0;
 
@@ -138,7 +138,7 @@ ExitAck* ExitAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload
 
 // Restart functions
 int RestartAck::PackSelf(uint8_t* payload) {
-	std::cout << "########################################### Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 
 	int bufferPosition = getHeaderSize();
 

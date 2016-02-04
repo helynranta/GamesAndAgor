@@ -19,12 +19,13 @@ Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payl
 		message = GameMessage::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::ACK:
-//		std::cout << " ================== HEADER INFO ================== "<< std::endl;
-//		std::cout << "GameTime: " << header->gameTime << std::endl;
-//		std::cout << "UserID: " << header->user_id << std::endl;
-//		std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
-//		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
-//		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
+/*		std::cout << " ================== HEADER INFO ================== "<< std::endl;
+		std::cout << "GameTime: " << header->gameTime << std::endl;
+		std::cout << "UserID: " << header->user_id << std::endl;
+		std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
+		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
+		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
+*/
 		message = MessagesAck::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::PLAYER_MOVEMENT:
@@ -165,14 +166,14 @@ GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t 
 
 //======= Join ========//
 Join * Join::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
-	std::cout << "########################################### Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
+	std::cout << "Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
 
 	Join * playerJoin = new Join(header);
 	return playerJoin;
 }
 
 int Join::PackSelf(uint8_t * payload) {
-	std::cout << "########################################### Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 	int bufferPosition = getHeaderSize();
 
 	// insert MSG_SUBTYPE to buffer
@@ -188,7 +189,7 @@ int Join::PackSelf(uint8_t * payload) {
 
 //======= NICK ========//
 Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
-	std::cout << "########################################### Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
+	std::cout << "Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
 
 	Nick * playerNick = new Nick(header);
 
@@ -200,7 +201,7 @@ Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 }
 
 int Nick::PackSelf(uint8_t * payload) {
-	std::cout << "########################################### Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "ending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 	int bufferPosition = getHeaderSize();
 
 	// insert MSG_SUBTYPE to buffer

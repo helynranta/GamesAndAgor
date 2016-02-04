@@ -223,7 +223,17 @@ int server(char* port) {
 
 										case EXIT:
 											printf("Player exits the game!\n");
-											msgPacker(sendbuffer, &game, packet.ID, ACK, EXIT, 0, nickStatus);
+
+											// TODO Set player as OUT
+											Player *p = getPlayer(packet.ID, game.sPlayers);
+											p->state = OUT;
+
+											// Send ACK to player
+											msgPacker(sendbuffer, &game, packet.ID, ACK, EXIT, packet.ID, 0);
+											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+
+											// Inform other clients
+
 											break;
 									}
 
@@ -235,6 +245,7 @@ int server(char* port) {
 									/* Handle ack */
 									/* remove ack from server's own ack list */
 									removeAck(&game.sAcks, packet.ackID);
+
 									break;
 
 								// Player movement packet
