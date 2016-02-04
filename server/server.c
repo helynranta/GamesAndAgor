@@ -188,7 +188,7 @@ int server(char* port) {
 							/* Try to receive something (expecting a char - length = 1 byte).. */
 							dgramlen = recvfrom(socketfd,&recvbuffer,SIZE,0,client_address,&addrlen);
 							struct Packet packet;
-							packet = unpackPacket(recvbuffer, client_address);
+							packet = unpackPacket(recvbuffer, client_address, socketfd, addrlen);
 
 							switch (packet.msgType) {
 
@@ -279,7 +279,7 @@ int server(char* port) {
 
 								// Statisic packet
 								case STATISTICS_MESSAGE:
-									printf("Player movement packet received!\n");
+									printf("Client ping packet returned!\n");
 									break;
 
 								default:
