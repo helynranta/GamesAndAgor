@@ -224,7 +224,7 @@ int server(char* port) {
 										case EXIT:
 											printf("Player exits the game!\n");
 
-											// TODO Set player as OUT
+											// Set player as OUT
 											Player *p = getPlayer(packet.ID, game.sPlayers);
 											p->state = OUT;
 
@@ -233,6 +233,15 @@ int server(char* port) {
 											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 
 											// Inform other clients
+											Player *pPla = game.sPlayers;
+											while (pPla != NULL) {
+												// Don't send to exiting player
+												if (pPla->ID != packet.ID) {
+													msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
+													sendto(socketfd, sendbuffer, SIZE, 0, &pPla->address, addrlen);
+													pPla = pPla->pNext;
+												}
+											}
 
 											break;
 									}
