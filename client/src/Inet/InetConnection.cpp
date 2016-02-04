@@ -86,29 +86,27 @@ bool InetConnection::send(uint8_t * message, int size) {
 	 * see 'man sendto'
 	 */
 
-	struct addrinfo * server_addrinfo = nullptr;
-	string l_ip = "10.0.2.15";
-	string l_port = "8888";
-	if (getaddrinfo(l_ip.c_str(), l_port.c_str(), &hints, &server_addrinfo) < 0) {
-		std::cout << "Cannot resolve address: " << strerror(errno) << std::endl;
-		return false;
-	}
+	 struct addrinfo * server_addrinfo = nullptr;
+	 if (getaddrinfo(ip.c_str(), port.c_str(), &hints, &server_addrinfo) < 0) {
+	 	std::cout << "Cannot resolve address: " << strerror(errno) << std::endl;
+	 	return false;
+	 }
 
 	/* send to asdfasdf	 */
-	if ((sendto(socketudp, message, size, 0, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) < 0) {
-		std::cout << "Error sentto(): " << strerror(errno) << std::endl;
-		return false;
-	} else {
+	 if ((sendto(socketudp, message, size, 0, server_addrinfo->ai_addr, server_addrinfo->ai_addrlen)) < 0) {
+	 	std::cout << "Error sentto(): " << strerror(errno) << std::endl;
+	 	return false;
+	 } else {
 //		std::cout << "Client: Sent datagram" << std::endl;
-	}
-	return true;
-}
+	 }
+	 return true;
+}	
 
 void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
-	// only adds outgoing message to list. put actual send to update
+// only adds outgoing message to list. put actual send to update
 
-	//Message* msg = new GameMessage();
-	//m_outgoing.insert({int(SDL_GetTicks()), msg});
+//Message* msg = new GameMessage();
+//m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
 
 // http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
@@ -117,23 +115,23 @@ bool InetConnection::connectTCP() {
 		close(sockettcp);
 	iter = nullptr;
 	if (tcpsocketstatus) {
-		// get server address information
+	// get server address information
 		if (getaddrinfo(ip.c_str(), port.c_str(), &hints, &res) != 0) {
 			cerr << "getaddrinfo error " << strerror(errno) << endl;
 			strerrno = strerror(errno);
 			return false;
 		}
-		// create socket
+	// create socket
 		if ((sockettcp = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol)) < 0) {
 			cerr << "cannot create socket for tcp connection " << strerror(errno) << endl;
 			strerrno = strerror(errno);
 			return false;
 		}
-		// bind to port
+	// bind to port
 		if (::bind(sockettcp, reinterpret_cast<struct sockaddr*>(&me_addr), sizeof(struct sockaddr)) < 0) {
 			cerr << "cannot bind tcp socket to random port" << endl << strerror(errno) << endl;
 		}
-		// create unblocking connect process
+	// create unblocking connect process
 		int sock_res = ::connect(sockettcp, res->ai_addr, res->ai_addrlen);
 		if (sock_res < 0) {
 			if (errno == EINPROGRESS) {
@@ -141,7 +139,7 @@ bool InetConnection::connectTCP() {
 				cout << "Trying to connect to host" << endl;
 				return true;
 			} else if (errno == ECONNREFUSED)
-				m_state = ConnectionState::REFUSED;
+			m_state = ConnectionState::REFUSED;
 			else
 				m_state = ConnectionState::DISCONNECTED;
 			cout << strerror(errno) << endl;
@@ -167,13 +165,10 @@ bool InetConnection::disconnect() {
 void InetConnection::update() {
 	checkTCPConnection();
 	checkUDPConnections();
-	//	for (auto& it : messages) {
-	//		it->Update();
-	//	}
 	return;
 }
 int InetConnection::checkTCPConnection() {
-	// if connecting tcp
+// if connecting tcp
 	FD_ZERO(&socket_fds);
 	FD_SET(sockettcp, &socket_fds);
 	if (m_state == ConnectionState::CONNECTING) {
@@ -184,7 +179,7 @@ int InetConnection::checkTCPConnection() {
 			strerrno = strerror(errno);
 			cout << strerror(err) << endl;
 			m_state = ConnectionState::REFUSED;
-		} else if (err == EINPROGRESS)
+		} else if (err == EINPROGRESS) 
 			m_state = ConnectionState::CONNECTING;
 		else if (err == 0) {
 			timeout.tv_usec = 100;
@@ -196,7 +191,7 @@ int InetConnection::checkTCPConnection() {
 			if (FD_ISSET(sockettcp, &socket_fds)) {
 				char buffer[BUFFER_SIZE];
 				recv(sockettcp, buffer, sizeof(buffer), 0);
-				//cout << buffer << endl;
+			//cout << buffer << endl;
 				if (strlen(buffer) > 0)
 					m_state = ConnectionState::CONNECTED;
 			}
@@ -209,139 +204,120 @@ int InetConnection::checkTCPConnection() {
 }
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
-	biggestsocket = 0;
-	timeout.tv_usec = 500000; // microseconds
+	timeout.tv_usec = 5000; // microseconds
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
-
 	// Add listening socket to the set and check if it is the biggest socket number
 	FD_SET(socketudp, &socket_fds);
-	if (socketudp > biggestsocket) {
-		// std::cout << "We have a descriptor: " << listensocket << std::endl;
-		biggestsocket = socketudp;
-	}
-	Message * unpackedMessage;
-	switch (select(biggestsocket + 1, &socket_fds, NULL, NULL, &timeout)) {
-	case (-1):
-		std::cout << "Error -1" << std::endl;
-		break;
-	case (0):
-		std::cout << "Timeout" << std::endl;
-		break;
-	default:
-		//		std::cout << "Inet update" << std::endl;
-		struct MessageHeader *header = static_cast<struct MessageHeader*>(malloc(sizeof(struct MessageHeader)));
-
-		uint8_t payloadBuffer[BUFFER_SIZE];
-
-		for (int socket_fd = 0; socket_fd <= biggestsocket; socket_fd++) {
-			if (FD_ISSET(socket_fd, &socket_fds)) {
-				Message::UnpackHeader(socket_fd, header, payloadBuffer);
+	Message* unpackedMessage = nullptr;
+	switch (select(socketudp + 1, &socket_fds, NULL, NULL, &timeout)) {
+		case -1:
+			std::cout << strerror(errno) << std::endl;
+			break;
+		case 0:
+			break;
+		default:
+			struct MessageHeader *header = static_cast<struct MessageHeader*>(malloc(sizeof(struct MessageHeader)));
+			uint8_t payloadBuffer[BUFFER_SIZE];
+			if (FD_ISSET(socketudp, &socket_fds)) {
+				Message::UnpackHeader(socketudp, header, payloadBuffer);
 				unpackedMessage = MessageFactory::getInstance().getMessageByType(header, payloadBuffer);
 			}
-		}
-		break;
+			break;
 	}
-
-	switch (unpackedMessage->getMessageType()) {
-	case MESSAGE_TYPE::GAME_MESSAGE:
-		switch (dynamic_cast<GameMessage*>(unpackedMessage)->getGameMessageType()) {
-		case GAME_MESSAGE_TYPE::JOIN:
-			std::cout << "============== GOT JOIN ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Join*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::NICK:
-			std::cout << "============== GOT NICK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Nick*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::GAME_UPDATE:
-			std::cout << "============== GOT GAME_UPDATE ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::EXIT:
-			std::cout << "============== GOT EXIT ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Exit*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::RESTART:
-			std::cout << "============== GOT RESTART ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Restart*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::GAME_END:
-			std::cout << "============== GOT GAME_END ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<GameEnd*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::POINTS:
-			std::cout << "============== GOT POINTS ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-			std::cout << "============== GOT PLAYER_DEAD ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::PLAYER_OUT:
-			std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-			break;
-		}
-		break;
-	case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE:
-		return false;
-	case MESSAGE_TYPE::PLAYER_MOVEMENT:
-		return false;
-	case MESSAGE_TYPE::ACK:
-		switch (dynamic_cast<MessagesAck*>(unpackedMessage)->getGameMessageType()) {
-		case GAME_MESSAGE_TYPE::JOIN:
-			std::cout << "============== GOT JOIN ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<JoinAck*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::NICK:
-			std::cout << "==============  GOT NICK ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<NickAck*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::GAME_UPDATE:
-			std::cout << "============== GOT GAME_UPDATE ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::EXIT:
-			std::cout << "============== GOT EXIT ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<ExitAck*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::RESTART:
-			std::cout << "============== GOT RESTART ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<RestartAck*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::GAME_END:
-			std::cout << "============== GOT GAME_END ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<GameEndAck*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::POINTS:
-			std::cout << "============== GOT POINTS ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-			std::cout << "============== GOT PLAYER_DEAD ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<PlayerDeadAck*>(unpackedMessage));
-			break;
-		case GAME_MESSAGE_TYPE::PLAYER_OUT:
-			std::cout << "============== GOT PLAYER_OUT ACK ==============" << std::endl;
-			messageInbox.push_back(dynamic_cast<PlayerOutAck*>(unpackedMessage));
-			break;
-		}
-		break;
-	case MESSAGE_TYPE::STATISTICS_MESSAGE:
-		return false;
-		break;
-	default:
-		return false;
-		break;
+	if(unpackedMessage != nullptr) {
+		switch (unpackedMessage->getMessageType()) {
+			case MESSAGE_TYPE::GAME_MESSAGE:
+				switch (dynamic_cast<GameMessage*>(unpackedMessage)->getGameMessageType()) {
+					case GAME_MESSAGE_TYPE::JOIN:
+						//std::cout << "============== GOT JOIN ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Join*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::NICK:
+						//std::cout << "============== GOT NICK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Nick*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::GAME_UPDATE:
+						//std::cout << "============== GOT GAME_UPDATE ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::EXIT:
+						//std::cout << "============== GOT EXIT ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Exit*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::RESTART:
+						//std::cout << "============== GOT RESTART ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Restart*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::GAME_END:
+						//std::cout << "============== GOT GAME_END ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<GameEnd*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::POINTS:
+						//std::cout << "============== GOT POINTS ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+						//std::cout << "============== GOT PLAYER_DEAD ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::PLAYER_OUT:
+						//std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+						break;
+				}
+				break;
+			case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE: return false;
+			case MESSAGE_TYPE::PLAYER_MOVEMENT: return false;
+			case MESSAGE_TYPE::ACK:
+				switch (dynamic_cast<MessagesAck*>(unpackedMessage)->getGameMessageType()) {
+					case GAME_MESSAGE_TYPE::JOIN:
+						std::cout << "============== GOT JOIN ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<JoinAck*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::NICK:
+						std::cout << "==============  GOT NICK ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<NickAck*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::GAME_UPDATE:
+						//std::cout << "============== GOT GAME_UPDATE ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::EXIT:
+						//std::cout << "============== GOT EXIT ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<ExitAck*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::RESTART:
+						//std::cout << "============== GOT RESTART ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<RestartAck*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::GAME_END:
+						//std::cout << "============== GOT GAME_END ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<GameEndAck*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::POINTS:
+						//std::cout << "============== GOT POINTS ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+						//std::cout << "============== GOT PLAYER_DEAD ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<PlayerDeadAck*>(unpackedMessage));
+						break;
+					case GAME_MESSAGE_TYPE::PLAYER_OUT:
+						//std::cout << "============== GOT PLAYER_OUT ACK ==============" << std::endl;
+						messageInbox.push_back(dynamic_cast<PlayerOutAck*>(unpackedMessage));
+						break;
+					default: break;
+				}
+				break;
+			case MESSAGE_TYPE::STATISTICS_MESSAGE: return false;
+			default: return false;
+			}
 	}
 	return true;
 }
-
-std::vector<MessagesAck*> InetConnection::getAcks() {
-//	 std::cout << "GETTING ACK MESSAGES"  << std::endl;
-
-	std::vector<MessagesAck*> lmessages;
+vector<MessagesAck*> InetConnection::getAcks() {
+	vector<MessagesAck*> lmessages;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
 			lmessages.push_back(static_cast<MessagesAck*>(messageInbox[it]));
@@ -350,6 +326,21 @@ std::vector<MessagesAck*> InetConnection::getAcks() {
 		}
 	}
 	return lmessages;
+}
+MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
+	vector<MessagesAck*> msgs;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
+			MessagesAck* tmp = static_cast<MessagesAck*>(messageInbox[it]);
+			if(tmp->getGameMessageType() == type) {
+				msgs.push_back(static_cast<MessagesAck*>(messageInbox[it]));
+				messageInbox[it] = messageInbox.back();
+				messageInbox.pop_back();
+			}
+		}
+	}
+	if(msgs.size() == 0) return nullptr;
+	return msgs.back();
 }
 
 vector<ChatMessage*> InetConnection::getChatMessages() {

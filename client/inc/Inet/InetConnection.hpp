@@ -38,8 +38,8 @@ private:
     int length = 0;
     int rval = 0;
     char dgram[1];
-    std::string ip = "";
-    std::string port = "";
+    string ip = "127.0.0.1";
+    string port = "8888";
     fd_set socket_fds;
     fd_set socket_fds_temp;
     struct timeval timeout;
@@ -53,6 +53,7 @@ private:
     vector<Message*> messageInbox;
     vector<Message*> m_outgoing;
     bool tcpsocketstatus = false;
+    uint16_t id = -1;
 protected:
     /* protected data */
     ~InetConnection() {;}
@@ -69,17 +70,17 @@ public:
     int checkUDPConnections();
 	int checkTCPConnection();
 
-    std::vector<Message*> messages;
+    vector<Message*> messages;
     void init();
 
     void destroy();
     inline const ConnectionState& getState() const { return m_state; }
     inline const bool& getTCPStatus() const { return tcpsocketstatus; }
     inline void setIP(const string& i) { ip = i; }
-    std::vector<MessagesAck*> getAcks();
-    std::vector<ChatMessage*> getChatMessages();
-    std::vector<PlayerDead*> getDeadPayers();
-
-
+    MessagesAck* getAck(GAME_MESSAGE_TYPE type);
+    vector<MessagesAck*> getAcks();
+    vector<ChatMessage*> getChatMessages();
+    vector<PlayerDead*> getDeadPayers();  
+    void setID(uint16_t i) { id = i; }
 };
 #endif

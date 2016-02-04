@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <map>
 
 #include "Engine.hpp"
 #include "Inet/InetConnection.hpp"
@@ -10,15 +11,11 @@
 
 using namespace std;
 
-#include <functional>
-#include <memory>
-#include <map>
-
 // Defines if we really want to start the game or just use simple game loop to test messages
 #define MESG_TEST = 0
-
+/*
 void TestMessagesLoop() {
-	std::cout << "========================================== USING MESSAGE TEST LOOP ============================ \n\n\n" << std::endl;
+	std::cout << "USING MESSAGE TEST LOOP" << std::endl;
 
 	InetConnection * connection = new InetConnection();
 	connection->init();
@@ -31,8 +28,8 @@ void TestMessagesLoop() {
 	connection->send(testBuffer, messageLenght);
 
 	int loocounter = 0;
-	while (loocounter < 4) {
-		std::cout << "============================================== LOOP START ======================================= " << std::endl;
+	while (true) {
+		std::cout << "LOOP START" << std::endl;
 		connection->update();
 		std::vector<MessagesAck*> acks = connection->getAcks();
 
@@ -60,21 +57,16 @@ void TestMessagesLoop() {
 				}
 			}
 		}
-		std::cout << "============================================== LOOP END ======================================= \n\n\n" << std::endl;
+		std::cout << "LOOP END" << std::endl;
 		loocounter++;
-
 	}
 }
-
+*/
 int main(void) {
-#ifdef MESG_TEST
-	TestMessagesLoop();
-	return 0;
-#endif
-	std::cout << "========================================== Starting game =================================== \n\n\n" << std::endl;
+	std::cout << "Starting game" << std::endl;
 	Engine* engine = new Engine();
 	engine->addScenes( { { "Game", new Game() }, { "NickDialog", new NickDialog() }, { "IPDialog", new IPDialog() } });
-	engine->run("Game");
+	engine->run("IPDialog");
 	delete engine;
 
 	return 0;
