@@ -38,7 +38,7 @@ void InetConnection::init(void) {
 	hints.ai_flags = AI_PASSIVE;
 
 	std::string l_port = "8889";
-	if (getaddrinfo(NULL, l_port.c_str(), &hints, &res)) {
+	if (getaddrinfo(ip.c_str(), l_port.c_str(), &hints, &res)) {
 		std::cout << "Cannot resolve address. Exiting" << std::endl;
 		exit(EXIT_FAILURE);
 	} else {
