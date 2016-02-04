@@ -12,7 +12,7 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 	Object *pObj;
 
     int isIn = 0;
-
+	if (sPlayers==NULL){return;}
 	// Clear the previous Near lists of players
 	for(p1 = sPlayers; p1->pNext != NULL; p1 = p1->pNext){
 		clearListNear(&(p1->nearPlayers));

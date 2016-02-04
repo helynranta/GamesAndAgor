@@ -142,6 +142,9 @@ int server(char* port) {
 
 		/* Create a game */
 		Game game;
+		game.sPlayers=NULL;
+		game.sObjects=NULL;
+		game.sAcks=NULL;
 		int tavut = -2;
 		while (1) {
 
