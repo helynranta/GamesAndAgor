@@ -51,8 +51,6 @@ public:
             Join * joinMessage = new Join(dummyGameMessageHeader);
             int messageLenght = joinMessage->PackSelf(testBuffer);
             Engine::connection->send(testBuffer, messageLenght);
-
-            //Engine::connection->sendUDP(GAME_MESSAGE_TYPE::JOIN, "");
         }
         
         if(cstate == ConnectionState::CONNECTED) Engine::startScene("NickDialog");
@@ -61,7 +59,6 @@ public:
             gui->getInput("input")->show();
         }
 
-        //vector<MessagesAck*> acks = Engine::connection->getAcks();
         MessagesAck* ack = Engine::connection->getAck(GAME_MESSAGE_TYPE::JOIN);
         if(ack != nullptr) {
             switch(static_cast<JoinAck*>(ack)->status) {
@@ -72,6 +69,7 @@ public:
                 case 1: // positive
                     gui->getText("hint")->setText("UDP penetrated, test TCP");
                     gui->getInput("input")->hide();
+                    Engine::connection->setState(ConnectionState::CONNECTED);
                     Engine::connection->connectTCP();
                     Engine::connection->setID(static_cast<JoinAck*>(ack)->id);
                     break;

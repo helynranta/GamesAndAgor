@@ -82,5 +82,6 @@ public:
     vector<ChatMessage*> getChatMessages();
     vector<PlayerDead*> getDeadPayers();  
     void setID(uint16_t i) { id = i; }
+    void setState(ConnectionState state) { m_state = state; }
 };
 #endif
