@@ -119,9 +119,9 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       packet.msgType = STATISTICS_MESSAGE;
       /* Statistics a.k.a ping message */
       /* ping is in milliseconds */
-      packet.pingID = ntohs(*(uint16_t*)&buf[index]);
-      index += sizeof(uint16_t);
-      packet.ping = ntohs(*(uint16_t*)&buf[index]);
+      //packet.pingID = ntohs(*(uint16_t*)&buf[index]);
+      //index += sizeof(uint16_t);
+      //packet.ping = ntohs(*(uint16_t*)&buf[index]);
 
       return packet;
       break;
