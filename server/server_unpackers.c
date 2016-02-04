@@ -115,7 +115,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
     case STATISTICS_MESSAGE:
 
       /* Send the buffer right back */
-      sendto(socketfd, buf, strlen(buf), 0, from, addrlen);
+      sendto(socket, buf, strlen(buf), 0, from, addrlen);
       packet.msgType = STATISTICS_MESSAGE;
       /* Statistics a.k.a ping message */
       /* ping is in milliseconds */

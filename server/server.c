@@ -363,121 +363,6 @@ int server(char* port) {
   return 0;
 }
 
-int client(char* port, char *serverip)
-{
-  int socketfd = -1, length = 0, rval = 0;
-  char dgram[SIZE];
-	char readbuf[SIZE];
-
-  struct addrinfo hints = { .ai_flags = AI_NUMERICHOST|AI_NUMERICSERV,
-                            .ai_family = PF_UNSPEC,
-                            .ai_socktype = SOCK_DGRAM,
-                            .ai_protocol = IPPROTO_UDP};
-
-  struct addrinfo *result = NULL, *iter = NULL;
-
-  memset(&dgram,1,SIZE);
-	memset(&readbuf,1,SIZE);
-
-  printf("| - - - - - C L I E N T - - - - - |\n");
-
-  /* Why only IP address works ? */
-  if(getaddrinfo(serverip,port,&hints,&result) < 0) perror("Cannot resolve address");
-  else {
-    // Go through every returned address and attempt to connect to each
-    for (iter = result; iter != NULL; iter = iter->ai_next) {
-
-      /* Can socket be created? */
-      if ((socketfd = socket(iter->ai_family, iter->ai_socktype,iter->ai_protocol)) < 0) {
-        perror("socket()");
-        rval = -1;
-        break;
-      }
-
-      /* Try to send data to server:
-      * sendto(socket, data , data length, flags, destination, struct length)
-      * see 'man sendto'
-			GAME_MESSAGE:JOIN  packet
-      */
-			/*
-			int index = 0;
-      uint16_t uid = 32;
-      *(uint16_t*)&dgram[index] = htons(uid);
-      index += sizeof(uint16_t);
-
-      uint32_t gametime = 25;
-      uint8_t msgtype = GAME_MESSAGE;
-      *(uint32_t*)&dgram[index] = htonl(gametime);
-      index += sizeof(uint32_t);
-
-      *(uint8_t*)&dgram[index] = msgtype;
-			index += sizeof(uint8_t);
-
-			uint32_t pllength = 23;
-			*(uint32_t*)&dgram[index] = htonl(gametime);
-      index += sizeof(uint32_t);
-
-			uint8_t subtype = JOIN;
-			*(uint8_t*)&dgram[index] = subtype;
-			*/
-			/*END OF GAME_MESSAGE:JOIN*/
-
-			/*START OF GAME_MESSAGE:NICK*/
-
-			int index = 0;
-      uint16_t uid = 32;
-      *(uint16_t*)&dgram[index] = htons(uid);
-      index += sizeof(uint16_t);
-
-      uint32_t gametime = 25;
-      *(uint32_t*)&dgram[index] = htonl(gametime);
-      index += sizeof(uint32_t);
-
-			uint8_t msgtype = GAME_MESSAGE;
-      *(uint8_t*)&dgram[index] = msgtype;
-			index += sizeof(uint8_t);
-
-			//uint32_t pllength = 23;
-			*(uint32_t*)&dgram[index] = htonl(gametime);
-      index += sizeof(uint32_t);
-
-			uint8_t subtype = NICK;
-			*(uint8_t*)&dgram[index] = subtype;
-			index += sizeof(uint8_t);
-
-			char nicki[MAX_NICK] = "Testi";
-			memcpy(&dgram[index], nicki, MAX_NICK);
-
-
-      if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
-        perror("sendto()");
-        rval = -1;
-        break;
-      }
-      else printf("Client: Sent datagram length = %d\n", length);
-			while(1){
-				printf("%s\n", "Pitäis receavata!\n");
-				int readlength = -1;
-				/* Get Join Ack */
-				if((readlength = recvfrom(socketfd, &readbuf,SIZE,0,iter->ai_addr, &iter->ai_addrlen)) <= 0){
-					printf("%s\n", "Nada");
-				}
-				else
-					printf("tuli %d tavua perille\n", readlength);
-				struct Packet packet;
-				packet = unpackPacket(readbuf, iter->ai_addr);
-				printf("Packet msgType: %d\n", packet.msgType);
-    	}
-		}
-  }
-
-  freeaddrinfo(result);
-
-  close(socketfd); /* REMEMBER ME! */
-
-  return rval;
-}
-
 
 int main(int argc, char *argv[])
 {
@@ -494,12 +379,7 @@ int main(int argc, char *argv[])
   /* client */
   else if (argc == 3)
   {
-    if (client(argv[1],argv[2]) == 0) printf("Client: exited with success\n");
-    else
-    {
-      printf("Errors with client\n");
-      return -1;
-    }
+
   }
   /* error */
   else
