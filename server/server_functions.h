@@ -17,10 +17,11 @@
 
 
 
-
-void ComputeNearParticles(Player *sPlayers, Object *sObjects);
+void gameInit(Game *pGame);
+void ComputeNearParticles(Player *sPlayers, Object **sObjects);
+void eventEatObject(Player *pPla, Object **pObj);
 int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1, uint32_t scale2);
-void eventEat(Player *eater, Player *eaten);
+void eventEatPlayer(Player *eater, Player *eaten);
 void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength, uint32_t packetID);
 void append2ListAck(Ack **pList, Ack *pNew);
 void removeAck(Ack **pList, uint32_t ackID);
@@ -36,7 +37,6 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers);
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen);
 int checkNick(char *nick, Player *playerlist);
 int sendAllTCP(int socket, char *buf, int *length);
-
 
 /* PACKING FUNCTIONS */
 int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, int msgSubType, uint16_t outPlayerID, int status);
