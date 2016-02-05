@@ -78,6 +78,7 @@ public:
         }
         if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {
             cout << "both tcp and udp status ok" << endl;
+            Engine::connection->sendTCP("FUCK LOL");
             Engine::startScene("NickDialog");
         }
     }

@@ -19,12 +19,6 @@ InetConnection::InetConnection() {
 }
 
 void InetConnection::init(void) {
-	// fill local addr_in
-	memset(&me_addr, 0, sizeof(struct sockaddr_in));
-	me_addr.sin_family = PF_UNSPEC;
-	me_addr.sin_port = htons(0);
-//      std::cout << "Listening socket" << listensocket << std::endl;
-
 }
 void InetConnection::destroy(void) {
 	close(socketudp);
@@ -52,7 +46,7 @@ bool InetConnection::send(uint8_t * message, int size) {
 	 */
 
 	 struct addrinfo * server_addrinfo = nullptr;
-	 if (getaddrinfo(ip.c_str(), port.c_str(), &hints, &server_addrinfo) < 0) {
+	 if (getaddrinfo(ip.c_str(), portUDP.c_str(), &hints, &server_addrinfo) < 0) {
 	 	std::cout << "Cannot resolve address: " << strerror(errno) << std::endl;
 	 	return false;
 	 }
@@ -73,52 +67,66 @@ void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
 //Message* msg = new GameMessage();
 //m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
-
+void InetConnection::sendTCP(const string& message) {
+	//::sendto(sockettcp, message.c_str(), sizeof(message.c_str()), 0);
+}
 // http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
 bool InetConnection::connectTCP() {
-	if (sockettcp != 0)
-		close(sockettcp);
+
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	if (sockettcp != 0) close(sockettcp);
 	iter = nullptr;
-	if (tcpsocketstatus) {
-	// get server address information
-		if (getaddrinfo(ip.c_str(), port.c_str(), &hints, &res) != 0) {
+	if (!tcpsocketstatus) {
+		// get server address information
+		if (getaddrinfo(ip.c_str(), portTCP.c_str(), &hints, &res) != 0) {
 			cerr << "getaddrinfo error " << strerror(errno) << endl;
 			strerrno = strerror(errno);
 			return false;
 		}
-	// create socket
-		if ((sockettcp = socket(res->ai_family, res->ai_socktype | SOCK_NONBLOCK, res->ai_protocol)) < 0) {
-			cerr << "cannot create socket for tcp connection " << strerror(errno) << endl;
-			strerrno = strerror(errno);
-			return false;
+		struct addrinfo* p = nullptr;
+		for(p = res; p != NULL; p = p->ai_next) {
+			// create socket
+			if ((sockettcp = socket(p->ai_family, p->ai_socktype | SOCK_NONBLOCK, p->ai_protocol)) < 0) {
+				cerr << "cannot create socket for tcp connection " << strerror(errno) << endl;
+				strerrno = strerror(errno);
+				continue;
+			} 
+			break;
 		}
-	// bind to port
+		// bind to port
+		/*
 		if (::bind(sockettcp, reinterpret_cast<struct sockaddr*>(&me_addr), sizeof(struct sockaddr)) < 0) {
 			cerr << "cannot bind tcp socket to random port" << endl << strerror(errno) << endl;
 		}
-	// create unblocking connect process
+		*/
+		// create unblocking connect process
 		int sock_res = ::connect(sockettcp, res->ai_addr, res->ai_addrlen);
 		if (sock_res < 0) {
 			if (errno == EINPROGRESS) {
-				tcpsocketstatus = false;
 				cout << "Trying to connect to host" << endl;
 				return true;
-			} else if (errno == ECONNREFUSED)
-			m_state = ConnectionState::REFUSED;
-			else
-				m_state = ConnectionState::DISCONNECTED;
+			} else if (errno == ECONNREFUSED) m_state = ConnectionState::REFUSED;
+			else m_state = ConnectionState::DISCONNECTED;
 			cout << strerror(errno) << endl;
+			tcpsocketstatus = false;
 			return false;
 		}
 		if (sock_res == 0) {
-			tcpsocketstatus = true;
-			cout << "We are now connected to host" << endl;
+			tcpsocketstatus = true; 
+			cout << "TCP connection established" << endl;
 			return true;
 		}
 	}
 	return false;
 }
 bool InetConnection::connectUDP() {
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_DGRAM;
+
 	close(socketudp);
 	// create udp socket and bind it
 	if ((socketudp = ::socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -130,13 +138,7 @@ bool InetConnection::connectUDP() {
 		return false;
 	}
 
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE;
-
-	std::string l_port = "8889";
-	if (getaddrinfo(ip.c_str(), l_port.c_str(), &hints, &res)) {
+	if (getaddrinfo(ip.c_str(), portUDP.c_str(), &hints, &res)) {
 		std::cout << "Cannot resolve address. Exiting" << std::endl;
 		return false;
 	} else {
@@ -147,11 +149,13 @@ bool InetConnection::connectUDP() {
 				std::cout << "Error socket(): " << strerror(errno) << std::endl;
 				return false;
 			}
+			/*
 			if (bind(socketudp, iter->ai_addr, iter->ai_addrlen) < 0) {
 				close(socketudp);
 				std::cout << "Error bind(): " << strerror(errno) << std::endl;
 				return false;
 			}
+			*/
 			break;
 		}
 	}
@@ -172,37 +176,44 @@ void InetConnection::update() {
 }
 int InetConnection::checkTCPConnection() {
 // if connecting tcp
+	if(m_state == ConnectionState::DISCONNECTED) return 0;
+
 	FD_ZERO(&socket_fds);
 	FD_SET(sockettcp, &socket_fds);
-	if (m_state == ConnectionState::CONNECTING) {
-		int err;
-		socklen_t len = sizeof(err);
-		if (getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len) < 0) {
-			cerr << "getsockopt error: " << strerror(errno) << endl;
-			strerrno = strerror(errno);
-			cout << strerror(err) << endl;
-			m_state = ConnectionState::REFUSED;
-		} else if (err == EINPROGRESS) 
-			m_state = ConnectionState::CONNECTING;
-		else if (err == 0) {
-			timeout.tv_usec = 100;
-			timeout.tv_sec = 0;
-			int ret = 0;
-			if ((ret = select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout)) < 0) {
-				cout << ret << endl;
-			}
-			if (FD_ISSET(sockettcp, &socket_fds)) {
-				char buffer[BUFFER_SIZE];
-				recv(sockettcp, buffer, sizeof(buffer), 0);
-			//cout << buffer << endl;
-				if (strlen(buffer) > 0)
-					m_state = ConnectionState::CONNECTED;
-			}
-		} else {
-			strerrno = strerror(err);
-			return false;
-		}
+
+	int err;
+	socklen_t len = sizeof(err);
+	if (getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len) < 0) {
+		cerr << "getsockopt error: " << strerror(errno) << endl;
+		cout << strerror(err) << endl;
+		m_state = ConnectionState::REFUSED;
+		tcpsocketstatus = false;
 	}
+	else if (err == 0) {
+		memset(&timeout, 0, sizeof(timeout));
+		timeout.tv_usec = 5000;
+		timeout.tv_sec = 0;
+		switch(select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout)) {
+			case -1:
+				cerr << strerror(errno) << endl;
+			case 0: break;
+			default:
+				if (FD_ISSET(sockettcp, &socket_fds)) {
+					char buffer[BUFFER_SIZE];
+					recv(sockettcp, buffer, sizeof(buffer), 0);
+					if(strlen(buffer) > 0) {
+						tcpsocketstatus = true; 
+						cout << buffer << endl; 
+					}
+				}
+				break;
+		}	
+	} else {
+		cerr << strerror(errno) << endl;
+		tcpsocketstatus = false;
+		return false;
+	}
+	
 	return true;
 }
 int InetConnection::checkUDPConnections() {
