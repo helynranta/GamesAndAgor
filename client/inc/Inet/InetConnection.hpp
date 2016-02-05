@@ -39,7 +39,8 @@ private:
     int rval = 0;
     char dgram[1];
     string ip = "127.0.0.1";
-    string port = "8888";
+    string portUDP = "8888";
+    string portTCP = "8889";
     fd_set socket_fds;
     fd_set socket_fds_temp;
     struct timeval timeout;
@@ -63,7 +64,9 @@ public:
     string strerrno = "";
     bool sendChatMessage(const string& message);
     bool connectTCP();
+    bool connectUDP();
     void sendUDP(GAME_MESSAGE_TYPE type, const string& message);
+    void sendTCP(const string& message);
     bool send(uint8_t *, int);
     bool disconnect();
     void update();

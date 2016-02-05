@@ -181,7 +181,7 @@ int server(char* port) {
 						}
 						else {
 							/* Add to master set */
-							printf("TCP:tä pukkaa\n");
+							send(newfd, "server: connection established", 256, 0);
 							FD_SET(newfd, &master);
 							if(newfd > fdmax)
 								fdmax = newfd;
@@ -337,7 +337,7 @@ int server(char* port) {
 
 				/* If eough time has passed send game update */
 				if ((time2 - time1) >= 500) {
-					printf("Game update!\n");
+					//printf("Game update!\n");
 					gettimeofday(&tvUpdate1, NULL);
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
