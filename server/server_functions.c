@@ -493,8 +493,22 @@ int checkNick(char *nick,Player *pPlayer){
 			return 0;
 		}
 
-		tmp = pPlayer->pNext;
+		tmp = tmp->pNext;
 	}
+	return 1;
+}
+
+// Tähän osote parametriks
+int checkJoin(Player *pPlayer) {
+
+	Palyer *tmp = pPlayer;
+	while(tmp != NULL){
+
+		// If tmp->address on sama ku osote parametri nii return 0
+
+		tmp = tmp->pNext;
+	}
+
 	return 1;
 }
 
