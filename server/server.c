@@ -115,7 +115,7 @@ int server(char* port) {
 			exit(3);
 		}
 		else {
-			printf("TCP listener OK\n", );
+			printf("TCP listener OK\n");
 		}
 
     /* Try to get the maximum length for read buffer */
