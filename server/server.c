@@ -339,7 +339,7 @@ int server(char* port) {
 					}
 				}
 				/* Do game functions */
-				ComputeNearParticles(game.sPlayers, game.sObjects);
+				ComputeNearParticles(game.sPlayers, &game.sObjects);
 
 				/* If player eaten inform the player and others? */
 
