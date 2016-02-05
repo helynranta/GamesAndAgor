@@ -176,6 +176,7 @@ int server(char* port) {
 						}
 						else {
 							/* Add to master set */
+							printf("TCP:tä pukkaa\n");
 							FD_SET(newfd, &master);
 							if(newfd > fdmax)
 								fdmax = newfd;
