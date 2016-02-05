@@ -179,7 +179,7 @@ int server(char* port) {
 						}
 						else {
 							/* Add to master set */
-							printf("TCP:tä pukkaa\n");
+							send(newfd, "server: connection established", 256, 0);
 							FD_SET(newfd, &master);
 							if(newfd > fdmax)
 								fdmax = newfd;
