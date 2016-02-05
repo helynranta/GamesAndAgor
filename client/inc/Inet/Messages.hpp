@@ -194,7 +194,13 @@ class Nick : public GameMessage {
 
 		inline Nick(MessageHeader header, std::string nickName) :
 				GameMessage(header, GAME_MESSAGE_TYPE::NICK) {
-			nick = nickName;
+
+			memset(&nick, '\0', Nick::sizeOfNick());
+			if(nickName.size() < sizeOfNick()){
+				memcpy(&nick, nickName.c_str(), nickName.size());
+			}else{
+				memcpy(&nick, nickName.c_str(), sizeOfNick() - 1); // Take just 11 chars from parameter
+			}
 		};
 
 		inline ~Nick() {};
@@ -203,8 +209,12 @@ class Nick : public GameMessage {
 
 		static Nick * Unpack(MessageHeader, uint32_t, uint8_t*);
 
+		inline static uint32_t sizeOfNick(){
+			return 12;
+		};
+
 	private:
-		std::string nick;
+		char nick[12];
 };
 
 class Exit: public GameMessage {
