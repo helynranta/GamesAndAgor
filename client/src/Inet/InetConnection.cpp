@@ -11,7 +11,6 @@
 vector<Message*> messages;
 
 InetConnection::InetConnection() {
-
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -216,6 +215,91 @@ int InetConnection::checkTCPConnection() {
 	
 	return true;
 }
+
+void InetConnection::UnpackGameMessageSubType(Message* unpackedMessage) {
+	switch (dynamic_cast<GameMessage*>(unpackedMessage)->getGameMessageType()) {
+	case GAME_MESSAGE_TYPE::JOIN:
+		//std::cout << "============== GOT JOIN ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Join*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::NICK:
+		//std::cout << "============== GOT NICK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Nick*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::GAME_UPDATE:
+		//std::cout << "============== GOT GAME_UPDATE ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::EXIT:
+		//std::cout << "============== GOT EXIT ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Exit*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::RESTART:
+		//std::cout << "============== GOT RESTART ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Restart*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::GAME_END:
+		//std::cout << "============== GOT GAME_END ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<GameEnd*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::POINTS:
+		//std::cout << "============== GOT POINTS ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+		//std::cout << "============== GOT PLAYER_DEAD ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::PLAYER_OUT:
+		//std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+		break;
+	}
+}
+
+void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
+	switch (dynamic_cast<MessagesAck*>(unpackedMessage)->getGameMessageType()) {
+	case GAME_MESSAGE_TYPE::JOIN:
+		//						std::cout << "============== GOT JOIN ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<JoinAck*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::NICK:
+		//						std::cout << "==============  GOT NICK ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<NickAck*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::GAME_UPDATE:
+		//std::cout << "============== GOT GAME_UPDATE ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::EXIT:
+		//std::cout << "============== GOT EXIT ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<ExitAck*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::RESTART:
+		//std::cout << "============== GOT RESTART ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<RestartAck*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::GAME_END:
+		//std::cout << "============== GOT GAME_END ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<GameEndAck*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::POINTS:
+		//std::cout << "============== GOT POINTS ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+		//std::cout << "============== GOT PLAYER_DEAD ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<PlayerDeadAck*>(unpackedMessage));
+		break;
+	case GAME_MESSAGE_TYPE::PLAYER_OUT:
+		//std::cout << "============== GOT PLAYER_OUT ACK ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<PlayerOutAck*>(unpackedMessage));
+		break;
+	default:
+		break;
+	}
+}
+
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
 	timeout.tv_usec = 100; // microseconds
@@ -242,87 +326,12 @@ int InetConnection::checkUDPConnections() {
 	if(unpackedMessage != nullptr) {
 		switch (unpackedMessage->getMessageType()) {
 			case MESSAGE_TYPE::GAME_MESSAGE:
-				switch (dynamic_cast<GameMessage*>(unpackedMessage)->getGameMessageType()) {
-					case GAME_MESSAGE_TYPE::JOIN:
-						//std::cout << "============== GOT JOIN ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Join*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::NICK:
-						//std::cout << "============== GOT NICK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Nick*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::GAME_UPDATE:
-						//std::cout << "============== GOT GAME_UPDATE ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::EXIT:
-						//std::cout << "============== GOT EXIT ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Exit*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::RESTART:
-						//std::cout << "============== GOT RESTART ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Restart*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::GAME_END:
-						//std::cout << "============== GOT GAME_END ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<GameEnd*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::POINTS:
-						//std::cout << "============== GOT POINTS ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-						//std::cout << "============== GOT PLAYER_DEAD ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::PLAYER_OUT:
-						//std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-						break;
-				}
+				UnpackGameMessageSubType(unpackedMessage);
 				break;
 			case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE: return false;
 			case MESSAGE_TYPE::PLAYER_MOVEMENT: return false;
 			case MESSAGE_TYPE::ACK:
-				switch (dynamic_cast<MessagesAck*>(unpackedMessage)->getGameMessageType()) {
-					case GAME_MESSAGE_TYPE::JOIN:
-						std::cout << "============== GOT JOIN ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<JoinAck*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::NICK:
-						std::cout << "==============  GOT NICK ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<NickAck*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::GAME_UPDATE:
-						//std::cout << "============== GOT GAME_UPDATE ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::EXIT:
-						//std::cout << "============== GOT EXIT ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<ExitAck*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::RESTART:
-						//std::cout << "============== GOT RESTART ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<RestartAck*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::GAME_END:
-						//std::cout << "============== GOT GAME_END ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<GameEndAck*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::POINTS:
-						//std::cout << "============== GOT POINTS ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-						//std::cout << "============== GOT PLAYER_DEAD ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<PlayerDeadAck*>(unpackedMessage));
-						break;
-					case GAME_MESSAGE_TYPE::PLAYER_OUT:
-						//std::cout << "============== GOT PLAYER_OUT ACK ==============" << std::endl;
-						messageInbox.push_back(dynamic_cast<PlayerOutAck*>(unpackedMessage));
-						break;
-					default: break;
-				}
+				UnpackAckMessageSubtype(unpackedMessage);
 				break;
 			case MESSAGE_TYPE::STATISTICS_MESSAGE: return false;
 			default: return false;
@@ -339,6 +348,7 @@ vector<MessagesAck*> InetConnection::getAcks() {
 			messageInbox.pop_back();
 		}
 	}
+
 	return lmessages;
 }
 MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
