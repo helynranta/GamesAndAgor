@@ -498,18 +498,42 @@ int checkNick(char *nick,Player *pPlayer){
 	return 1;
 }
 
-// Tähän osote parametriks
-int checkJoin(Player *pPlayer) {
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa)
+{
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
 
-	Palyer *tmp = pPlayer;
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+/* compare the ip adresses , returns 0 if they are the same */
+int ipcmp(struct sockaddr *from, struct sockaddr *player){
+	char s1[INET6_ADDRSTRLEN];
+	char s2[INET6_ADDRSTRLEN];
+	strcpy(s1, get_in_addr(from));
+	strcpy(s2, get_in_addr(player));
+	return strcmp(s1, s2);
+}
+
+// Tähän osote parametriks
+/* Returns player ID if player exists already, else -1 */
+int checkJoin(Player *pPlayer, struct sockaddr *from) {
+
+	Player *tmp = pPlayer;
 	while(tmp != NULL){
 
 		// If tmp->address on sama ku osote parametri nii return 0
+		/* If ip is found , return the player ID*/
+		if((ipcmp(&tmp->address, from)) == 0 ) {
+			return tmp->ID;
+		}
 
 		tmp = tmp->pNext;
 	}
 
-	return 1;
+	return -1;
 }
 
 /* Sends the whole buffer over tcp */
