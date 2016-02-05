@@ -69,16 +69,17 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 }
 
 
-int isWithinRange(int location1[2], int location2[2], int scale1, int scale2){
-	int deltaX, deltaY;
+int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
+	uint32_t scale2){
+	uint16_t deltaX, deltaY;
     float range = scale1/PLA_SIZE, eucl = 0;
 
 
     float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
 
 	// RECTANGLE
-	deltaY = abs(location2[1] - location1[1]) - scale2/2;
-	deltaX = abs(location2[0] - location1[0]) - scale2/2;
+	deltaY = abs(location2[1] - location1[1]) - floor(scale2/2);
+	deltaX = abs(location2[0] - location1[0]) - floor(scale2/2);
 
     /* Euclidean distance */
     eucl = sqrt(pow(location2[1] - location1[1],2) + pow(location2[0] - location1[0],2));
@@ -98,7 +99,8 @@ void eventEat(Player *eater, Player *eaten){
     eaten->state = EATEN;
 }
 
-void addAck2List(Ack **pAckList, char *msg, int gameTime, int msgLength, int packetID){
+void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength,
+	uint32_t packetID){
     Ack *pAck = NULL;
     if ((pAck = calloc(1, sizeof(Ack))) == NULL) { perror("calloc"); }
 
@@ -112,10 +114,10 @@ void addAck2List(Ack **pAckList, char *msg, int gameTime, int msgLength, int pac
 }
 
 void append2ListAck(Ack **pList, Ack *pNew){
+	if(pNew==NULL){return;}
 	pNew->pNext = *pList;
 	*pList = pNew;
 }
-
 
 void removeAck(Ack **pList, uint32_t ackID){
     Ack *p = *pList, *prev = NULL;
@@ -141,16 +143,19 @@ void removeAck(Ack **pList, uint32_t ackID){
 }
 
 void append2ListNear(Near **pList, Near *pNew){
+	if(pNew==NULL){return;}
 	pNew->pNext = *pList;
 	*pList = pNew;
 }
 
 void append2ListPlayer(Player **pList, Player *pNew){
+	if(pNew==NULL){return;}
 	pNew->pNext = *pList;
 	*pList = pNew;
 }
 
 void append2ListObject(Object **pList, Object *pNew){
+	if(pNew==NULL){return;}
 	pNew->pNext = *pList;
 	*pList = pNew;
 }
@@ -192,7 +197,7 @@ void clearListObject(Object **pList){
 	*pList = NULL;
 }
 
-void newPlayer(Player **pList, struct Packet packet, int nPlayers){
+void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
 	Player *p = NULL;
   if (!(p = calloc(1,sizeof(Player))))
     perror("Calloc");
@@ -217,8 +222,7 @@ void newPlayer(Player **pList, struct Packet packet, int nPlayers){
 }
 
 
-int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
-	int msgSubType, int outPlayerID, int status){
+int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, int msgSubType, uint16_t outPlayerID, int status){
 	/* toPlayerID: to Which player (ID) the message is
 	 * outPlayerID: ID of a player which is either OUT or DEAD
 	 * (otherwise, set to e.g. 0)
@@ -275,8 +279,7 @@ int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
 	return 0;
 }
 
-int gameMsgPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType,
-	int outPlayerID){
+int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, uint16_t outPlayerID){
 
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
 	Near *pNear = NULL;
@@ -363,7 +366,8 @@ int gameMsgPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType,
 	return -1;
 }
 
-int ackPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType, int status){
+int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
+	int status){
 	int ind = 0;
 
 	*(uint32_t*) &pPL[ind] = htonl(pGame->gameTime);
@@ -393,7 +397,7 @@ int ackPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType, int status
 	return -1;
 }
 
-int statPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType){
+int statPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType){
 	Player *pPla = getPlayer(toPlayerID, pGame->sPlayers);
 	int ind = 0;
 	if (pPla == NULL)
@@ -407,7 +411,7 @@ int statPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType){
 	}
 }
 
-Player *getPlayer(int playerID, Player *pPlayer){
+Player *getPlayer(uint16_t playerID, Player *pPlayer){
 	Player *pPla = pPlayer;
 	while (pPla != NULL && pPla->ID != playerID)
 		pPla = pPla->pNext;
@@ -415,7 +419,7 @@ Player *getPlayer(int playerID, Player *pPlayer){
 	return pPla;
 }
 
-void randomLocation(int *location){
+void randomLocation(uint16_t *location){
     srand(time(NULL));
     location[0] = rand() % LIMIT_X;
     location[1] = rand() % LIMIT_Y;

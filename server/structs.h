@@ -56,15 +56,15 @@ typedef struct Near {
 
 // Struct for Players
 typedef struct Player {
-	int ID;
+	uint16_t ID;
 	char nick[12];
-	int lastPacket; // player's game time (game time of last movement packet)
-	int location[2];  // | X ¦ Y |
-	int direction[2];  // | X ¦ Y |
-	int scale;
-	int points;
+	uint32_t lastPacket; // player's game time (game time of last movement packet)
+	uint16_t location[2];  // | X ¦ Y |
+	uint16_t direction[2];  // | X ¦ Y |
+	uint32_t scale;
+	uint32_t points;
 	int state;  // | alive | eaten | exited |
-	int ping;
+	uint32_t ping;
 
 	// For storing players and objects nearby
 	Near *nearPlayers;
@@ -82,27 +82,27 @@ typedef struct Player {
 
 // Struct for Objects
 typedef struct Object {
-	int ID;
-	int location[2];
+	uint32_t ID;
+	uint16_t location[2];
 	struct Object *pNext;
 } Object;
 
 typedef struct Ack{
-	int packetID;
-	int gameTimeSent;
-	int msgLength;
+	uint32_t packetID;
+	uint32_t gameTimeSent;
+	uint16_t msgLength;
 	char msg[BUFFERSIZE];
 	struct Ack *pNext;
 } Ack;
 
 typedef struct Game {
-	int gameTime;
-	int nPlayers;
+	uint32_t gameTime;
+	uint16_t nPlayers;
 	Player *sPlayers;
 	Object *sObjects;
 	Ack *sAcks; // List of messages that haven't been acknowledged
-	int packetID; // Increasing integer value to serialize ack packets
-	int pingID; // Increasing integer value to serialize ping packets
+	uint32_t packetID; // Increasing integer value to serialize ack packets
+	uint32_t pingID; // Increasing integer value to serialize ping packets
 } Game;
 
 /* Message types */

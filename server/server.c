@@ -24,6 +24,8 @@ return 0;
 }
 
 
+
+
 int server(char* port) {
 	struct Game game;
   int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes;
@@ -328,6 +330,9 @@ int server(char* port) {
 				}
 				/* Do game functions */
 				ComputeNearParticles(game.sPlayers, game.sObjects);
+
+				/* If player eaten inform the player and others? */
+
 
 				/* If eough time has passed send game update */
 				if ((time2 - time1) >= 500) {
