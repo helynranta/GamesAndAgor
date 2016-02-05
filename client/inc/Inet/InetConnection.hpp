@@ -50,6 +50,8 @@ private:
     int biggestsocket = -1;
 
     void unpack_header();
+		void UnpackGameMessageSubType(Message* unpackedMessage);
+		void UnpackAckMessageSubtype(Message* unpackedMessage);
 
     vector<Message*> messageInbox;
     vector<Message*> m_outgoing;
