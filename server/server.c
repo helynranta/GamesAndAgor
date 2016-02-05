@@ -217,6 +217,7 @@ int server(char* port) {
 											printf("Nick: %s\n", packet.nick);
 											int nickStatus = -1;
 											nickStatus = checkNick(packet.nick, game.sPlayers);
+											printf("Nick status: %d\n", nickStatus);
 											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
 											printf("ACKID: %d\n", game.sAcks->packetID);
 											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
