@@ -6,21 +6,31 @@
 #define PLIND 11 // Payload index location
 #include "server_functions.h"
 
-void ComputeNearParticles(Player *sPlayers, Object *sObjects){
+void gameInit(Game *pGame){
+	pGame->gameTime = 0;
+	pGame->nPlayers = 0;
+	pGame->sPlayers = NULL;
+	pGame->sObjects = NULL;
+	pGame->sAcks = NULL;
+	pGame->packetID =0;
+	pGame->pingID = 0;
+}
+
+void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 	Player *p1 = NULL, *p2 = NULL;
 	Near *temp = NULL;
-	Object *pObj;
+	Object *pObj = NULL, *pT = NULL, *pPrev = NULL, *pSObjects = *sObjects;
 
     int isIn = 0;
 	if (sPlayers==NULL){return;}
 	// Clear the previous Near lists of players
-	for(p1 = sPlayers; p1->pNext != NULL; p1 = p1->pNext){
+	for(p1 = sPlayers; p1 != NULL; p1 = p1->pNext){
 		clearListNear(&(p1->nearPlayers));
 		clearListNear(&(p1->nearObjects));
 	}
 
 	// Go through each player
-	for(p1 = sPlayers; p1->pNext != NULL; p1 = p1->pNext){
+	for(p1 = sPlayers; p1 != NULL; p1 = p1->pNext){
 		if (p1->state != ALIVE){continue;}
 
 		// Calculate distances to each player
@@ -30,10 +40,10 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
             isIn = isWithinRange(p1->location, p2->location, p1->scale, p2->scale);
 			if(isIn){
 				if(isIn == -1) { // That p1 fucker just ate p2.
-                    eventEat(p1,p2);
+                    eventEatPlayer(p1,p2);
                 }
                 else if (isIn == -2) {// p2 ate p1. p1 totally deserved it.
-                    eventEat(p2,p1);
+                    eventEatPlayer(p2,p1);
                 }
 
                 if(!(temp = calloc(1,sizeof(Near))))
@@ -55,31 +65,48 @@ void ComputeNearParticles(Player *sPlayers, Object *sObjects){
 		}
 
 		// Calculate distances to each object
-		for(pObj = sObjects; pObj != NULL; pObj = pObj->pNext){
-			if(isWithinRange(p1->location, pObj->location, p1->scale,OBJ_SIZE)){
+		for(pObj = pSObjects; pObj != NULL; pObj = pObj->pNext){
+			isIn = isWithinRange(p1->location, pObj->location, p1->scale,OBJ_SIZE);
+			printf("%d\n", isIn);
+			if(isIn < 0){ // EAT OBJECT
+				pT = pObj;
+				pPrev->pNext = pObj->pNext;
+				pObj = pPrev;
+				eventEatObject(p1, &pT);
+			}
+			else if (isIn > 0){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
 
 				temp->pParticle = pObj;
 				append2ListNear(&(p1->nearObjects), temp);
 				temp = NULL;
+				pPrev = pObj;
 			}
 		}
 	}
 }
 
+void eventEatObject(Player *pPla, Object **pObj){
+	pPla->scale += OBJ_SIZE;
+	pPla->points += OBJ_SIZE;
+	printf("eat\n");
+	free(*pObj);
+	*pObj = NULL;
+}
 
 int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 	uint32_t scale2){
 	uint16_t deltaX, deltaY;
     float range = scale1/PLA_SIZE, eucl = 0;
 
-
-    float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
+	float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
 
 	// RECTANGLE
 	deltaY = abs(location2[1] - location1[1]) - floor(scale2/2);
 	deltaX = abs(location2[0] - location1[0]) - floor(scale2/2);
+
+	// printf("%s\n", );
 
     /* Euclidean distance */
     eucl = sqrt(pow(location2[1] - location1[1],2) + pow(location2[0] - location1[0],2));
@@ -94,8 +121,9 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 		return 0;
 }
 
-void eventEat(Player *eater, Player *eaten){
+void eventEatPlayer(Player *eater, Player *eaten){
     eater->scale += floor(eaten->scale/2);
+	eater->points += floor(eaten->scale/2);
     eaten->state = EATEN;
 }
 
@@ -257,6 +285,8 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 			plLength = ackPacker(pPL, pGame, toPlayerID, msgSubType, status);
 			if (plLength < 0)
 				return -1;
+			else if(msgSubType == JOIN)
+				return plLength;
 			else{
 				*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
 				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime);

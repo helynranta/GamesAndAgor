@@ -194,8 +194,8 @@ Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	Nick * playerNick = new Nick(header);
 
 // Unpack Nick (char [11])
-	memcpy(&playerNick->nick, payload, length);
-	playerNick->nick[playerNick->nick.length()] = '\0';
+	memcpy(&playerNick->nick, payload, sizeOfNick());
+	playerNick->nick[sizeOfNick() - 1] = '\0';
 //	std::cout << "Message.cpp: New player named" << playerNick->nick << " joined" << std::endl;
 	return playerNick;
 }
@@ -210,8 +210,8 @@ int Nick::PackSelf(uint8_t * payload) {
 	bufferPosition += addPayloadSize(sizeof(uint8_t));
 
 	// insert NICK to buffer
-	PackUINT32ToPayload(0, payload, bufferPosition);
-	bufferPosition += addPayloadSize(sizeof(uint32_t));
+	memcpy(payload, nick, sizeOfNick());
+	bufferPosition += addPayloadSize(sizeOfNick());
 
 	CreateHeader(this, payload);
 //	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
