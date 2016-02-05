@@ -19,9 +19,9 @@
 
 
 void ComputeNearParticles(Player *sPlayers, Object *sObjects);
-int isWithinRange(int location1[2], int location2[2], int scale1, int scale2);
+int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1, uint32_t scale2);
 void eventEat(Player *eater, Player *eaten);
-void addAck2List(Ack **pAckList, char *msg, int gameTime, int msgLength, int packetID);
+void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength, uint32_t packetID);
 void append2ListAck(Ack **pList, Ack *pNew);
 void removeAck(Ack **pList, uint32_t ackID);
 void append2ListNear(Near **pList, Near *pNew);
@@ -30,7 +30,7 @@ void append2ListObject(Object **pList, Object *pNew);
 void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
-void newPlayer(Player **pList, struct Packet packet, int nPlayers);
+void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers);
 
 /* ltr did this, blame me if something bad happens */
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen);
@@ -39,11 +39,9 @@ int sendAllTCP(int socket, char *buf, int *length);
 
 
 /* PACKING FUNCTIONS */
-int msgPacker(char *msgBuffer, Game *pGame, int toPlayerID, int msgType,
-    int msgSubType, int outPlayerID, int status);
-int gameMsgPacker(char *pPL, Game *pGame, int toPlayerID,
-    int msgSubType, int outPlayerID);
-int ackPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType, int status);
-int statPacker(char *pPL, Game *pGame, int toPlayerID, int msgSubType);
-Player *getPlayer(int playerID, Player *pPlayer);
-void randomLocation(int *location);
+int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, int msgSubType, uint16_t outPlayerID, int status);
+int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, uint16_t outPlayerID);
+int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, int status);
+int statPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType);
+Player *getPlayer(uint16_t playerID, Player *pPlayer);
+void randomLocation(uint16_t *location);
