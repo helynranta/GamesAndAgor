@@ -41,8 +41,9 @@ public:
             
             string newIP = gui->getInput("input")->getText();
             if(newIP == "" || newIP == "localhost") newIP = "127.0.0.1";
-            
             Engine::connection->setIP(newIP);
+
+            Engine::connection->connectUDP();
             //tmp
             uint8_t testBuffer[BUFFER_SIZE];
             MessageHeader dummyGameMessageHeader;
@@ -53,8 +54,7 @@ public:
             Engine::connection->send(testBuffer, messageLenght);
         }
         
-        if(cstate == ConnectionState::CONNECTED) Engine::startScene("NickDialog");
-        else if(cstate == ConnectionState::TIMED_OUT) {
+        if(cstate == ConnectionState::TIMED_OUT) {
             gui->getText("hint")->setText("Connection timed out...");
             gui->getInput("input")->show();
         }
@@ -76,7 +76,11 @@ public:
                 default: break;
             }
         }
-        if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) Engine::startScene("Game");
+        if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {
+            cout << "both tcp and udp status ok" << endl;
+            Engine::connection->sendTCP("FUCK LOL");
+            Engine::startScene("NickDialog");
+        }
     }
 
     inline void end() override {}

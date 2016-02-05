@@ -201,7 +201,7 @@ Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 }
 
 int Nick::PackSelf(uint8_t * payload) {
-	std::cout << "ending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 	int bufferPosition = getHeaderSize();
 
 	// insert MSG_SUBTYPE to buffer
