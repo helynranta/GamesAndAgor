@@ -150,6 +150,7 @@ int server(char* port) {
 		game.sPlayers=NULL;
 		game.sObjects=NULL;
 		game.sAcks=NULL;
+		game.nPlayers = 0;
 		int tavut = -2;
 		while (1) {
 
@@ -207,9 +208,14 @@ int server(char* port) {
 										case JOIN:
 											printf("Player joins game!\n");
 
-											msgPacker(sendbuffer, &game, packet.ID, ACK, JOIN, 0,1);
+											newPlayer(&game.sPlayers, packet, game.nPlayers);
+											msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
 											tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 											printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
+											game.nPlayers++;
+
+
+
 											break;
 
 										case NICK:
@@ -217,18 +223,25 @@ int server(char* port) {
 											printf("Nick: %s\n", packet.nick);
 											int nickStatus = -1;
 											nickStatus = checkNick(packet.nick, game.sPlayers);
-											printf("Nick status: %d\n", nickStatus);
+											/*printf("Nick status: %d\n", nickStatus);
 											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
 											printf("ACKID: %d\n", game.sAcks->packetID);
-											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);*/
 
-											/* If nick OK add new player */
+											/* If nick OK  */
 											if(nickStatus == 1){
-												newPlayer(&game.sPlayers, packet, game.nPlayers);
-												game.nPlayers++;
+												/*newPlayer(&game.sPlayers, packet, game.nPlayers);
+												game.nPlayers++;*/
+
+												Player *p;
+												p = getPlayer(game.sPlayers, packet.ID);
+												memcpy(p->nick, packet.nick, 12);
+
 												/* add the tcp connection for this new player */
 												/* Actually no, let's not do it so we can have some fun */
 											}
+											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
+											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 											break;
 
 										case EXIT:
