@@ -207,7 +207,7 @@ int server(char* port) {
 
 											// Check if player already exists, if it does, send new ACK
 											tmpPlayerID = -1;
-											tmpPlayerID = checkJoin(game.sPlayers, &packet.senderAddr);
+											tmpPlayerID = checkJoin(game.sPlayers, packet.senderAddr);
 
 											if (tmpPlayerID != -1) {
 
