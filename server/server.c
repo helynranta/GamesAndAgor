@@ -205,7 +205,8 @@ int server(char* port) {
 
 										case JOIN:
 										/* TODO: add ack check for the join */
-											printf("Player joins game!\n");
+
+											
 
 											newPlayer(&game.sPlayers, packet, game.nPlayers);
 											msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
