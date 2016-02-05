@@ -86,7 +86,14 @@ public:
     vector<MessagesAck*> getAcks();
     vector<ChatMessage*> getChatMessages();
     vector<PlayerDead*> getDeadPayers();  
-    void setID(uint16_t i) { id = i; }
-    void setState(ConnectionState state) { m_state = state; }
+    inline void setID(uint16_t i) { id = i; }
+    inline const uint16_t& getID() const { return id; }
+    inline void setState(ConnectionState state) { m_state = state; }
+    inline MessageHeader createHeader() {
+        MessageHeader header;
+        header.user_id =  id;
+        header.gameTime = 12;
+        return header;
+    }
 };
 #endif
