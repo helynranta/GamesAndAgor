@@ -25,6 +25,16 @@ public:
             gui->getText("hint")->setText("Checking username availability");
             gui->getInput("nick")->hide();
             // put here if connect returns true
+            uint8_t testBuffer[BUFFER_SIZE];
+            MessageHeader dummyGameMessageHeader;
+            dummyGameMessageHeader.user_id = 0;
+            dummyGameMessageHeader.gameTime = 12;
+
+            Nick* nick = new Nick(dummyGameMessageHeader, 
+                (gui->getInput("nick")->getText()).c_str()
+                );
+            int messageLength = nick->PackSelf(testBuffer);
+            Engine::connection->send(testBuffer, messageLength);
             // Engine::connection->sendUDP(GAME_MESSAGE_TYPE::NICK, gui->getText("hint")->getText());
         }
         /*
