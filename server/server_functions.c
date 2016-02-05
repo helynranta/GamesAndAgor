@@ -286,11 +286,11 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 			if (plLength < 0)
 				return -1;
 			else if(msgSubType == JOIN)
-				return plLength;
+				break;
 			else{
 				*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
 				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime);
-				return 0;
+				break;
 			}
 	    case STATISTICS_MESSAGE:
 			plLength = statPacker(pPL, pGame, toPlayerID, msgSubType);
@@ -308,6 +308,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 
 	return 0;
 }
+
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, uint16_t outPlayerID){
 
