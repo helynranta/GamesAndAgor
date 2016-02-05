@@ -27,7 +27,6 @@ return 0;
 
 
 int server(char* port) {
-	struct Game game;
   int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes;
 	fd_set readset, master;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
@@ -41,8 +40,7 @@ int server(char* port) {
   struct addrinfo *result = NULL, *iter = NULL;
   struct sockaddr_storage client_addr;
 
-  char hostbuffer[NI_MAXHOST] = { 0 };
-  char portbuffer[NI_MAXSERV] = { 0 };
+
   char recvbuffer[SIZE] = { 0 };
 	char sendbuffer[SIZE] = {0};
 	tv.tv_usec = 1000000;
@@ -206,6 +204,7 @@ int server(char* port) {
 									switch (packet.subType) {
 
 										case JOIN:
+										/* TODO: add ack check for the join */
 											printf("Player joins game!\n");
 
 											newPlayer(&game.sPlayers, packet, game.nPlayers);
@@ -213,9 +212,6 @@ int server(char* port) {
 											tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 											printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
 											game.nPlayers++;
-
-
-
 											break;
 
 										case NICK:
@@ -234,7 +230,7 @@ int server(char* port) {
 												game.nPlayers++;*/
 
 												Player *p;
-												p = getPlayer(game.sPlayers, packet.ID);
+												p = getPlayer(packet.ID, game.sPlayers);
 												memcpy(p->nick, packet.nick, 12);
 
 												/* add the tcp connection for this new player */
