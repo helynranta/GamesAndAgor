@@ -63,6 +63,7 @@ public:
     string strerrno = "";
     bool sendChatMessage(const string& message);
     bool connectTCP();
+    bool connectUDP();
     void sendUDP(GAME_MESSAGE_TYPE type, const string& message);
     bool send(uint8_t *, int);
     bool disconnect();

@@ -23,41 +23,6 @@ void InetConnection::init(void) {
 	memset(&me_addr, 0, sizeof(struct sockaddr_in));
 	me_addr.sin_family = PF_UNSPEC;
 	me_addr.sin_port = htons(0);
-
-	// create udp socket and bind it
-	if ((socketudp = ::socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-		cerr << "was not able to create udp socket!" << endl << strerror(errno) << endl;
-	}
-	if (::bind(socketudp, reinterpret_cast<struct sockaddr*>(&me_addr), sizeof(me_addr)) < 0) {
-		cerr << "was not able to bind udp port!" << endl << strerror(errno) << endl;
-	}
-
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE;
-
-	std::string l_port = "8889";
-	if (getaddrinfo(ip.c_str(), l_port.c_str(), &hints, &res)) {
-		std::cout << "Cannot resolve address. Exiting" << std::endl;
-		exit(EXIT_FAILURE);
-	} else {
-		std::cout << "getaddrinfo success" << std::endl;
-		// Go through every returned address and attempt to connect to each
-		for (iter = res; iter != NULL; iter = iter->ai_next) {
-			if ((socketudp = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
-				std::cout << "Error socket(): " << strerror(errno) << std::endl;
-				exit(EXIT_FAILURE);
-				break;
-			}
-			if (bind(socketudp, iter->ai_addr, iter->ai_addrlen) < 0) {
-				close(socketudp);
-				std::cout << "Error bind(): " << strerror(errno) << std::endl;
-				break;
-			}
-			break;
-		}
-	}
 //      std::cout << "Listening socket" << listensocket << std::endl;
 
 }
@@ -151,9 +116,47 @@ bool InetConnection::connectTCP() {
 			return true;
 		}
 	}
-	return false;;
+	return false;
 }
+bool InetConnection::connectUDP() {
+	close(socketudp);
+	// create udp socket and bind it
+	if ((socketudp = ::socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		cerr << "was not able to create udp socket!" << endl << strerror(errno) << endl;
+		return false;
+	}
+	if (::bind(socketudp, reinterpret_cast<struct sockaddr*>(&me_addr), sizeof(me_addr)) < 0) {
+		cerr << "was not able to bind udp port!" << endl << strerror(errno) << endl;
+		return false;
+	}
 
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	std::string l_port = "8889";
+	if (getaddrinfo(ip.c_str(), l_port.c_str(), &hints, &res)) {
+		std::cout << "Cannot resolve address. Exiting" << std::endl;
+		return false;
+	} else {
+		//std::cout << "getaddrinfo success" << std::endl;
+		// Go through every returned address and attempt to connect to each
+		for (iter = res; iter != NULL; iter = iter->ai_next) {
+			if ((socketudp = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
+				std::cout << "Error socket(): " << strerror(errno) << std::endl;
+				return false;
+			}
+			if (bind(socketudp, iter->ai_addr, iter->ai_addrlen) < 0) {
+				close(socketudp);
+				std::cout << "Error bind(): " << strerror(errno) << std::endl;
+				return false;
+			}
+			break;
+		}
+	}
+	return true;
+}
 bool InetConnection::disconnect() {
 	if (res == nullptr)
 		freeaddrinfo(res);

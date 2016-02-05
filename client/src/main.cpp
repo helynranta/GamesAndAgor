@@ -10,9 +10,6 @@
 #include "scenes/NickDialog.hpp"
 
 using namespace std;
-
-// Defines if we really want to start the game or just use simple game loop to test messages
-#define MESG_TEST = 0
 /*
 void TestMessagesLoop() {
 	std::cout << "USING MESSAGE TEST LOOP" << std::endl;
@@ -63,7 +60,6 @@ void TestMessagesLoop() {
 }
 */
 int main(void) {
-	std::cout << "Starting game" << std::endl;
 	Engine* engine = new Engine();
 	engine->addScenes( { { "Game", new Game() }, { "NickDialog", new NickDialog() }, { "IPDialog", new IPDialog() } });
 	engine->run("IPDialog");
