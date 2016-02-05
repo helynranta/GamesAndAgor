@@ -114,6 +114,9 @@ int server(char* port) {
 			perror("Listen");
 			exit(3);
 		}
+		else {
+			printf("TCP listener OK\n", );
+		}
 
     /* Try to get the maximum length for read buffer */
     socklen_t optlen = sizeof(optval);
@@ -165,7 +168,7 @@ int server(char* port) {
 			}
 
 			/* Run through existing connections, see if any data to read */
-			for(int i = 0; i <= socketfd; i++){
+			for(int i = 0; i <= fdmax; i++){
 				if(FD_ISSET(i, &readset)) {
 					if(i == listener){
 						/* New TCP connection */
