@@ -36,6 +36,7 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers);
 /* ltr did this, blame me if something bad happens */
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen);
 int checkNick(char *nick, Player *playerlist);
+int checkJoin(Player *pPlayer, struct sockaddr *from);
 int sendAllTCP(int socket, char *buf, int *length);
 
 /* PACKING FUNCTIONS */
