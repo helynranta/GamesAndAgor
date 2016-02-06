@@ -27,7 +27,7 @@ return 0;
 
 
 int server(char* port) {
-  int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes;
+  int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes, tmpPlayerID;
 	fd_set readset, master;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
 	long time1, time2;
@@ -204,15 +204,26 @@ int server(char* port) {
 									switch (packet.subType) {
 
 										case JOIN:
-										/* TODO: add ack check for the join */
 
-											
+											// Check if player already exists, if it does, send new ACK
+											tmpPlayerID = -1;
+											tmpPlayerID = checkJoin(game.sPlayers, &packet.senderAddr);
 
-											newPlayer(&game.sPlayers, packet, game.nPlayers);
-											msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
-											tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
-											printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
-											game.nPlayers++;
+											if (tmpPlayerID != -1) {
+
+												newPlayer(&game.sPlayers, packet, game.nPlayers);
+												msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
+												tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+												printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
+												game.nPlayers++;
+
+											} else {
+
+												msgPacker(sendbuffer, &game, tmpPlayerID, ACK, JOIN, 0,1);
+												sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+
+											}
+
 											break;
 
 										case NICK:
