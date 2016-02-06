@@ -10,8 +10,8 @@
 
 MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 //	std::cout << "========== UNPACK_MESSAGE_ACK_HEADER ==========" << std::endl;
-//	std::cout << "MessageType: " << unsigned(header.message_type) << std::endl;
-//	std::cout << "Length: " << length << std::endl;
+	//std::cout << "MessageType: " << unsigned(header.message_type) << std::endl;
+	//std::cout << "Length: " << length << std::endl;
 
 
 	int readByteCount = 0;
@@ -26,6 +26,7 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	// Unpack MSG_SUBTYPE (UINT_8)
 	uint8_t messageSubtype;
 	memcpy(&messageSubtype, payload, sizeof(uint8_t));
+	messageSubtype = ntohl(messageSubtype);
 //	std::cout << "MessageAck.cpp: Message subtype " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 	readByteCount += sizeof(uint8_t);
 
@@ -34,24 +35,25 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadLength));
 	memcpy(remainingPayload, &payload[readByteCount], remainingPayloadLength);
 
-
+	//std::cout << ntohl(messageSubtype) << std::endl;
 	std::cout << "Receiving -> ACK: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 
 	switch (messageSubtype) {
-	case GAME_MESSAGE_TYPE::JOIN:
-		return JoinAck::Unpack(header, remainingPayloadLength, remainingPayload);
-	case GAME_MESSAGE_TYPE::NICK:
-		return NickAck::Unpack(header, remainingPayloadLength, remainingPayload);
-	case GAME_MESSAGE_TYPE::EXIT:
-		return ExitAck::Unpack(header, remainingPayloadLength, remainingPayload);
-	case GAME_MESSAGE_TYPE::GAME_END:
-		return GameEndAck::Unpack(header, remainingPayloadLength, remainingPayload);
-	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-		return PlayerDeadAck::Unpack(header, remainingPayloadLength, remainingPayload);
-	case GAME_MESSAGE_TYPE::PLAYER_OUT:
-		return PlayerOutAck::Unpack(header, remainingPayloadLength, remainingPayload);
-	default:
-		return nullptr;
+		case GAME_MESSAGE_TYPE::JOIN:
+			return JoinAck::Unpack(header, remainingPayloadLength, remainingPayload);
+		case GAME_MESSAGE_TYPE::NICK:
+			return NickAck::Unpack(header, remainingPayloadLength, remainingPayload);
+		case GAME_MESSAGE_TYPE::EXIT:
+			return ExitAck::Unpack(header, remainingPayloadLength, remainingPayload);
+		case GAME_MESSAGE_TYPE::GAME_END:
+			return GameEndAck::Unpack(header, remainingPayloadLength, remainingPayload);
+		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
+			return PlayerDeadAck::Unpack(header, remainingPayloadLength, remainingPayload);
+		case GAME_MESSAGE_TYPE::PLAYER_OUT:
+			return PlayerOutAck::Unpack(header, remainingPayloadLength, remainingPayload);
+		default:
+			//std::cout << "plz no" << std::endl;
+			return nullptr;
 	}
 //	std::cout << "======== UNPACK_MESSAGE_ACK_HEADER_END ========" << std::endl;
 	return nullptr;
