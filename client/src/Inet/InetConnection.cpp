@@ -190,7 +190,7 @@ int InetConnection::checkTCPConnection() {
 	}
 	else if (err == 0) {
 		memset(&timeout, 0, sizeof(timeout));
-		timeout.tv_usec = 5000;
+		timeout.tv_usec = 100;
 		timeout.tv_sec = 0;
 		switch(select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout)) {
 			case -1:
@@ -302,7 +302,7 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
-	timeout.tv_usec = 5000; // microseconds
+	timeout.tv_usec = 100; // microseconds
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 	// Add listening socket to the set and check if it is the biggest socket number

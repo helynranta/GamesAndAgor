@@ -37,7 +37,7 @@ class JoinAck: public MessagesAck {
 
 		int PackSelf(uint8_t* payload);
 		static JoinAck* Unpack(MessageHeader header, uint32_t length, uint8_t* payload);
-
+		const uint8_t& getStatus() const {return status;}
 	public:
 		uint8_t status;
 		uint16_t id;
@@ -54,7 +54,7 @@ class NickAck: public MessagesAck {
 
 		int PackSelf(uint8_t* payload);
 		static NickAck* Unpack(MessageHeader header, uint32_t length, uint8_t* payload);
-
+		const uint8_t& getStatus() const {return status;}
 	private:
 		uint8_t status;
 };
