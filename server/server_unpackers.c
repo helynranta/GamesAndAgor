@@ -56,6 +56,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
           break;
 
         case NICK:
+        printf("NICK RECEIVED IN UNPACKERS\n");
           packet.subType = NICK;
           memcpy(packet.nick, &buf[index], MAX_NICK);
           packet.nick[11] = '\0';
@@ -83,6 +84,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
           index += sizeof(uint8_t);
           printf("NICK ID: %d\n", ntohs(*(uint16_t*)&buf[index]));
         case NICK:
+          printf("Got Nick ack\n");
         case EXIT:
         case GAME_END:
         case POINTS:
@@ -135,7 +137,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       break;
 
     default:
-      printf("Unknown msg\n");
+      printf("Unknown msg\nUnknown msg\nUnknown msg\nUnknown msg\nUnknown msg\nUnknown msg\nUnknown msg\n");
       /* If we get here, error has occured */
       packet.error=1;
       return packet;
