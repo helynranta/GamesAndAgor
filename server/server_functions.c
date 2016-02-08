@@ -315,9 +315,8 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 	else
 		*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
 
-	return 0;
+	return PLIND+plLength;
 }
-
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, uint16_t outPlayerID){
 
@@ -422,7 +421,7 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 			ind += sizeof(uint8_t);
 
 			if(status == OK){
-				*(uint16_t*) &pPL[ind] = toPlayerID;
+				*(uint16_t*) &pPL[ind] = htons(toPlayerID);
 				ind += sizeof(uint16_t);
 			}
 
@@ -544,6 +543,26 @@ int checkJoin(Player *pPlayer, struct sockaddr *from) {
 	}
 
 	return -1;
+}
+
+void checkEaten(Game *pGame, int udpFD, socklen_t addrlen){
+	/* This function checks if player is eaten, sends him a message and changes
+   * his status to eaten
+	 * TODO: send msg to all players if someone has been eaten */
+	char buf[BUFFERSIZE] = {0};
+	int msgLen;
+
+	Player *p = pGame->sPlayers;
+	for(;p!=NULL;p=p->pNext){
+		if(p->state != EATEN){ continue; } // we are only interested in EATEN states
+		msgLen = msgPacker(buf, pGame, p->ID, GAME_MESSAGE, PLAYER_DEAD, p->ID, 0);
+		if(!msgLen)
+			perror("msgPacker");
+		else {
+			p->state = DEAD;
+			sendto(udpFD,buf,msgLen,0,&p->address,addrlen);
+		}
+	}
 }
 
 /* Sends the whole buffer over tcp */
