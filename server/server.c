@@ -148,7 +148,7 @@ int server(char* port) {
 		game.sPlayers=NULL;
 		game.sObjects=NULL;
 		game.sAcks=NULL;
-		game.nPlayers = 1;
+		game.nPlayers = 0;
 		int tavut = -2;
 		while (1) {
 
@@ -242,6 +242,7 @@ int server(char* port) {
 										case NICK:
 											printf("Player inserted nick!\n");
 											printf("Nick: %s\n", packet.nick);
+                      printf("NICK ID: %d\n", packet.ID);
 											int nickStatus = -1;
 											nickStatus = checkNick(packet.nick, game.sPlayers);
 											/*printf("Nick status: %d\n", nickStatus);
@@ -256,7 +257,12 @@ int server(char* port) {
 
 												Player *p;
 												p = getPlayer(packet.ID, game.sPlayers);
-												memcpy(p->nick, packet.nick, 12);
+                        printf("SplayersID: %d\n", game.sPlayers->ID);
+                        if(game.sPlayers == NULL) printf("SPlayers == NULL\n");
+                        else printf("gameSplayers NJET NJET NJET NULL\n" );
+                        if(p == NULL) printf("Player on NULL\n");
+                        else printf("Player NJET NULL\n" );
+												memcpy(p->nick, packet.nick, 11);
 
 												/* add the tcp connection for this new player */
 												/* Actually no, let's not do it so we can have some fun */
@@ -332,6 +338,7 @@ int server(char* port) {
 							printf("PacketID: %d\n", packet.ID);
 							printf("msgType: %d\n", packet.msgType);
 							printf("subtype: %d\n", packet.subType);
+              printf("acktype: %d\n", packet.ACKTYPE);
 							/*************/
 						}
 						else{
@@ -377,7 +384,8 @@ int server(char* port) {
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
 					/* Send game update to everyone */
-					//sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+          printf("game update sent\n" );
 					}
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
@@ -446,7 +454,7 @@ int client(char* port, char *serverip)
       */
 
 			int index = 0;
-      uint16_t uid = 32;
+      uint16_t uid = 1;
       *(uint16_t*)&dgram[index] = htons(uid);
       index += sizeof(uint16_t);
       uint32_t gametime = 25;
@@ -462,34 +470,39 @@ int client(char* port, char *serverip)
 			*(uint8_t*)&dgram[index] = subtype;
 
 			/*END OF GAME_MESSAGE:JOIN*/
-
+      if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
+        perror("sendto()");
+        rval = -1;
+        break;
+      }
 
 			/*START OF GAME_MESSAGE:NICK*/
 
-			/*int index = 0;
-      uint16_t uid = 32;
-      *(uint16_t*)&dgram[index] = htons(uid);
+			/*int index = 0;*/
+      index = 0;
+      uint16_t ui = 1;
+      *(uint16_t*)&dgram[index] = htons(ui);
       index += sizeof(uint16_t);
 
-      uint32_t gametime = 25;
-      *(uint32_t*)&dgram[index] = htonl(gametime);
+      uint32_t gametim = 25;
+      *(uint32_t*)&dgram[index] = htonl(gametim);
       index += sizeof(uint32_t);
 
-			uint8_t msgtype = GAME_MESSAGE;
-      *(uint8_t*)&dgram[index] = msgtype;
+			uint8_t msgtyp = GAME_MESSAGE;
+      *(uint8_t*)&dgram[index] = msgtyp;
 			index += sizeof(uint8_t);
 
 			//uint32_t pllength = 23;
 			*(uint32_t*)&dgram[index] = htonl(gametime);
       index += sizeof(uint32_t);
 
-			uint8_t subtype = NICK;
-			*(uint8_t*)&dgram[index] = subtype;
+			uint8_t subtyp = NICK;
+			*(uint8_t*)&dgram[index] = subtyp;
 			index += sizeof(uint8_t);
 
 			char nicki[MAX_NICK] = "Testi";
 			memcpy(&dgram[index], nicki, MAX_NICK);
-      */
+
 
 
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
@@ -511,9 +524,10 @@ int client(char* port, char *serverip)
 				packet = unpackPacket(readbuf, iter->ai_addr, socketfd, iter->ai_addrlen);
 				printf("Packet msgType: %d\n", packet.msgType);
         printf("Packet acktype: %d\n", packet.ACKTYPE);
-        uint16_t playerid = 5;
+        /*uint16_t playerid = 5;
         playerid = ntohs(*(uint16_t*)&readbuf[17]);
-        printf("id: %d\n", playerid);
+        printf("id: %d\n", playerid);*/
+        printf("%d\n", ntohs(*(uint16_t*)&readbuf[17]));
     	}
 		}
   }
