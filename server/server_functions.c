@@ -145,6 +145,7 @@ void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength,
     memcpy(pAck->msg, msg, msgLength);
     pAck->msgLength = msgLength;
     pAck->packetID = packetID;
+		pAck->pNext = NULL;
 
     /* Add the ack to the start of the linked list */
     append2ListAck(pAckList,pAck);
@@ -172,10 +173,11 @@ void removeAck(Ack **pList, uint32_t ackID){
             else {
                 prev = p;
                 p = p->pNext;
-			}
-            prev->pNext = p->pNext;
-            free(p);
+						}
         }
+				prev->pNext = p->pNext;
+				free(p);
+				p = NULL;
     }
 }
 
