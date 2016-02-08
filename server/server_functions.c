@@ -161,14 +161,14 @@ void removeAck(Ack **pList, uint32_t ackID){
     Ack *p = *pList, *prev = NULL;
 
 		if (p==NULL) {return;}
-    else if (p->packetID == ackID){
+    else if (p->packetID == ackID){ // if first in list
         p = p->pNext;
         free(*pList);
         *pList = p;
     }
     else {
         while(p->packetID != ackID){
-            if(p->pNext == NULL) {
+            if(p == NULL) {
                 return;
             }
             else {
@@ -177,6 +177,7 @@ void removeAck(Ack **pList, uint32_t ackID){
 						}
         }
 				prev->pNext = p->pNext;
+
 				free(p);
 				p = NULL;
     }
