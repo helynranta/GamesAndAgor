@@ -13,14 +13,16 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
   /* uid */
   uint16_t uid = ntohs(*(uint16_t*)&buf[index]);
   index += sizeof(uint16_t);
-
+  printf("UNPACK uid: %d\n", uid);
   /* game time */
   uint32_t gameTime = ntohl(*(uint32_t*)&buf[index]);
   index += sizeof(uint32_t);
+  printf("UNPACK gametime: %d\n", gameTime);
 
   /* message type */
   uint8_t msgType = *(uint8_t*)&buf[index];
   index += sizeof(uint8_t);
+  printf("UNPACK: msgType: %d\n", msgType);
 
   /* payload length */
   //uint32_t payloadLength = ntohl(*(uint32_t*)&buf[index]);
@@ -128,11 +130,12 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
 
     default:
       printf("Unknown msg\n");
+      /* If we get here, error has occured */
+      packet.error=1;
+      return packet;
   }
 
-  /* If we get here, error has occured */
-  packet.error=1;
-  return packet;
+
 
 }
 

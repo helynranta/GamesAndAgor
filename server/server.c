@@ -195,6 +195,14 @@ int server(char* port) {
 							struct Packet packet;
 							packet = unpackPacket(recvbuffer, client_address, socketfd, addrlen);
 
+              /* Check for error */
+              if(packet.error == 1){
+                printf("Error in received packet\n");
+              }
+              printf("SERVERT.C - MEssage type: %d \n", packet.msgType);
+              printf("SERVER.C Subtype: %d \n", packet.subType);
+
+
 							switch (packet.msgType) {
 
 								// Game message packet
@@ -206,7 +214,7 @@ int server(char* port) {
 										case JOIN:
 
 											// Check if player already exists, if it does, send new ACK
-											tmpPlayerID = -1;
+											/*tmpPlayerID = -1;
 											tmpPlayerID = checkJoin(game.sPlayers, &packet.senderAddr);
 
 											if (tmpPlayerID != -1) {
@@ -222,7 +230,12 @@ int server(char* port) {
 												msgPacker(sendbuffer, &game, tmpPlayerID, ACK, JOIN, 0,1);
 												sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 
-											}
+											}*/
+                      newPlayer(&game.sPlayers, packet, game.nPlayers);
+                      msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
+                      tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+                      printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
+                      game.nPlayers++;
 
 											break;
 
@@ -250,6 +263,7 @@ int server(char* port) {
 											}
 											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
 											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+                      printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
 											break;
 
 										case EXIT:
