@@ -160,7 +160,8 @@ void append2ListAck(Ack **pList, Ack *pNew){
 void removeAck(Ack **pList, uint32_t ackID){
     Ack *p = *pList, *prev = NULL;
 
-    if (p->packetID == ackID){
+		if (p==NULL) {return;}
+    else if (p->packetID == ackID){
         p = p->pNext;
         free(*pList);
         *pList = p;
