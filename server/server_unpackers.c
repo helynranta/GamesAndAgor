@@ -42,10 +42,11 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
   /* Check msg type and fill the struct based on it */
   switch (msgType) {
     case GAME_MESSAGE:
+      printf("GAME_MESSAGE\n");
       packet.msgType = GAME_MESSAGE;
       subtype = *(uint8_t*)&buf[index];
       index += sizeof(uint8_t);
-      printf("In unpackers_ subtype: %d\n", subtype);
+      //printf("In unpackers_ subtype: %d\n", subtype);
 
       /* GAME msg subtypes */
       switch (subtype) {
@@ -69,13 +70,18 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       break;
 
     case ACK:
+      printf("ACK\n");
       packet.msgType = ACK;
       packet.ackID = ntohl(*(uint32_t*)&buf[index]);
       index += sizeof(uint32_t);
       packet.ACKTYPE = *(uint8_t*)&buf[index];
+      index += sizeof(uint8_t);
 
       switch (packet.ACKTYPE) {
         case JOIN:
+          printf("JOIN STATUS: %d\n", *(uint8_t*)&buf[index]);
+          index += sizeof(uint8_t);
+          printf("NICK ID: %d\n", ntohs(*(uint16_t*)&buf[index]));
         case NICK:
         case EXIT:
         case GAME_END:
@@ -134,7 +140,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       packet.error=1;
       return packet;
   }
-
+  return packet;
 
 
 }
