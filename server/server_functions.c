@@ -297,6 +297,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 			else if(msgSubType == JOIN)
 				break;
 			else{
+				printf("ADDING TO sAcks\n");
 				*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
 				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime);
 				break;
@@ -417,6 +418,7 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 
 	switch (msgSubType) {
 		case JOIN:
+			printf("PACKING ACK JOIN\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 
@@ -427,6 +429,7 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 
 			return ind;
 		case NICK:
+			printf("PACKING ACK NICK\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 			return ind;
