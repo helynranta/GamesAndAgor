@@ -168,7 +168,7 @@ void removeAck(Ack **pList, uint32_t ackID){
     }
     else {
         while(p->packetID != ackID){
-            if(p == NULL) {
+            if(p->pNext == NULL) {
                 return;
             }
             else {
