@@ -61,7 +61,7 @@ public:
 
         MessagesAck* ack = Engine::connection->getAck(GAME_MESSAGE_TYPE::JOIN);
         if(ack != nullptr) {
-            switch(static_cast<JoinAck*>(ack)->status) {
+            switch(static_cast<JoinAck*>(ack)->getStatus()) {
                 case 0: // negative
                     gui->getText("hint")->setText("connection refused");
                     gui->getInput("input")->show();
@@ -73,7 +73,6 @@ public:
                     Engine::connection->connectTCP();
                     Engine::connection->setID(static_cast<JoinAck*>(ack)->id);
                     break;
-                default: break;
             }
         }
         if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {

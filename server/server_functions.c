@@ -19,7 +19,7 @@ void gameInit(Game *pGame){
 void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 	Player *p1 = NULL, *p2 = NULL;
 	Near *temp = NULL;
-	Object *pObj = NULL, *pT = NULL, *pPrev = NULL, *pSObjects = *sObjects;
+	Object *pObj = *sObjects, *pT = NULL, *pPrev = NULL;
 
     int isIn = 0;
 	if (sPlayers==NULL){return;}
@@ -65,24 +65,31 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 		}
 
 		// Calculate distances to each object
-		for(pObj = pSObjects; pObj != NULL; pObj = pObj->pNext){
+		while(pObj != NULL){
 			isIn = isWithinRange(p1->location, pObj->location, p1->scale,OBJ_SIZE);
-			printf("%d\n", isIn);
 			if(isIn < 0){ // EAT OBJECT
 				pT = pObj;
-				pPrev->pNext = pObj->pNext;
-				pObj = pPrev;
+				if(pPrev == NULL){ // if first in the list
+					pObj = pObj->pNext;
+					*sObjects = pObj;
+				}
+				else{ // put previous' pNext to point to pObj's pNext
+					pPrev->pNext = pObj->pNext;
+					pObj = pPrev; // put pObj back to previous
+				}
 				eventEatObject(p1, &pT);
+				if(pObj == NULL){break;} // if we just ate the last fucker
+				continue;
 			}
 			else if (isIn > 0){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
-
 				temp->pParticle = pObj;
 				append2ListNear(&(p1->nearObjects), temp);
 				temp = NULL;
-				pPrev = pObj;
 			}
+			pPrev = pObj;
+			pObj = pObj->pNext; // UPDATE pObj
 		}
 	}
 }
@@ -90,30 +97,32 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 void eventEatObject(Player *pPla, Object **pObj){
 	pPla->scale += OBJ_SIZE;
 	pPla->points += OBJ_SIZE;
-	printf("eat\n");
 	free(*pObj);
 	*pObj = NULL;
 }
 
 int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 	uint32_t scale2){
-	uint16_t deltaX, deltaY;
-    float range = scale1/PLA_SIZE, eucl = 0;
+	long deltaX, deltaY;
+	long loc1[] = {(long)location1[0], (long)location1[1]};
+	long loc2[] = {(long)location2[0], (long)location2[1]};
+	long sca1 = (long)scale1;
+	long sca2 = (long)scale2;
 
+	float range = sca1/PLA_SIZE, eucl = 0;
 	float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
 
+
 	// RECTANGLE
-	deltaY = abs(location2[1] - location1[1]) - floor(scale2/2);
-	deltaX = abs(location2[0] - location1[0]) - floor(scale2/2);
+	deltaY = abs(loc1[1] - loc2[1] - floor(sca2/2));
+	deltaX = abs(loc1[0] - loc2[0] - floor(sca2/2));
 
-	// printf("%s\n", );
+	/* Euclidean distance */
+    eucl = sqrt(pow(deltaX,2) + pow(deltaY,2));
 
-    /* Euclidean distance */
-    eucl = sqrt(pow(location2[1] - location1[1],2) + pow(location2[0] - location1[0],2));
-
-    if (eucl <  scale1 && scale1 > scale2)
+	if (eucl <  sca1 && sca1 > sca2)
         return -1;
-    else if (eucl < scale2 && scale1 > scale2)
+    else if (eucl < sca2 && sca1 > sca2)
         return -2;
     else if (deltaX < rangeX && deltaY < rangeY)
 		return 1;

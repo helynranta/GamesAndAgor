@@ -21,25 +21,31 @@ public:
         gui->getInput("nick")->setX(Engine::camera->getWidth()/2.0f-200)->setY(Engine::camera->getHeight()/2.0f+30);
     }
     inline void update(float dt) {
-        if(Engine::input->isKeyPressed(SDLK_RETURN)) {
+
+        if(Engine::input->isKeyPressed(SDLK_RETURN) && (gui->getInput("nick")->getText()).size()) {
             gui->getText("hint")->setText("Checking username availability");
             gui->getInput("nick")->hide();
             // put here if connect returns true
-            // Engine::connection->sendUDP(GAME_MESSAGE_TYPE::NICK, gui->getText("hint")->getText());
+            uint8_t nickbuffer[BUFFER_SIZE];
+            Nick* nick = new Nick(Engine::connection->createHeader(), "Oskari");
+            int messageLength = nick->PackSelf(nickbuffer);
+            Engine::connection->send(nickbuffer, messageLength);
         }
-        /*
-        switch(Engine::connection->getAck(GAME_MESSAGE_TYPE::NICK)) {
-            case -1: break; // not acked yet
-            case 0: // negative
-                gui->getText("hint")->setText("This nick is already in use, choose another one");
-                gui->getInput("nick")->show();
-                break;
-            case 1: // positive
-                Engine::startScene("Game");
-                break;
-            default: break;
+        
+        MessagesAck* ack = Engine::connection->getAck(GAME_MESSAGE_TYPE::NICK);
+        if(ack != nullptr) {
+            cout << "lol" << endl;
+            switch(static_cast<NickAck*>(ack)->getStatus()) {
+                case 0: // negative
+                    gui->getText("hint")->setText("This nick is already in use, choose another one");
+                    gui->getInput("nick")->show();
+                    break;
+                case 1: // positive
+                    Engine::startScene("Game");
+                    break;
+                default: break;
+            }
         }
-        */
     }
     inline void end() {}
     inline void draw() {}
