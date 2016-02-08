@@ -148,7 +148,7 @@ int server(char* port) {
 		game.sPlayers=NULL;
 		game.sObjects=NULL;
 		game.sAcks=NULL;
-		game.nPlayers = 0;
+		game.nPlayers = 1;
 		int tavut = -2;
 		while (1) {
 
@@ -195,6 +195,14 @@ int server(char* port) {
 							struct Packet packet;
 							packet = unpackPacket(recvbuffer, client_address, socketfd, addrlen);
 
+              /* Check for error */
+              if(packet.error == 1){
+                printf("Error in received packet\n");
+              }
+              printf("SERVERT.C - MEssage type: %d \n", packet.msgType);
+              printf("SERVER.C Subtype: %d \n", packet.subType);
+
+
 							switch (packet.msgType) {
 
 								// Game message packet
@@ -206,7 +214,7 @@ int server(char* port) {
 										case JOIN:
 
 											// Check if player already exists, if it does, send new ACK
-											tmpPlayerID = -1;
+											/*tmpPlayerID = -1;
 											tmpPlayerID = checkJoin(game.sPlayers, &packet.senderAddr);
 
 											if (tmpPlayerID != -1) {
@@ -222,7 +230,12 @@ int server(char* port) {
 												msgPacker(sendbuffer, &game, tmpPlayerID, ACK, JOIN, 0,1);
 												sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 
-											}
+											}*/
+                      newPlayer(&game.sPlayers, packet, game.nPlayers);
+                      msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
+                      tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+                      printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
+                      game.nPlayers++;
 
 											break;
 
@@ -250,6 +263,7 @@ int server(char* port) {
 											}
 											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
 											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+                      printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
 											break;
 
 										case EXIT:
@@ -363,7 +377,7 @@ int server(char* port) {
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
 					/* Send game update to everyone */
-					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+					//sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
 					}
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
@@ -394,6 +408,123 @@ int server(char* port) {
   return 0;
 }
 
+int client(char* port, char *serverip)
+{
+  int socketfd = -1, length = 0, rval = 0;
+  char dgram[SIZE];
+	char readbuf[SIZE];
+
+  struct addrinfo hints = { .ai_flags = AI_NUMERICHOST|AI_NUMERICSERV,
+                            .ai_family = PF_UNSPEC,
+                            .ai_socktype = SOCK_DGRAM,
+                            .ai_protocol = IPPROTO_UDP};
+
+  struct addrinfo *result = NULL, *iter = NULL;
+
+  memset(&dgram,1,SIZE);
+	memset(&readbuf,1,SIZE);
+
+  printf("| - - - - - C L I E N T - - - - - |\n");
+
+  /* Why only IP address works ? */
+  if(getaddrinfo(serverip,port,&hints,&result) < 0) perror("Cannot resolve address");
+  else {
+    // Go through every returned address and attempt to connect to each
+    for (iter = result; iter != NULL; iter = iter->ai_next) {
+
+      /* Can socket be created? */
+      if ((socketfd = socket(iter->ai_family, iter->ai_socktype,iter->ai_protocol)) < 0) {
+        perror("socket()");
+        rval = -1;
+        break;
+      }
+
+      /* Try to send data to server:
+      * sendto(socket, data , data length, flags, destination, struct length)
+      * see 'man sendto'
+			GAME_MESSAGE:JOIN  packet
+      */
+
+			int index = 0;
+      uint16_t uid = 32;
+      *(uint16_t*)&dgram[index] = htons(uid);
+      index += sizeof(uint16_t);
+      uint32_t gametime = 25;
+      uint8_t msgtype = GAME_MESSAGE;
+      *(uint32_t*)&dgram[index] = htonl(gametime);
+      index += sizeof(uint32_t);
+      *(uint8_t*)&dgram[index] = msgtype;
+			index += sizeof(uint8_t);
+			uint32_t pllength = 23;
+			*(uint32_t*)&dgram[index] = htonl(gametime);
+      index += sizeof(uint32_t);
+			uint8_t subtype = JOIN;
+			*(uint8_t*)&dgram[index] = subtype;
+
+			/*END OF GAME_MESSAGE:JOIN*/
+
+
+			/*START OF GAME_MESSAGE:NICK*/
+
+			/*int index = 0;
+      uint16_t uid = 32;
+      *(uint16_t*)&dgram[index] = htons(uid);
+      index += sizeof(uint16_t);
+
+      uint32_t gametime = 25;
+      *(uint32_t*)&dgram[index] = htonl(gametime);
+      index += sizeof(uint32_t);
+
+			uint8_t msgtype = GAME_MESSAGE;
+      *(uint8_t*)&dgram[index] = msgtype;
+			index += sizeof(uint8_t);
+
+			//uint32_t pllength = 23;
+			*(uint32_t*)&dgram[index] = htonl(gametime);
+      index += sizeof(uint32_t);
+
+			uint8_t subtype = NICK;
+			*(uint8_t*)&dgram[index] = subtype;
+			index += sizeof(uint8_t);
+
+			char nicki[MAX_NICK] = "Testi";
+			memcpy(&dgram[index], nicki, MAX_NICK);
+      */
+
+
+      if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
+        perror("sendto()");
+        rval = -1;
+        break;
+      }
+      else printf("Client: Sent datagram length = %d\n", length);
+			while(1){
+				printf("%s\n", "Pitäis receavata!\n");
+				int readlength = -1;
+				/* Get Join Ack*/
+				if((readlength = recvfrom(socketfd, &readbuf,SIZE,0,iter->ai_addr, &iter->ai_addrlen)) <= 0){
+					printf("%s\n", "Nada");
+				}
+				else
+					printf("tuli %d tavua perille\n", readlength);
+				struct Packet packet;
+				packet = unpackPacket(readbuf, iter->ai_addr, socketfd, iter->ai_addrlen);
+				printf("Packet msgType: %d\n", packet.msgType);
+        printf("Packet acktype: %d\n", packet.ACKTYPE);
+        uint16_t playerid = 5;
+        playerid = ntohs(*(uint16_t*)&readbuf[17]);
+        printf("id: %d\n", playerid);
+    	}
+		}
+  }
+
+  freeaddrinfo(result);
+
+  close(socketfd); /* REMEMBER ME! */
+
+  return rval;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -410,7 +541,12 @@ int main(int argc, char *argv[])
   /* client */
   else if (argc == 3)
   {
-
+    if (client(argv[1],argv[2]) == 0) printf("Client: exited with success\n");
+    else
+    {
+      printf("Errors with client\n");
+      return -1;
+    }
   }
   /* error */
   else
