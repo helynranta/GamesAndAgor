@@ -39,11 +39,6 @@ bool InetConnection::sendChatMessage(const string& message) {
 }
 
 bool InetConnection::send(uint8_t * message, int size) {
-	/* Try to send data to server:
-	 * sendto(socket, data , data length, flags, destination, struct length)
-	 * see 'man sendto'
-	 */
-
 	 struct addrinfo * server_addrinfo = nullptr;
 	 if (getaddrinfo(ip.c_str(), portUDP.c_str(), &hints, &server_addrinfo) < 0) {
 	 	std::cout << "Cannot resolve address: " << strerror(errno) << std::endl;
@@ -168,10 +163,11 @@ bool InetConnection::disconnect() {
 	m_state = ConnectionState::DISCONNECTED;
 	return true;
 }
-void InetConnection::update() {
+int InetConnection::update() {
+	int dataProsessed = false;
 	checkTCPConnection();
-	checkUDPConnections();
-	return;
+	dataProsessed = checkUDPConnections();
+	return dataProsessed;
 }
 int InetConnection::checkTCPConnection() {
 // if connecting tcp
@@ -260,11 +256,11 @@ void InetConnection::UnpackGameMessageSubType(Message* unpackedMessage) {
 void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 	switch (dynamic_cast<MessagesAck*>(unpackedMessage)->getGameMessageType()) {
 	case GAME_MESSAGE_TYPE::JOIN:
-		//						std::cout << "============== GOT JOIN ACK ==============" << std::endl;
+//		std::cout << "============== GOT JOIN ACK ==============" << std::endl;
 		messageInbox.push_back(dynamic_cast<JoinAck*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::NICK:
-		//						std::cout << "==============  GOT NICK ACK ==============" << std::endl;
+//		std::cout << "==============  GOT NICK ACK ==============" << std::endl;
 		messageInbox.push_back(dynamic_cast<NickAck*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::GAME_UPDATE:
@@ -302,7 +298,8 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
-	timeout.tv_usec = 100; // microseconds
+//	timeout.tv_usec = 25000; // microseconds
+	timeout.tv_usec = 1000000; // microseconds
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 	// Add listening socket to the set and check if it is the biggest socket number
@@ -311,36 +308,45 @@ int InetConnection::checkUDPConnections() {
 	switch (select(socketudp + 1, &socket_fds, NULL, NULL, &timeout)) {
 		case -1:
 			std::cout << strerror(errno) << std::endl;
-			break;
+			return false;
 		case 0:
-			break;
+			std::cout << "UDP timeout"	 << std::endl;
+			return false;
 		default:
 			struct MessageHeader *header = static_cast<struct MessageHeader*>(malloc(sizeof(struct MessageHeader)));
 			uint8_t payloadBuffer[BUFFER_SIZE];
 			if (FD_ISSET(socketudp, &socket_fds)) {
 				Message::UnpackHeader(socketudp, header, payloadBuffer);
 				unpackedMessage = MessageFactory::getInstance().getMessageByType(header, payloadBuffer);
+				break;
 			}
-			break;
+			return false;
 	}
+
 	if(unpackedMessage != nullptr) {
 		switch (unpackedMessage->getMessageType()) {
 			case MESSAGE_TYPE::GAME_MESSAGE:
 				UnpackGameMessageSubType(unpackedMessage);
-				break;
-			case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE: return false;
-			case MESSAGE_TYPE::PLAYER_MOVEMENT: return false;
+				return true;
+			case MESSAGE_TYPE::PLAYER_CHAT_MESSAGE:
+				return false;
+			case MESSAGE_TYPE::PLAYER_MOVEMENT:
+				return false;
 			case MESSAGE_TYPE::ACK:
 				UnpackAckMessageSubtype(unpackedMessage);
-				break;
-			case MESSAGE_TYPE::STATISTICS_MESSAGE: return false;
-			default: return false;
+				return true;
+			case MESSAGE_TYPE::STATISTICS_MESSAGE:
+				return false;
+			default:
+				return false;
 			}
 	}
-	return true;
+	return false;
 }
 vector<MessagesAck*> InetConnection::getAcks() {
 	vector<MessagesAck*> lmessages;
+	std::cout << "ACK_MESSAGES_SIZE: " << messageInbox.size() << std::endl;
+
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
 			lmessages.push_back(static_cast<MessagesAck*>(messageInbox[it]));
@@ -351,6 +357,19 @@ vector<MessagesAck*> InetConnection::getAcks() {
 
 	return lmessages;
 }
+
+vector<GameMessage*> InetConnection::getGameMessages() {
+	vector<GameMessage*> lmessages;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
+			lmessages.push_back(static_cast<GameMessage*>(messageInbox[it]));
+			messageInbox[it] = messageInbox.back();
+			messageInbox.pop_back();
+		}
+	}
+	return lmessages;
+}
+
 MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
 	vector<MessagesAck*> msgs;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {

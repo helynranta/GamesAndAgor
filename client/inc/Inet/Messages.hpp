@@ -61,7 +61,7 @@ inline void PackUINT16ToPayload(uint16_t variableToPack, uint8_t * payload, int 
 
 inline void PackUINT8ToPayload(uint8_t variableToPack, uint8_t * payload, int bufferPosition) {
 	memcpy(&payload[bufferPosition], &variableToPack, sizeof(uint8_t));
-	// std::cout << "Location pointer: " << bufferPosition << std::endl;
+//	 std::cout << "Location pointer: " << bufferPosition << std::endl;
 }
 
 inline uint8_t * CreateGameMessageACKHeader(uint32_t packetID, GAME_MESSAGE_TYPE type) {
@@ -209,6 +209,10 @@ class Nick : public GameMessage {
 
 		static Nick * Unpack(MessageHeader, uint32_t, uint8_t*);
 
+		inline std::string getNickname(){
+			return std::string(nick);
+		};
+
 		inline static uint32_t sizeOfNick(){
 			return 12;
 		};
@@ -330,6 +334,23 @@ class GameUpdate: public GameMessage {
 		int PackSelf(uint8_t * payload);
 
 		static GameUpdate * Unpack(MessageHeader, uint32_t, uint8_t*);
+
+		inline uint16_t getPosX(){ return pos_x; };
+
+		inline uint16_t getPosY(){ return pos_y; };
+
+		inline uint16_t getDirX(){ return dir_x; };
+
+		inline uint16_t getDirY(){ return dir_y; };
+
+		inline uint8_t getNumberOfPlayers() {
+			return number_of_players;
+		};
+
+		inline uint16_t getNumberOfObjects() {
+			return number_of_objects;
+		};
+
 	private:
 		uint16_t pos_x;
 		uint16_t pos_y;

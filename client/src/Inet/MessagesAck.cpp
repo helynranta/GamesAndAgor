@@ -20,13 +20,13 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	uint32_t packetID;
 	memcpy(&packetID, &payload[readByteCount], sizeof(uint32_t));
 	packetID = ntohl(packetID);
-//	std::cout << "MessageAck.cpp: Packet_ID: " << packetID << std::endl;
+	std::cout << "MessageAck.cpp: Packet_ID: " << packetID << std::endl;
 	readByteCount += sizeof(uint32_t);
 
 	// Unpack MSG_SUBTYPE (UINT_8)
 	uint8_t messageSubtype;
-	memcpy(&messageSubtype, payload, sizeof(uint8_t));
-//	std::cout << "MessageAck.cpp: Message subtype " << getSubMessageTypeAsString(messageSubtype) << std::endl;
+	memcpy(&messageSubtype, &payload[readByteCount], sizeof(uint8_t));
+	std::cout << "MessageAck.cpp: Message subtype " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 	readByteCount += sizeof(uint8_t);
 
 	// Copy rest of the payload to new variable and pass it to next Unpacker
