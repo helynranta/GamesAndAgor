@@ -264,7 +264,7 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
 }
 
 
-int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, int msgSubType, uint16_t outPlayerID, int status){
+int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status){
 	/* toPlayerID: to Which player (ID) the message is
 	 * outPlayerID: ID of a player which is either OUT or DEAD
 	 * (otherwise, set to e.g. 0)
@@ -325,7 +325,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 	return PLIND+plLength;
 }
 
-int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, uint16_t outPlayerID){
+int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
 
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
 	Near *pNear = NULL;

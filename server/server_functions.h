@@ -42,8 +42,8 @@ int sendAllTCP(int socket, char *buf, int *length);
 void resendMsg(int socket, socklen_t addrlen, Ack **ackList,Player *players);
 
 /* PACKING FUNCTIONS */
-int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, int msgSubType, uint16_t outPlayerID, int status);
-int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, uint16_t outPlayerID);
+int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status);
+int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID);
 int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, int status);
 int statPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType);
 Player *getPlayer(uint16_t playerID, Player *pPlayer);

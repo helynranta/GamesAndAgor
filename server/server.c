@@ -243,7 +243,7 @@ int server(char* port) {
 										case NICK:
 											printf("Player inserted nick!\n");
 											printf("Nick: %s\n", packet.nick);
-                      printf("NICK ID: %d\n", packet.ID);
+                      printf("NICK PAcket ID: %d\n", packet.ID);
 											int nickStatus = -1;
 											nickStatus = checkNick(packet.nick, game.sPlayers);
 											/*printf("Nick status: %d\n", nickStatus);
@@ -303,6 +303,16 @@ int server(char* port) {
 								// Ack packet
 								case ACK:
 									printf("Ack packet received!\n");
+                  /* When Player has sent ACK::NICK, then player can receive
+                     game updates */
+                  if(packet.ACKTYPE == NICK) {
+                    Player *p = getPlayer(packet.ID, game.sPlayers);
+                    if(p == NULL) {
+                      printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
+                      break;
+                    }
+                    p->state = ALIVE;
+                  }
 									/* Handle ack */
 									/* remove ack from server's own ack list */
 									removeAck(&game.sAcks, packet.ackID);
@@ -385,8 +395,8 @@ int server(char* port) {
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
 					/* Send game update to everyone */
-					//sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
-          //printf("game update sent\n" );
+					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+          printf("game update sent\n" );
 
           /* Resend lost msgs */
           //resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
