@@ -232,10 +232,11 @@ int server(char* port) {
 
 											}*/
                       newPlayer(&game.sPlayers, packet, game.nPlayers);
+                      game.nPlayers++;
                       msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
                       tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
                       printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
-                      game.nPlayers++;
+
 
 											break;
 
@@ -384,8 +385,8 @@ int server(char* port) {
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
 					/* Send game update to everyone */
-					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
-          printf("game update sent\n" );
+					//sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+          //printf("game update sent\n" );
 					}
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
@@ -524,6 +525,7 @@ int client(char* port, char *serverip)
 				packet = unpackPacket(readbuf, iter->ai_addr, socketfd, iter->ai_addrlen);
 				printf("Packet msgType: %d\n", packet.msgType);
         printf("Packet acktype: %d\n", packet.ACKTYPE);
+        printf("Packet uid: %d\n", packet.ID);
         /*uint16_t playerid = 5;
         playerid = ntohs(*(uint16_t*)&readbuf[17]);
         printf("id: %d\n", playerid);*/
