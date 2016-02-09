@@ -387,6 +387,9 @@ int server(char* port) {
 					/* Send game update to everyone */
 					//sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
           //printf("game update sent\n" );
+
+          /* Resend lost msgs */
+          resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
 					}
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
