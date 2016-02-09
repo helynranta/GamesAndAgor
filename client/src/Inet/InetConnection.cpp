@@ -323,6 +323,7 @@ int InetConnection::checkUDPConnections() {
 			return false;
 	}
 
+
 	if(unpackedMessage != nullptr) {
 		switch (unpackedMessage->getMessageType()) {
 			case MESSAGE_TYPE::GAME_MESSAGE:
@@ -345,7 +346,7 @@ int InetConnection::checkUDPConnections() {
 }
 vector<MessagesAck*> InetConnection::getAcks() {
 	vector<MessagesAck*> lmessages;
-	std::cout << "ACK_MESSAGES_SIZE: " << messageInbox.size() << std::endl;
+//	std::cout << "ACK_MESSAGES_SIZE: " << messageInbox.size() << std::endl;
 
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
@@ -365,6 +366,20 @@ vector<GameMessage*> InetConnection::getGameMessages() {
 			lmessages.push_back(static_cast<GameMessage*>(messageInbox[it]));
 			messageInbox[it] = messageInbox.back();
 			messageInbox.pop_back();
+		}
+	}
+	return lmessages;
+}
+
+vector<GameUpdate*> InetConnection::getGameUpdateMessages() {
+	vector<GameUpdate*> lmessages;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
+			if(static_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::GAME_UPDATE){
+				lmessages.push_back(static_cast<GameUpdate*>(messageInbox[it]));
+				messageInbox[it] = messageInbox.back();
+				messageInbox.pop_back();
+			}
 		}
 	}
 	return lmessages;

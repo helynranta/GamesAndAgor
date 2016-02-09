@@ -71,7 +71,7 @@ public:
                     gui->getInput("input")->hide();
                     Engine::connection->setState(ConnectionState::CONNECTED);
                     Engine::connection->connectTCP();
-                    Engine::connection->setID(static_cast<JoinAck*>(ack)->id);
+                    Engine::connection->setID(static_cast<JoinAck*>(ack)->getUserID());
                     break;
             }
         }

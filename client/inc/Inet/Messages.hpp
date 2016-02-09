@@ -98,7 +98,7 @@ class Message: public IMessage {
 		// Constructors & Destructor
 		inline Message(MessageHeader header, MESSAGE_TYPE pMessageType) {
 			gameTime = header.gameTime;
-			userID = header.user_id;
+			messageHeaderUserID = header.user_id;
 			messageType = pMessageType;
 		};
 
@@ -117,8 +117,8 @@ class Message: public IMessage {
 			return gameTime;
 		};
 
-		inline uint32_t getUserID() const {
-			return userID;
+		inline uint32_t getMessageHeaderUserID() const {
+			return messageHeaderUserID;
 		};
 
 		inline uint32_t getPayloadSize() const {
@@ -142,7 +142,7 @@ class Message: public IMessage {
 
 	protected:
 		uint32_t gameTime;
-		uint32_t userID;
+		uint32_t messageHeaderUserID;
 		uint32_t payloadSize = 0;
 		MESSAGE_TYPE messageType;
 		static const uint32_t headerSize = 11;
