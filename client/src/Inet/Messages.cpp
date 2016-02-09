@@ -19,13 +19,13 @@ Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payl
 		message = GameMessage::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::ACK:
-/*		std::cout << " ================== HEADER INFO ================== "<< std::endl;
-		std::cout << "GameTime: " << header->gameTime << std::endl;
-		std::cout << "UserID: " << header->user_id << std::endl;
-		std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
-		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
-		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
-*/
+//		std::cout << " ================== HEADER INFO ================== "<< std::endl;
+//		std::cout << "GameTime: " << header->gameTime << std::endl;
+//		std::cout << "UserID: " << header->user_id << std::endl;
+//		std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
+//		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
+//		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
+
 		message = MessagesAck::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::PLAYER_MOVEMENT:
@@ -46,6 +46,7 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t*
 	int bufferPosition = 0;
 	uint8_t socketByteBuffer[BUFFER_SIZE];
 	memset(socketByteBuffer, 0, sizeof(struct MessageHeader));
+	memset(socketByteBuffer, 0, BUFFER_SIZE);
 	header->addrlen = sizeof(header->sender_addr);
 
 	int bytesRead = recvfrom(socket_fd, socketByteBuffer, BUFFER_SIZE, 0, reinterpret_cast<struct sockaddr*>(&header->sender_addr), &header->addrlen);
@@ -57,7 +58,7 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t*
 		bufferPosition += sizeof(uint16_t);
 
 		// Unpack GAME_TIME (UINT_32)
-		header->gameTime = UnpackUINT16_T(socketByteBuffer, bufferPosition);
+		header->gameTime = UnpackUINT32_T(socketByteBuffer, bufferPosition);
 //		std::cout << "Message.cpp: GAME TIME: " << header->gameTime << std::endl;
 		bufferPosition += sizeof(uint32_t);
 
@@ -201,16 +202,16 @@ Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 }
 
 int Nick::PackSelf(uint8_t * payload) {
-	std::cout << "Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(getGameMessageType()) << std::endl;
 	int bufferPosition = getHeaderSize();
 
 	// insert MSG_SUBTYPE to buffer
-//	std::cout << "GameMessageType: " << getGameMessageType() << std::endl;
+	std::cout << "Nick - GameMessageType: " << unsigned(getGameMessageType()) << std::endl;
 	PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint8_t));
 
 	// insert NICK to buffer
-	memcpy(payload, nick, sizeOfNick());
+	memcpy(payload + bufferPosition, nick, sizeOfNick());
 	bufferPosition += addPayloadSize(sizeOfNick());
 
 	CreateHeader(this, payload);

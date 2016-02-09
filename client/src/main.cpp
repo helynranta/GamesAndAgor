@@ -19,6 +19,7 @@ void TestMessagesLoop() {
 
 	InetConnection * connection = new InetConnection();
 	connection->init();
+	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
 	MessageHeader dummyGameMessageHeader;
 	dummyGameMessageHeader.user_id = 0;
