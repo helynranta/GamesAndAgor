@@ -283,7 +283,8 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 	memset(msgBuffer,'\0',BUFFERSIZE);
 
 	/* HEADER */
-	*(uint16_t*)&msgBuffer[ind] = 0;
+	/* Switched the USER_ID to be the ID of the player, because communication problems */
+	*(uint16_t*)&msgBuffer[ind] = toPlayerID;
 	ind += sizeof(uint16_t);
 	*(uint32_t*)&msgBuffer[ind] = htonl(pGame->gameTime);
 	ind += sizeof(uint32_t);
