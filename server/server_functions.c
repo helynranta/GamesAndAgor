@@ -137,7 +137,7 @@ void eventEatPlayer(Player *eater, Player *eaten){
 }
 
 void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength,
-	uint32_t packetID){
+	uint32_t packetID, uint16_t toPlayerID){
     Ack *pAck = NULL;
     if ((pAck = calloc(1, sizeof(Ack))) == NULL) { perror("calloc"); }
 
@@ -145,6 +145,7 @@ void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength,
     memcpy(pAck->msg, msg, msgLength);
     pAck->msgLength = msgLength;
     pAck->packetID = packetID;
+		pAck->toPlayerID = toPlayerID;
 		pAck->pNext = NULL;
 
     /* Add the ack to the start of the linked list */
@@ -303,7 +304,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 			else{
 				printf("ADDING TO sAcks\n");
 				*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
-				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime);
+				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime, toPlayerID);
 				break;
 			}
 	    case STATISTICS_MESSAGE:
@@ -512,6 +513,24 @@ int checkNick(char *nick,Player *pPlayer){
 		tmp = tmp->pNext;
 	}
 	return 1;
+}
+
+/* Function for resending unacked messages */
+/* line 139 ack for help */
+void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
+	Ack *ack = *ackList;
+	Player *p = NULL;
+
+	while(ack != NULL) {
+		p = getPlayer(ack->toPlayerID, players);
+
+		if(p == NULL) {
+			printf("\n\n\nCouldn't find the player to whom the msg should be resent\n\n\n");
+			continue;
+		}
+		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
+		ack = ack->pNext;
+	}
 }
 
 // get sockaddr, IPv4 or IPv6:
