@@ -163,14 +163,16 @@ bool InetConnection::connectUDP() {
 bool InetConnection::disconnect() {
 	if (res == nullptr)
 		freeaddrinfo(res);
-	if(sockettcp != 0) close(sockettcp);
-	if(socketudp != 0) close(socketudp);
+	
+	close(sockettcp);
+	close(socketudp);
 	
 	sockettcp = 0;
 	sockettcp = 0; 
 
 	m_state = ConnectionState::DISCONNECTED;
 	tcpsocketstatus = false;
+
 	cout << "disconnect has been successfull" << endl;
 	return true;
 }
@@ -309,8 +311,10 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
+	timeout.tv_usec = 100; // microseconds
+#ifdef MESG_TEST
 	timeout.tv_usec = 25000; // microseconds
-//	timeout.tv_usec = 500; // microseconds
+#endif
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 	// Add listening socket to the set and check if it is the biggest socket number
