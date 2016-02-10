@@ -18,7 +18,6 @@ InetConnection::InetConnection() {
 void InetConnection::init(void) {
 }
 void InetConnection::destroy(void) {
-	close(socketudp);
 	// delete messages behind pointers
 	for (auto& it : messages) {
 		delete it;
@@ -60,7 +59,8 @@ void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
 //m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
 void InetConnection::sendTCP(const string& msg) {
-	if(::send(sockettcp, msg.c_str(), sizeof(msg.c_str()), 0)<0) {
+	const char* m = (string(Engine::getNick() + ": " + msg)).c_str();
+	if(::send(sockettcp, m, sizeof(m), 0)<0) {
 		cerr << strerror(errno) << endl;
 	}
 }
@@ -162,11 +162,6 @@ bool InetConnection::disconnect() {
 	if (res == nullptr)
 		freeaddrinfo(res);
 
-	close(sockettcp);
-	close(socketudp);
-
-	sockettcp = 0;
-	sockettcp = 0;
 
 	m_state = ConnectionState::DISCONNECTED;
 	tcpsocketstatus = false;
@@ -183,7 +178,7 @@ int InetConnection::update() {
 int InetConnection::checkTCPConnection() {
 // if connecting tcp
 	char buffer[BUFFER_SIZE];
-	memset(buffer, '0', BUFFER_SIZE);
+	memset(buffer, '\0', BUFFER_SIZE);
 	if(m_state == ConnectionState::DISCONNECTED) return 0;
 
 	FD_ZERO(&socket_fds);
@@ -200,30 +195,21 @@ int InetConnection::checkTCPConnection() {
 		memset(&timeout, 0, sizeof(timeout));
 		timeout.tv_usec = 250;
 		timeout.tv_sec = 0;
-		switch(select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout)) {
-			case -1:
-				cerr << strerror(errno) << endl;
-				disconnect();
-			case 0:
-				break;
-			default:
-				cout << "?" << endl;
-				if (FD_ISSET(sockettcp, &socket_fds)) {
-					recv(sockettcp, buffer, sizeof(buffer), 0);
-					if(strlen(buffer) > 0) {
-						tcpsocketstatus = true;
-						cout << buffer << endl;
-						chatmessage.push_back(string(buffer));
-					}
+		int res;
+		if((res = select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout))<0) {
+			cerr << strerror(errno) << endl;
+			disconnect();
+			return false;
+		} else {
+			if (FD_ISSET(sockettcp, &socket_fds)) {
+				recv(sockettcp, buffer, sizeof(buffer), 0);
+				if(strlen(buffer) > 0) {
+					tcpsocketstatus = true;
+					chatmessage.push_back(string(buffer));
 				}
-				break;
+			}
 		}
-	} else {
-		cerr << strerror(errno) << endl;
-		disconnect();
-		return false;
 	}
-
 	return true;
 }
 
@@ -328,7 +314,6 @@ int InetConnection::checkUDPConnections() {
 			disconnect();
 			return false;
 		case 0:
-//			std::cout << "UDP timeout" << std::endl;
 			return false;
 		default:
 			struct MessageHeader *header = static_cast<struct MessageHeader*>(malloc(sizeof(struct MessageHeader)));
@@ -369,7 +354,6 @@ int InetConnection::checkUDPConnections() {
 }
 vector<MessagesAck*> InetConnection::getAcks() {
 	vector<MessagesAck*> lmessages;
-//	std::cout << "ACK_MESSAGES_SIZE: " << messageInbox.size() << std::endl;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
 			lmessages.push_back(static_cast<MessagesAck*>(messageInbox[it]));
@@ -437,7 +421,10 @@ MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
 }
 
 vector<string> InetConnection::getChatMessages() {
-	vector<string> ret = chatmessage;
+	vector<string> ret;
+	for(auto& it : chatmessage) {
+		ret.push_back(it);
+	}
 	chatmessage.clear();
 	return ret;
 }

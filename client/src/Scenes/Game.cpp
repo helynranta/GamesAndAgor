@@ -67,7 +67,8 @@ void Game::update(float dt) {
         Engine::input->getchar();
     }
     m_player.setTakeInput(!chat->isActive());
-    static vector<string> messages = Engine::connection->getChatMessages();
+
+    vector<string> messages = Engine::connection->getChatMessages();
     if(messages.size() > 0) {
         for(auto& msg : messages) {
             chat->addLog(msg);

@@ -628,17 +628,19 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	int total = 0;
 	int bytesleft = *length;
 
-	int sent;
+	int sent = 0;
 	printf("Sending over TCP: %s\n", buf);
+
 	/* Keep on sending while there's stuff to send */
-	while (total < *length) {
+	/*while (total < *length) {
 		sent = send(socket, buf+total, bytesleft, 0);
 		if(sent == -1) break;
 		total += sent;
 		bytesleft -= sent;
-	}
+		printf("?");
+	}*/
 
-	*length = total;
-
-	return sent == -1?-1:0; /* -1 on failure, 0 OK */
+	//*length = total; // tämä kaikki ei
+	send(socket, buf, 1024 , 0); // tämä toimii
+	return 0; /* -1 on failure, 0 OK */
 }

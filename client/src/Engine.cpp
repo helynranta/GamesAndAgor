@@ -18,7 +18,7 @@ Window* Engine::window = nullptr;
 //debug
 unsigned int Engine::debugKey = SDLK_o;
 bool Engine::debugging = false;
-
+string Engine::nick = "";
 Engine::Engine() {
 	connection = new InetConnection();
 	camera = new Camera();
@@ -40,7 +40,7 @@ Engine::~Engine() {
 	connection->disconnect();
 	connection->destroy();
 	window->destroy();
-	
+
 	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();

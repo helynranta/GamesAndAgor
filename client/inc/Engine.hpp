@@ -59,6 +59,7 @@ private:
     // vector of lambda functions
     static map<int, function<void()>> _functions;
     static void invokeTimeout();
+    static string nick;
 protected:
     /* protected data */
     static map<string, Scene*> m_scenes;
@@ -83,6 +84,8 @@ public:
     static ResourceManager* R;
     static InputManager* input;
     static Window* window;
+    static const string& getNick() { return nick; }
+    static const void setNick(const string& n) { nick = n; }
     static inline void setTimeout(int _ms, function<void()> function) {
         _functions.insert({SDL_GetTicks()+_ms, function});
     }

@@ -29,7 +29,7 @@ public:
     inline void update(float dt) override {
         ConnectionState cstate = Engine::connection->getState();
         int tcpstatus = Engine::connection->getTCPStatus();
-        if(Engine::input->isKeyPressed(SDLK_d)) {
+        if(Engine::input->isKeyPressed(SDLK_d) && cstate != ConnectionState::CONNECTING) {
             Engine::input->getchar();
             Engine::connection->disconnect();
             gui->getText("hint")->setText("Enter server IP address");
@@ -39,7 +39,7 @@ public:
             // show right text
             gui->getText("hint")->setText("Trying to connect to server... press d to return");
             gui->getInput("input")->hide();
-            
+
             string newIP = gui->getInput("input")->getText();
             if(newIP == "" || newIP == "localhost") newIP = "127.0.0.1";
             Engine::connection->setIP(newIP);
@@ -54,7 +54,7 @@ public:
             int messageLenght = joinMessage->PackSelf(testBuffer);
             Engine::connection->send(testBuffer, messageLenght);
         }
-        
+
         if(cstate == ConnectionState::TIMED_OUT) {
             gui->getText("hint")->setText("Connection timed out...");
             gui->getInput("input")->show();
@@ -66,6 +66,7 @@ public:
                 case 0: // negative
                     gui->getText("hint")->setText("connection refused");
                     gui->getInput("input")->show();
+                    //Engine::connection->disconnect();
                     break;
                 case 1: // positive
                     gui->getText("hint")->setText("UDP penetrated, test TCP");
@@ -78,7 +79,8 @@ public:
         }
         if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {
             cout << "both tcp and udp status ok" << endl;
-            Engine::connection->sendTCP("FUCK LOL");
+            //gui->getText("hint")->setText("Enter server IP address");
+            //gui->getInput("input")->show();
             Engine::startScene("NickDialog");
         }
     }
