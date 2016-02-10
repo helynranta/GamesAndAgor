@@ -17,9 +17,9 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	int readByteCount = 0;
 
 	// Unpack PAYLOAD_LENGTH (UINT_32)
-	uint32_t packetID;
-	memcpy(&packetID, &payload[readByteCount], sizeof(uint32_t));
-	packetID = ntohl(packetID);
+	uint32_t ackMessagePacketID;
+	memcpy(&ackMessagePacketID, &payload[readByteCount], sizeof(uint32_t));
+	ackMessagePacketID = ntohl(ackMessagePacketID);
 //	std::cout << "MessageAck.cpp: Packet_ID: " << packetID << std::endl;
 	readByteCount += sizeof(uint32_t);
 
@@ -39,17 +39,17 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 
 	switch (messageSubtype) {
 		case GAME_MESSAGE_TYPE::JOIN:
-			return JoinAck::Unpack(header, remainingPayloadLength, remainingPayload);
+			return JoinAck::Unpack(header, ackMessagePacketID, remainingPayloadLength, remainingPayload);
 		case GAME_MESSAGE_TYPE::NICK:
-			return NickAck::Unpack(header, remainingPayloadLength, remainingPayload);
+			return NickAck::Unpack(header, ackMessagePacketID, remainingPayloadLength, remainingPayload);
 		case GAME_MESSAGE_TYPE::EXIT:
-			return ExitAck::Unpack(header, remainingPayloadLength, remainingPayload);
+			return ExitAck::Unpack(header, ackMessagePacketID, remainingPayloadLength, remainingPayload);
 		case GAME_MESSAGE_TYPE::GAME_END:
-			return GameEndAck::Unpack(header, remainingPayloadLength, remainingPayload);
+			return GameEndAck::Unpack(header, ackMessagePacketID, remainingPayloadLength, remainingPayload);
 		case GAME_MESSAGE_TYPE::PLAYER_DEAD:
-			return PlayerDeadAck::Unpack(header, remainingPayloadLength, remainingPayload);
+			return PlayerDeadAck::Unpack(header, ackMessagePacketID, remainingPayloadLength, remainingPayload);
 		case GAME_MESSAGE_TYPE::PLAYER_OUT:
-			return PlayerOutAck::Unpack(header, remainingPayloadLength, remainingPayload);
+			return PlayerOutAck::Unpack(header, ackMessagePacketID, remainingPayloadLength, remainingPayload);
 		default:
 			//std::cout << "plz no" << std::endl;
 			return nullptr;
@@ -58,11 +58,23 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	return nullptr;
 }
 
+int MessagesAck::createMessageAckHeader(uint8_t* payload, int bufferPosition){
+	// insert PACKER_ID to buffer
+	PackUINT32ToPayload(static_cast<uint32_t>(getAckMessagePackerID()), payload, bufferPosition);
+	bufferPosition += addPayloadSize(sizeof(uint32_t));
+
+	// insert MSG_SUBTYPE to buffer
+	PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
+	bufferPosition += addPayloadSize(sizeof(uint8_t));
+
+	return bufferPosition;
+}
+
 // Join functions
 int JoinAck::PackSelf(uint8_t* payload) {
 	std::cout << "Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 
-	int bufferPosition = getHeaderSize();
+	int bufferPosition = createAckMessageHeaders(payload);
 
 	// insert MSG_SUBTYPE to buffer
 	PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
@@ -71,7 +83,7 @@ int JoinAck::PackSelf(uint8_t* payload) {
 	return bufferPosition;
 }
 
-JoinAck* JoinAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
+JoinAck* JoinAck::Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload) {
 	int bufferPosition = 0;
 
 	uint8_t status = UnpackUINT8_T(payload, bufferPosition);
@@ -80,7 +92,7 @@ JoinAck* JoinAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload
 	uint16_t  id = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
-	JoinAck* playerJoin = new JoinAck(header, status, id);
+	JoinAck* playerJoin = new JoinAck(header, ackMessagePacketID, status, id);
 
 //	std::cout << "MessagesAck.cpp: Got user ID " << unsigned(playerJoin->getUserID()) << " from server" << std::endl;
 
@@ -92,7 +104,7 @@ JoinAck* JoinAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload
 int NickAck::PackSelf(uint8_t* payload) {
 	std::cout << "Sending -> AKC: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
 
-	int bufferPosition = getHeaderSize();
+	int bufferPosition = createAckMessageHeaders(payload);
 
 	// insert MSG_SUBTYPE to buffer
 	PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
@@ -103,13 +115,13 @@ int NickAck::PackSelf(uint8_t* payload) {
 	return bufferPosition;
 }
 
-NickAck* NickAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
+NickAck* NickAck::Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload) {
 	int bufferPosition = 0;
 
 	uint8_t status = UnpackUINT8_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint8_t);
 
-	NickAck* playerNick = new NickAck(header, status);
+	NickAck* playerNick = new NickAck(header, ackMessagePacketID, status);
 
 	return playerNick;
 }
@@ -129,8 +141,8 @@ int ExitAck::PackSelf(uint8_t* payload) {
 	return bufferPosition;
 }
 
-ExitAck* ExitAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
-	ExitAck* playerExit = new ExitAck(header);
+ExitAck* ExitAck::Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload) {
+	ExitAck* playerExit = new ExitAck(header, ackMessagePacketID);
 	return playerExit;
 }
 
@@ -150,8 +162,8 @@ int RestartAck::PackSelf(uint8_t* payload) {
 	return bufferPosition;
 }
 
-RestartAck* RestartAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
-	RestartAck* playerRestart = new RestartAck(header);
+RestartAck* RestartAck::Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload) {
+	RestartAck* playerRestart = new RestartAck(header, ackMessagePacketID);
 	return playerRestart;
 }
 
@@ -170,8 +182,8 @@ int GameEndAck::PackSelf(uint8_t* payload) {
 	return bufferPosition;
 }
 
-GameEndAck* GameEndAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
-	GameEndAck* playerGameEnd = new GameEndAck(header);
+GameEndAck* GameEndAck::Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload) {
+	GameEndAck* playerGameEnd = new GameEndAck(header, ackMessagePacketID);
 	return playerGameEnd;
 }
 
@@ -190,8 +202,8 @@ int PlayerDeadAck::PackSelf(uint8_t* payload) {
 	return bufferPosition;
 }
 
-PlayerDeadAck* PlayerDeadAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
-	PlayerDeadAck* playerDead = new PlayerDeadAck(header);
+PlayerDeadAck* PlayerDeadAck::Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload) {
+	PlayerDeadAck* playerDead = new PlayerDeadAck(header, ackMessagePacketID);
 	return playerDead;
 }
 
@@ -210,7 +222,7 @@ int PlayerOutAck::PackSelf(uint8_t* payload) {
 	return bufferPosition;
 }
 
-PlayerOutAck* PlayerOutAck::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
-	PlayerOutAck* playerOut = new PlayerOutAck(header);
+PlayerOutAck* PlayerOutAck::Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload) {
+	PlayerOutAck* playerOut = new PlayerOutAck(header, ackMessagePacketID);
 	return playerOut;
 }

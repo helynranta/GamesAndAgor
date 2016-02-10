@@ -99,7 +99,7 @@ int Message::CreateHeader(Message * message, uint8_t * buffer) {
 	bufferPosition += sizeof(uint16_t);
 
 	// insert GAME_TIME to buffer
-	uint32_t gameTime = static_cast<uint32_t>(message->getgameTime());
+	uint32_t gameTime = static_cast<uint32_t>(message->getGameTime());
 	PackUINT32ToPayload(gameTime, buffer, bufferPosition);
 	bufferPosition += sizeof(uint32_t);
 

@@ -46,10 +46,10 @@ void TestMessagesLoop() {
 					memset(testBuffer, 0, BUFFER_SIZE);
 					if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN && testStates == TEST_STATES::JOINING_ACK) {
 						JoinAck* joinAck = static_cast<JoinAck*>(ack);
-						MessageHeader headerForNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getgameTime(),
+						MessageHeader headerForNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getGameTime(),
 								joinAck->getMessageType(), joinAck->getPayloadSize());
 
-//						messageLenght = (new JoinAck(headerForJoinAckAndNick, joinAck->getStatus(), joinAck->getUserID()))->PackSelf(testBuffer);
+//						messageLenght = (new JoinAck(headerForNick, joinAck->getStatus(), joinAck->getUserID()))->PackSelf(testBuffer);
 //						connection->send(testBuffer, messageLenght);
 						testStates = TEST_STATES::NICKING;
 

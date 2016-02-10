@@ -42,7 +42,7 @@ private:
     int rval = 0;
     char dgram[1];
 
-//  string ip = "127.0.0.1";
+//    string ip = "127.0.0.1";
     string ip = "157.24.108.48";
     string portUDP = "8888";
     string portTCP = "8889";
