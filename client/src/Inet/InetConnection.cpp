@@ -53,7 +53,7 @@ bool InetConnection::send(uint8_t * message, int size) {
 //		std::cout << "Client: Sent datagram" << std::endl;
 	 }
 	 return true;
-}	
+}
 
 void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
 // only adds outgoing message to list. put actual send to update
@@ -77,7 +77,6 @@ bool InetConnection::connectTCP() {
 		// get server address information
 		if (getaddrinfo(ip.c_str(), portTCP.c_str(), &hints, &res) != 0) {
 			cerr << "getaddrinfo error " << strerror(errno) << endl;
-			strerrno = strerror(errno);
 			return false;
 		}
 		struct addrinfo* p = nullptr;
@@ -85,9 +84,8 @@ bool InetConnection::connectTCP() {
 			// create socket
 			if ((sockettcp = socket(p->ai_family, p->ai_socktype | SOCK_NONBLOCK, p->ai_protocol)) < 0) {
 				cerr << "cannot create socket for tcp connection " << strerror(errno) << endl;
-				strerrno = strerror(errno);
 				continue;
-			} 
+			}
 			break;
 		}
 		// bind to port
@@ -109,7 +107,7 @@ bool InetConnection::connectTCP() {
 			return false;
 		}
 		if (sock_res == 0) {
-			tcpsocketstatus = true; 
+			tcpsocketstatus = true;
 			cout << "TCP connection established" << endl;
 			return true;
 		}
@@ -197,18 +195,18 @@ int InetConnection::checkTCPConnection() {
 					char buffer[BUFFER_SIZE];
 					recv(sockettcp, buffer, sizeof(buffer), 0);
 					if(strlen(buffer) > 0) {
-						tcpsocketstatus = true; 
-						cout << buffer << endl; 
+						tcpsocketstatus = true;
+						cout << buffer << endl;
 					}
 				}
 				break;
-		}	
+		}
 	} else {
 		cerr << strerror(errno) << endl;
 		tcpsocketstatus = false;
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -426,4 +424,3 @@ vector<PlayerDead*> InetConnection::getDeadPayers() {
 	}
 	return lmessages;
 }
-

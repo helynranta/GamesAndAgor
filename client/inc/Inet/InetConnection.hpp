@@ -64,7 +64,6 @@ protected:
 public:
     InetConnection();
 
-    string strerrno = "";
     bool sendChatMessage(const string& message);
     bool connectTCP();
     bool connectUDP();
@@ -88,7 +87,7 @@ public:
     vector<GameMessage*> getGameMessages();
     vector<GameUpdate*> getGameUpdateMessages();
     vector<ChatMessage*> getChatMessages();
-    vector<PlayerDead*> getDeadPayers();  
+    vector<PlayerDead*> getDeadPayers();
     inline void setID(uint16_t i) { id = i; }
     inline const uint16_t& getID() const { return id; }
     inline void setState(ConnectionState state) { m_state = state; }
