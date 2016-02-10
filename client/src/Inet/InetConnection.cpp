@@ -254,11 +254,11 @@ void InetConnection::UnpackGameMessageSubType(Message* unpackedMessage) {
 void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 	switch (dynamic_cast<MessagesAck*>(unpackedMessage)->getGameMessageType()) {
 	case GAME_MESSAGE_TYPE::JOIN:
-//		std::cout << "============== GOT JOIN ACK ==============" << std::endl;
+		//std::cout << "============== GOT JOIN ACK ==============" << std::endl;
 		messageInbox.push_back(dynamic_cast<JoinAck*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::NICK:
-//		std::cout << "==============  GOT NICK ACK ==============" << std::endl;
+		//std::cout << "==============  GOT NICK ACK ==============" << std::endl;
 		messageInbox.push_back(dynamic_cast<NickAck*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::GAME_UPDATE:
@@ -296,8 +296,8 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
-//	timeout.tv_usec = 25000; // microseconds
-	timeout.tv_usec = 1000000; // microseconds
+	//timeout.tv_usec = 25000; // microseconds
+	timeout.tv_usec = 500; // microseconds
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 	// Add listening socket to the set and check if it is the biggest socket number
@@ -308,7 +308,7 @@ int InetConnection::checkUDPConnections() {
 			std::cout << strerror(errno) << std::endl;
 			return false;
 		case 0:
-			std::cout << "UDP timeout"	 << std::endl;
+			//std::cout << "UDP timeout"	 << std::endl;
 			return false;
 		default:
 			struct MessageHeader *header = static_cast<struct MessageHeader*>(malloc(sizeof(struct MessageHeader)));
