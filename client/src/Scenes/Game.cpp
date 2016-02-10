@@ -55,18 +55,25 @@ void Game::update(float dt) {
     m_player.update(dt);
 
     if(Engine::input->isKeyPressed(SDLK_t) && chat->isActive() == false) {
-        chat->Activate();  
+        chat->Activate();
         Engine::input->getchar();
-    } 
+    }
     else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && (gui->getInput("chat")->getText()).size()) {
         Engine::input->getchar();
         Engine::connection->sendTCP(gui->getInput("chat")->getText());
         gui->getInput("chat")->setText("");
     } else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && !(gui->getInput("chat")->getText()).size()) {
-        chat->deActivate();  
+        chat->deActivate();
         Engine::input->getchar();
     }
     m_player.setTakeInput(!chat->isActive());
+    static vector<string> messages = Engine::connection->getChatMessages();
+    if(messages.size() > 0) {
+        for(auto& msg : messages) {
+            chat->addLog(msg);
+        }
+        messages.clear();
+    }
 }
 void Game::draw() {
     SDL_Rect l_ppos;

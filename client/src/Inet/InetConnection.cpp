@@ -161,12 +161,12 @@ bool InetConnection::connectUDP() {
 bool InetConnection::disconnect() {
 	if (res == nullptr)
 		freeaddrinfo(res);
-	
+
 	close(sockettcp);
 	close(socketudp);
-	
+
 	sockettcp = 0;
-	sockettcp = 0; 
+	sockettcp = 0;
 
 	m_state = ConnectionState::DISCONNECTED;
 	tcpsocketstatus = false;
@@ -182,6 +182,8 @@ int InetConnection::update() {
 }
 int InetConnection::checkTCPConnection() {
 // if connecting tcp
+	char buffer[BUFFER_SIZE];
+	memset(buffer, '0', BUFFER_SIZE);
 	if(m_state == ConnectionState::DISCONNECTED) return 0;
 
 	FD_ZERO(&socket_fds);
@@ -196,20 +198,22 @@ int InetConnection::checkTCPConnection() {
 	}
 	else if (err == 0) {
 		memset(&timeout, 0, sizeof(timeout));
-		timeout.tv_usec = 100;
+		timeout.tv_usec = 250;
 		timeout.tv_sec = 0;
 		switch(select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout)) {
 			case -1:
 				cerr << strerror(errno) << endl;
 				disconnect();
-			case 0: break;
+			case 0:
+				break;
 			default:
+				cout << "?" << endl;
 				if (FD_ISSET(sockettcp, &socket_fds)) {
-					char buffer[BUFFER_SIZE];
 					recv(sockettcp, buffer, sizeof(buffer), 0);
 					if(strlen(buffer) > 0) {
 						tcpsocketstatus = true;
-						//messageInbox.push_back();
+						cout << buffer << endl;
+						chatmessage.push_back(string(buffer));
 					}
 				}
 				break;
@@ -432,16 +436,10 @@ MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
 	return msgs.back();
 }
 
-vector<ChatMessage*> InetConnection::getChatMessages() {
-	vector<ChatMessage*> lmessages;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::PLAYER_CHAT_MESSAGE) {
-			lmessages.push_back(static_cast<ChatMessage*>(messageInbox[it]));
-			messageInbox[it] = messageInbox.back();
-			messageInbox.pop_back();
-		}
-	}
-	return lmessages;
+vector<string> InetConnection::getChatMessages() {
+	vector<string> ret = chatmessage;
+	chatmessage.clear();
+	return ret;
 }
 
 vector<PlayerDead*> InetConnection::getDeadPayers() {
