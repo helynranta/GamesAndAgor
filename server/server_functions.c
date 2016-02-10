@@ -338,7 +338,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 }
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
-
+	printf("Packing game MSG\n");
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
 	Near *pNear = NULL;
 	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
@@ -361,8 +361,13 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 			}
 			return ind;
     	case GAME_UPDATE:
+			printf("Packing game update\n");
 			/* FIND CORRESPONDING PLAYER */
 			pPlayer = getPlayer(toPlayerID, pPlayer);
+			if(pPlayer == NULL){
+				printf("NULIKKA, ei pelaajaa\n");
+				return -1;
+			}
 
 			/* PLAYERS OWN INFORMATION */
 			*(uint16_t *) &pPL[ind] = htons(pPlayer->location[0]);
@@ -394,6 +399,12 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 			*(uint16_t *) &pPL[indNObj] = htons(nObjects);
 
 			/* PACK NEARBY PLAYERS */
+			if (pPlayer->nearPlayers == NULL){
+				printf("Ei pelaajia lähellä\n");
+			}
+			else{
+				printf("Pakataan lähellä olevia pelaajia\n");
+			}
 			for(pNear = pPlayer->nearPlayers; pNear != NULL; pNear = pNear->pNext, nPlayers++){
 				pPla = (Player *)(pNear->pParticle);
 				*(uint16_t *) &pPL[ind] = htons(pPla->ID);
@@ -410,6 +421,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 				ind += sizeof(uint32_t);
 			}
 			*(uint8_t *) &pPL[indNPla] = nPlayers;
+			printf("Near Players: %d\n", nPlayers);
 
 			return ind;
     	case PLAYER_DEAD:  // similar to PLAYER_OUT
