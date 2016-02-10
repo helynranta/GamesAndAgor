@@ -141,7 +141,7 @@ GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadLength));
 	memcpy(remainingPayload, &payload[readByteCount], remainingPayloadLength);
 
-	std::cout << "Receiving -> GameMessage: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
+	//std::cout << "Receiving -> GameMessage: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 
 	switch (messageSubtype) {
 	case GAME_MESSAGE_TYPE::JOIN:

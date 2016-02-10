@@ -14,6 +14,7 @@ private:
     float m_speed       = 2.0f;
     float m_direction   = 1.0f;
     string nick = "";
+    bool takeInput = true;
 public:
     inline Player (const string& n, int r, int g, int b) {
         nick = n;
@@ -28,5 +29,6 @@ public:
     }
     void update(float dT);
     inline const string& getNick() const { return nick; }
+    inline const void setTakeInput(bool i) {takeInput = i;}
 };
 #endif

@@ -61,8 +61,10 @@ void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
 //Message* msg = new GameMessage();
 //m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
-void InetConnection::sendTCP(const string& message) {
-	//::sendto(sockettcp, message.c_str(), sizeof(message.c_str()), 0);
+void InetConnection::sendTCP(const string& msg) {
+	if(::send(sockettcp, msg.c_str(), sizeof(msg.c_str()), 0)<0) {
+		cerr << strerror(errno) << endl;
+	}
 }
 // http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
 bool InetConnection::connectTCP() {
@@ -165,10 +167,10 @@ bool InetConnection::disconnect() {
 	if(socketudp != 0) close(socketudp);
 	
 	sockettcp = 0;
-	sockettcp = 0;
+	sockettcp = 0; 
 
 	m_state = ConnectionState::DISCONNECTED;
-
+	tcpsocketstatus = false;
 	cout << "disconnect has been successfull" << endl;
 	return true;
 }
@@ -189,9 +191,8 @@ int InetConnection::checkTCPConnection() {
 	socklen_t len = sizeof(err);
 	if (getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len) < 0) {
 		cerr << "getsockopt error: " << strerror(errno) << endl;
-		cout << strerror(err) << endl;
-		m_state = ConnectionState::REFUSED;
 		tcpsocketstatus = false;
+		disconnect();
 	}
 	else if (err == 0) {
 		memset(&timeout, 0, sizeof(timeout));
@@ -208,15 +209,14 @@ int InetConnection::checkTCPConnection() {
 					recv(sockettcp, buffer, sizeof(buffer), 0);
 					if(strlen(buffer) > 0) {
 						tcpsocketstatus = true;
-						//cout << buffer << endl;
-						memcpy(buffer, 0, BUFFER_SIZE);
+						//messageInbox.push_back();
 					}
 				}
 				break;
 		}
 	} else {
 		cerr << strerror(errno) << endl;
-		tcpsocketstatus = false;
+		disconnect();
 		return false;
 	}
 

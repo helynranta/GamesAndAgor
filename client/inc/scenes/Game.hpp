@@ -11,6 +11,8 @@
 #include "core/Scene.hpp"
 
 #include "Player.hpp"
+#include "Chat.hpp"
+
 
 class Game : public Scene {
 private:
@@ -18,6 +20,7 @@ private:
     Player m_player = Player("player", 255, 255, 255);
     vector<Player> m_enemies;
     vector<Player> m_statics;
+    Chat* chat = nullptr;
 public:
     inline Game () : Scene() {}
     inline ~Game () {}

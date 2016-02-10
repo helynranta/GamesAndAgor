@@ -18,8 +18,8 @@ public:
     }
 
     inline void awake() override {
-        gui->addText("hint", new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
-        gui->addInput("input", new GUIInput(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
+        gui->addText("hint", new GUIText());
+        gui->addInput("input", new GUIInput());
         gui->getText("hint")->setText("Enter server IP address")->setX(Engine::camera->getWidth()/2.0f)->setY(Engine::camera->getHeight()/2.0f-30);
         gui->getText("hint")->setAlign(TEXT_ALIGN::CENTER_XY);
         gui->getInput("input")->setMaxLength(15);
@@ -30,6 +30,7 @@ public:
         ConnectionState cstate = Engine::connection->getState();
         int tcpstatus = Engine::connection->getTCPStatus();
         if(Engine::input->isKeyPressed(SDLK_d)) {
+            Engine::input->getchar();
             Engine::connection->disconnect();
             gui->getText("hint")->setText("Enter server IP address");
             gui->getInput("input")->show();

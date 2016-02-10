@@ -1,25 +1,30 @@
 #include "GUI/GUIInput.hpp"
 
+GUIInput::GUIInput() : GUIText() {}
+GUIInput::GUIInput(SDL_Renderer* r, TTF_Font* f) : GUIText(r,f) {}
+
 bool GUIInput::update() {
-    // ask for input
-    std::string tmp = "";
-    int l_key = Engine::input->getchar();
-    if(l_key != -1)
-    {
-        tmp = SDL_GetKeyName(l_key);
-        if(tmp == "Backspace" && m_text.length() > 0) {
-            m_text.pop_back();
+    if(isActive) {
+        // ask for input
+        string tmp = "";
+        int l_key = Engine::input->getchar();
+        if(l_key != -1)
+        {
+            tmp = SDL_GetKeyName(l_key);
+            if(tmp == "Backspace" && m_text.length() > 0) {
+                m_text.pop_back();
+            }
+            else if (tmp == "Return") {
+                return true;
+            }
+            else if(tmp.length() == 1) {
+                if(m_maxInputLength == 0)
+                    m_text = m_text+tmp;
+                else if(m_text.length() < m_maxInputLength)
+                    m_text = m_text+tmp;
+            }
         }
-        else if (tmp == "Return") {
-            return true;
-        }
-        else if(tmp.length() == 1) {
-            if(m_maxInputLength == 0)
-                m_text = m_text+tmp;
-            else if(m_text.length() < m_maxInputLength)
-                m_text = m_text+tmp;
-        }
-    }
+    } else Engine::input->getchar();
     return false;
 }
 void GUIInput::draw() {

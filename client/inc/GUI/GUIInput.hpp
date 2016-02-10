@@ -14,18 +14,17 @@
 
 class GUIInput : public GUIText {
 protected:
-  unsigned int m_maxInputLength = 10;
+  unsigned int m_maxInputLength = 32;
   bool cursorEnabled = true;
   bool cursorVisible = true;
   bool drawBG = true;
   std::string cursorChar = "[]";
   int m_bg_height = 64;
   SDL_Color cursorColor = {100,100,100,255};
+  bool isActive = true;
 public:
-  inline GUIInput(SDL_Renderer* r, TTF_Font* f) : GUIText(r,f)
-  {
-      m_font = f;
-  }
+  GUIInput();
+  GUIInput(SDL_Renderer* r, TTF_Font* f);
   inline virtual ~GUIInput() { ; }
   bool update() override;
   void draw() override;
@@ -33,6 +32,7 @@ public:
   /* GETTERS */
   /* SETTERS */
   inline void setCursorVisibility(bool b) { cursorEnabled = b; }
+  inline const void setActive(bool a) { isActive = a; } 
   inline void setMaxLength(unsigned int x) { m_maxInputLength = x;}
 };
 

@@ -1,5 +1,16 @@
 #include "GUI/GUIText.hpp"
 
+#include "Engine.hpp"
+
+GUIText::GUIText() : GUIElement(Engine::window->getRenderer()) {
+    m_font = Engine::R->getFont("res/fonts/OpenSans.ttf");
+}
+GUIText::GUIText (SDL_Renderer* r, TTF_Font* f) : GUIElement(r), m_font(f) {
+    
+}
+GUIText::~GUIText () { 
+    free(); 
+}
 void GUIText::createTexture(const std::string& l_text) {
     // rebuild texture if needed
     if(m_renderer == nullptr) {
