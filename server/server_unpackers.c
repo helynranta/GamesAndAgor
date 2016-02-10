@@ -74,8 +74,11 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
 
       switch (packet.ACKTYPE) {
         case JOIN:
-          index += sizeof(uint8_t);
+          printf("JOIN ACK\n" );
+          break;
         case NICK:
+          printf("NICK ACK\n" );
+          break;
         case EXIT:
         case GAME_END:
         case POINTS:

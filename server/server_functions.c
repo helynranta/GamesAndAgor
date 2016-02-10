@@ -502,12 +502,14 @@ void randomLocation(uint16_t *location){
 /* Sends game update to everyone */
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 	Player *pPla = game->sPlayers;
+	int plLength;
 	while(pPla != NULL){
-
+		/*  */
+		if(pPla->state != ALIVE)
+			continue;
 		/* Pack msg */
 		msgPacker(buf, game, pPla->ID, GAME_MESSAGE, GAME_UPDATE, 0, 0);
 		/* Send msg */
-		/* TODO: fix magic numeber 256 to --> SIZE or something */
 		sendto(socket, buf, 256, 0, &pPla->address, addrlen);
 		/* Move on to the next player */
 		pPla = pPla->pNext;

@@ -235,6 +235,7 @@ int server(char* port) {
                       newPlayer(&game.sPlayers, packet, game.nPlayers);
                       game.nPlayers++;
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
+                      if(plLength < 0) printf("Payload length error\n");
                       tavut = sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
                       printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
 
@@ -270,6 +271,7 @@ int server(char* port) {
 												/* Actually no, let's not do it so we can have some fun */
 											}
 											plLength = msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
+                      if(plLength < 0) printf("Payload length error2\n");
 											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
                       printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
 
@@ -307,13 +309,16 @@ int server(char* port) {
 									printf("Ack packet received!\n");
                   /* When Player has sent ACK::NICK, then player can receive
                      game updates */
+                  printf("ACKTYPE = %d \n", packet.ACKTYPE);
                   if(packet.ACKTYPE == NICK) {
+
                     Player *p = getPlayer(packet.ID, game.sPlayers);
                     if(p == NULL) {
                       printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
                       break;
                     }
                     p->state = ALIVE;
+                    printf("Player is now ALIVE\n" );
                   }
 									/* Handle ack */
 									/* remove ack from server's own ack list */
@@ -378,9 +383,10 @@ int server(char* port) {
 									if(FD_ISSET(j, &master)) {
 										/* skip listener */
 										if(j != listener) {
-											if(sendAllTCP(j, recvbuffer, &nbytes) == -1) {
+                      send(j, recvbuffer, nbytes, 0);
+											/*if(sendAllTCP(j, recvbuffer, &nbytes) == -1) {
 												perror("sendAllTCP failure");
-											}
+											}*/
 										}
 									}
 								}
