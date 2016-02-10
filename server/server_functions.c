@@ -505,8 +505,11 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 	int plLength;
 	while(pPla != NULL){
 		/*  */
-		if(pPla->state != ALIVE)
+		if(pPla->state != ALIVE){
+			pPla = pPla->pNext;
 			continue;
+		}
+
 		/* Pack msg */
 		msgPacker(buf, game, pPla->ID, GAME_MESSAGE, GAME_UPDATE, 0, 0);
 		/* Send msg */
@@ -625,7 +628,7 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	int bytesleft = *length;
 
 	int sent;
-
+	printf("Sending over TCP: %s\n", buf);
 	/* Keep on sending while there's stuff to send */
 	while (total < *length) {
 		sent = send(socket, buf+total, bytesleft, 0);

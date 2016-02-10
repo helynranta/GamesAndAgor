@@ -44,6 +44,7 @@ int server(char* port) {
 
   char recvbuffer[SIZE] = { 0 };
 	char sendbuffer[SIZE] = {0};
+  char tcpbuffer[SIZE] = {0};
 	tv.tv_usec = 1000000;
 	tv.tv_sec = 0;
 
@@ -151,12 +152,16 @@ int server(char* port) {
 		game.sAcks=NULL;
 		game.nPlayers = 0;
 		int tavut = -2;
+    Player *p = NULL;
 		while (1) {
+      p = NULL;
 
 			// Refresh select() set
 			//FD_ZERO(&readset);
 			//FD_SET(socketfd, &readset);
 			readset = master; // /* Copy master fd_set, so that won't change*/
+      memset(recvbuffer,'\0',SIZE);
+      memset(tcpbuffer,'\0', SIZE);
 
 			/* rest timeout values */
 			tvSelect.tv_sec = 0;
@@ -201,7 +206,7 @@ int server(char* port) {
                 printf("Error in received packet\n");
               }
               printf("SERVERT.C - MEssage type: %d \n", packet.msgType);
-              printf("SERVER.C Subtype: %d \n", packet.subType);
+              //printf("SERVER.C Subtype: %d \n", packet.subType);
 
 
 							switch (packet.msgType) {
@@ -258,7 +263,7 @@ int server(char* port) {
 												/*newPlayer(&game.sPlayers, packet, game.nPlayers);
 												game.nPlayers++;*/
 
-												Player *p;
+
 												p = getPlayer(packet.ID, game.sPlayers);
                         printf("SplayersID: %d\n", game.sPlayers->ID);
                         if(game.sPlayers == NULL) printf("SPlayers == NULL\n");
@@ -281,7 +286,7 @@ int server(char* port) {
 											printf("Player exits the game!\n");
 
 											// Set player as OUT
-											Player *p = getPlayer(packet.ID, game.sPlayers);
+											p = getPlayer(packet.ID, game.sPlayers);
 											p->state = OUT;
 
 											// Send ACK to player
@@ -312,7 +317,7 @@ int server(char* port) {
                   printf("ACKTYPE = %d \n", packet.ACKTYPE);
                   if(packet.ACKTYPE == NICK) {
 
-                    Player *p = getPlayer(packet.ID, game.sPlayers);
+                    p = getPlayer(packet.ID, game.sPlayers);
                     if(p == NULL) {
                       printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
                       break;
@@ -332,7 +337,7 @@ int server(char* port) {
 									/* Do game functions:
 									calculate nearby objects etc. */
 									/* update player's position */
-									Player *p = getPlayer(packet.ID, game.sPlayers);
+									p = getPlayer(packet.ID, game.sPlayers);
                   if(p == NULL) {
                     printf("Couldn't get player, case PLAYER_MOVEMENT\n");
                     break;
@@ -359,13 +364,13 @@ int server(char* port) {
 
 							printf("PacketID: %d\n", packet.ID);
 							printf("msgType: %d\n", packet.msgType);
-							printf("subtype: %d\n", packet.subType);
+							//printf("subtype: %d\n", packet.subType);
               printf("acktype: %d\n", packet.ACKTYPE);
 							/*************/
 						}
 						else{
 							/* TCP CHAT MSG */
-							if((nbytes = recv(i, recvbuffer, sizeof(recvbuffer), 0)) <= 0){
+							if((nbytes = recv(i, tcpbuffer, SIZE, 0)) <= 0){
 								/* Connection closed or error */
 								if(nbytes == 0){
 									/* connection closed */
@@ -379,17 +384,21 @@ int server(char* port) {
 							}
 							else {
 								/* TCP chat */
+                tcpbuffer[nbytes] = '\0';
+                printf("%s\n", tcpbuffer);
 								for(int j = 0; j <= fdmax; j++){
 									if(FD_ISSET(j, &master)) {
 										/* skip listener */
 										if(j != listener) {
-                      send(j, recvbuffer, nbytes, 0);
-											/*if(sendAllTCP(j, recvbuffer, &nbytes) == -1) {
+                      //send(j, recvbuffer, nbytes, 0);
+                      printf("Sending chat\n" );
+											if(sendAllTCP(j, tcpbuffer, &nbytes) == -1) {
 												perror("sendAllTCP failure");
-											}*/
+											}
 										}
 									}
 								}
+                memset(tcpbuffer, '\0', SIZE);
 							}
 						}
 					}
