@@ -15,7 +15,7 @@ TAA ON HYVÄ POHJA LÄHTEE LIIKKEELLE
 
 #include "server_unpackers.h"
 #include "server_functions.h"
-#define SIZE 256
+#define SIZE 1500
 #define TCPPORT "8889"
 
 int sendMsg(struct sockaddr *to, struct Ack *ack, struct Packet packet){
@@ -47,6 +47,7 @@ int server(char* port) {
   char tcpbuffer[SIZE] = {0};
 	tv.tv_usec = 1000000;
 	tv.tv_sec = 0;
+  int yes = 1;
 
   socklen_t addrlen = 0;
   unsigned int optval = 0;
@@ -97,6 +98,11 @@ int server(char* port) {
       if ((listener = socket(iter->ai_family,iter->ai_socktype,iter->ai_protocol)) < 0) {
         perror("socket()");
         return -1;
+      }
+
+      if(setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1){
+        perror("tcp setsockopt");
+        exit(1);
       }
 
       //Try to bind to this address
@@ -153,6 +159,7 @@ int server(char* port) {
 		game.nPlayers = 0;
 		int tavut = -2;
     Player *p = NULL;
+    int nickStatus;
 		while (1) {
       p = NULL;
 
@@ -213,7 +220,7 @@ int server(char* port) {
 
 								// Game message packet
 								case GAME_MESSAGE:
-									printf("Game message packet received!\n");
+									//printf("Game message packet received!\n");
 
 									switch (packet.subType) {
 
@@ -240,18 +247,18 @@ int server(char* port) {
                       newPlayer(&game.sPlayers, packet, game.nPlayers);
                       game.nPlayers++;
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
-                      if(plLength < 0) printf("Payload length error\n");
+                      //if(plLength < 0) printf("Payload length error\n");
                       tavut = sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
-                      printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
+                      //printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
 
 
 											break;
 
 										case NICK:
-											printf("Player inserted nick!\n");
-											printf("Nick: %s\n", packet.nick);
-                      printf("NICK PAcket ID: %d\n", packet.ID);
-											int nickStatus = -1;
+											//printf("Player inserted nick!\n");
+											//printf("Nick: %s\n", packet.nick);
+                      //printf("NICK PAcket ID: %d\n", packet.ID);
+											nickStatus = -1;
 											nickStatus = checkNick(packet.nick, game.sPlayers);
 											/*printf("Nick status: %d\n", nickStatus);
 											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
@@ -265,25 +272,25 @@ int server(char* port) {
 
 
 												p = getPlayer(packet.ID, game.sPlayers);
-                        printf("SplayersID: %d\n", game.sPlayers->ID);
-                        if(game.sPlayers == NULL) printf("SPlayers == NULL\n");
+                        //printf("SplayersID: %d\n", game.sPlayers->ID);
+                        /*if(game.sPlayers == NULL) printf("SPlayers == NULL\n");
                         else printf("gameSplayers NJET NJET NJET NULL\n" );
                         if(p == NULL) printf("Player on NULL\n");
-                        else printf("Player NJET NULL\n" );
+                        else printf("Player NJET NULL\n" );*/
 												memcpy(p->nick, packet.nick, 11);
 
 												/* add the tcp connection for this new player */
 												/* Actually no, let's not do it so we can have some fun */
 											}
 											plLength = msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
-                      if(plLength < 0) printf("Payload length error2\n");
+                      //if(plLength < 0) printf("Payload length error2\n");
 											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
-                      printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
+                      //printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
 
 											break;
 
 										case EXIT:
-											printf("Player exits the game!\n");
+											//printf("Player exits the game!\n");
 
 											// Set player as OUT
 											p = getPlayer(packet.ID, game.sPlayers);
@@ -311,19 +318,19 @@ int server(char* port) {
 
 								// Ack packet
 								case ACK:
-									printf("Ack packet received!\n");
+									//printf("Ack packet received!\n");
                   /* When Player has sent ACK::NICK, then player can receive
                      game updates */
-                  printf("ACKTYPE = %d \n", packet.ACKTYPE);
+                  //printf("ACKTYPE = %d \n", packet.ACKTYPE);
                   if(packet.ACKTYPE == NICK) {
 
                     p = getPlayer(packet.ID, game.sPlayers);
                     if(p == NULL) {
-                      printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
+                      //printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
                       break;
                     }
                     p->state = ALIVE;
-                    printf("Player is now ALIVE\n" );
+                    //printf("Player is now ALIVE\n" );
                   }
 									/* Handle ack */
 									/* remove ack from server's own ack list */
@@ -333,13 +340,13 @@ int server(char* port) {
 
 								// Player movement packet
 								case PLAYER_MOVEMENT:
-									printf("Player movement packet received!\n");
+									//printf("Player movement packet received!\n");
 									/* Do game functions:
 									calculate nearby objects etc. */
 									/* update player's position */
 									p = getPlayer(packet.ID, game.sPlayers);
                   if(p == NULL) {
-                    printf("Couldn't get player, case PLAYER_MOVEMENT\n");
+                    //printf("Couldn't get player, case PLAYER_MOVEMENT\n");
                     break;
                   }
 
@@ -354,18 +361,19 @@ int server(char* port) {
 
 								// Statisic packet
 								case STATISTICS_MESSAGE:
-									printf("Client ping packet returned!\n");
+									//printf("Client ping packet returned!\n");
 									break;
 
 								default:
-									printf("Invalid packet received!\n");
+                  ;
+									//printf("Invalid packet received!\n");
 
 							}
 
-							printf("PacketID: %d\n", packet.ID);
-							printf("msgType: %d\n", packet.msgType);
+							//printf("PacketID: %d\n", packet.ID);
+							//printf("msgType: %d\n", packet.msgType);
 							//printf("subtype: %d\n", packet.subType);
-              printf("acktype: %d\n", packet.ACKTYPE);
+              //printf("acktype: %d\n", packet.ACKTYPE);
 							/*************/
 						}
 						else{
@@ -386,15 +394,19 @@ int server(char* port) {
 								/* TCP chat */
                 tcpbuffer[nbytes] = '\0';
                 printf("%s\n", tcpbuffer);
-								for(int j = 0; j <= fdmax; j++){
+								for(int j = 3; j <= fdmax; j++){
+
 									if(FD_ISSET(j, &master)) {
+                    //if(j == socketfd) printf("UPD socket %d\n", j);
+                    //else if (j == listener) printf("Listener %d\n", j);
+                    //else printf("TCP socketti luotu clientia varten: %d\n", j);
 										/* skip listener */
-										if(j != listener) {
-                      //send(j, recvbuffer, nbytes, 0);
-                      printf("Sending chat\n" );
-											if(sendAllTCP(j, tcpbuffer, &nbytes) == -1) {
+										if(j != listener && j != socketfd) {
+                      send(j, tcpbuffer, nbytes, 0);
+                      //printf("TYYDYTÄ OSKARIA\n");
+											/*if(sendAllTCP(j, tcpbuffer, &nbytes) == -1) {
 												perror("sendAllTCP failure");
-											}
+											}*/
 										}
 									}
 								}
@@ -404,7 +416,7 @@ int server(char* port) {
 					}
 				}
 				/* Do game functions */
-				ComputeNearParticles(game.sPlayers, &game.sObjects);
+				//ComputeNearParticles(game.sPlayers, &game.sObjects);
 
 				/* If player eaten inform the player and others? */
 
@@ -416,8 +428,8 @@ int server(char* port) {
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
 					/* Send game update to everyone */
-					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
-          printf("game update sent\n" );
+					//sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+          //printf("game update sent\n" );
 
           /* Resend lost msgs */
           //resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
@@ -444,7 +456,7 @@ int server(char* port) {
 
 
   else {
-    printf("Server: Invalid port. Choose something between 1024 - 65000\n");
+    //printf("Server: Invalid port. Choose something between 1024 - 65000\n");
     return -1;
   }
 
@@ -467,10 +479,10 @@ int client(char* port, char *serverip)
   memset(&dgram,1,SIZE);
 	memset(&readbuf,1,SIZE);
 
-  printf("| - - - - - C L I E N T - - - - - |\n");
+  //printf("| - - - - - C L I E N T - - - - - |\n");
 
   /* Why only IP address works ? */
-  if(getaddrinfo(serverip,port,&hints,&result) < 0) perror("Cannot resolve address");
+  if(getaddrinfo(serverip,port,&hints,&result) < 0) ;//perror("Cannot resolve address");
   else {
     // Go through every returned address and attempt to connect to each
     for (iter = result; iter != NULL; iter = iter->ai_next) {
@@ -506,7 +518,7 @@ int client(char* port, char *serverip)
 
 			/*END OF GAME_MESSAGE:JOIN*/
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
-        perror("sendto()");
+        //perror("sendto()");
         rval = -1;
         break;
       }
@@ -541,29 +553,29 @@ int client(char* port, char *serverip)
 
 
       if((length = sendto(socketfd,&dgram,SIZE,0,iter->ai_addr,iter->ai_addrlen)) < 0) {
-        perror("sendto()");
+        //perror("sendto()");
         rval = -1;
         break;
       }
-      else printf("Client: Sent datagram length = %d\n", length);
+      else ;//printf("Client: Sent datagram length = %d\n", length);
 			while(1){
-				printf("%s\n", "Pitäis receavata!\n");
+				//printf("%s\n", "Pitäis receavata!\n");
 				int readlength = -1;
 				/* Get Join Ack*/
 				if((readlength = recvfrom(socketfd, &readbuf,SIZE,0,iter->ai_addr, &iter->ai_addrlen)) <= 0){
-					printf("%s\n", "Nada");
+					;//printf("%s\n", "Nada");
 				}
 				else
-					printf("tuli %d tavua perille\n", readlength);
+					;//printf("tuli %d tavua perille\n", readlength);
 				struct Packet packet;
 				packet = unpackPacket(readbuf, iter->ai_addr, socketfd, iter->ai_addrlen);
-				printf("Packet msgType: %d\n", packet.msgType);
-        printf("Packet acktype: %d\n", packet.ACKTYPE);
-        printf("Packet uid: %d\n", packet.ID);
+				//printf("Packet msgType: %d\n", packet.msgType);
+        //printf("Packet acktype: %d\n", packet.ACKTYPE);
+        //printf("Packet uid: %d\n", packet.ID);
         /*uint16_t playerid = 5;
         playerid = ntohs(*(uint16_t*)&readbuf[17]);
         printf("id: %d\n", playerid);*/
-        printf("%d\n", ntohs(*(uint16_t*)&readbuf[17]));
+        //printf("%d\n", ntohs(*(uint16_t*)&readbuf[17]));
     	}
 		}
   }
@@ -581,27 +593,27 @@ int main(int argc, char *argv[])
   /* server */
   if (argc == 2)
   {
-    if (server(argv[1]) == 0) printf("Server: exited with success\n");
+    if (server(argv[1]) == 0) ;//printf("Server: exited with success\n");
     else
     {
-      printf("Errors with server\n");
+      ;//printf("Errors with server\n");
       return -1;
     }
   }
   /* client */
   else if (argc == 3)
   {
-    if (client(argv[1],argv[2]) == 0) printf("Client: exited with success\n");
+    if (client(argv[1],argv[2]) == 0) ;//printf("Client: exited with success\n");
     else
     {
-      printf("Errors with client\n");
+      ;//printf("Errors with client\n");
       return -1;
     }
   }
   /* error */
   else
   {
-    printf("Invalid amount of arguments.\nUsage:\n\
+    ;//printf("Invalid amount of arguments.\nUsage:\n\
       server: %s <portnumber>\n\
       client: %s <portnumber> <server ip>\n",argv[0],argv[0]);
     return -1;
