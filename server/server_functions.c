@@ -119,8 +119,8 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 	/* Euclidean distance */
     eucl = sqrt(pow(deltaX,2) + pow(deltaY,2));
-	printf("deltaX: %ld\t rangeX: %ld", deltaX, rangeX):
-	printf("deltaY: %ld\t rangeY: %ld", deltaY, rangeY):
+	printf("deltaX: %ld\t rangeX: %ld", deltaX, rangeX);
+	printf("deltaY: %ld\t rangeY: %ld", deltaY, rangeY);
 	if (eucl <  sca1 && sca1 > sca2)
         return -1;
   else if (eucl < sca2 && sca1 < sca2)
