@@ -137,7 +137,7 @@ void eventEatPlayer(Player *eater, Player *eaten){
 }
 
 void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength,
-	uint32_t packetID){
+	uint32_t packetID, uint16_t toPlayerID){
     Ack *pAck = NULL;
     if ((pAck = calloc(1, sizeof(Ack))) == NULL) { perror("calloc"); }
 
@@ -145,6 +145,8 @@ void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength,
     memcpy(pAck->msg, msg, msgLength);
     pAck->msgLength = msgLength;
     pAck->packetID = packetID;
+		pAck->toPlayerID = toPlayerID;
+		pAck->pNext = NULL;
 
     /* Add the ack to the start of the linked list */
     append2ListAck(pAckList,pAck);
@@ -159,7 +161,8 @@ void append2ListAck(Ack **pList, Ack *pNew){
 void removeAck(Ack **pList, uint32_t ackID){
     Ack *p = *pList, *prev = NULL;
 
-    if (p->packetID == ackID){
+		if (p==NULL) {return;}
+    else if (p->packetID == ackID){ // if first in list
         p = p->pNext;
         free(*pList);
         *pList = p;
@@ -172,10 +175,12 @@ void removeAck(Ack **pList, uint32_t ackID){
             else {
                 prev = p;
                 p = p->pNext;
-			}
-            prev->pNext = p->pNext;
-            free(p);
+						}
         }
+				prev->pNext = p->pNext;
+
+				free(p);
+				p = NULL;
     }
 }
 
@@ -259,7 +264,7 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
 }
 
 
-int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, int msgSubType, uint16_t outPlayerID, int status){
+int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status){
 	/* toPlayerID: to Which player (ID) the message is
 	 * outPlayerID: ID of a player which is either OUT or DEAD
 	 * (otherwise, set to e.g. 0)
@@ -278,7 +283,8 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 	memset(msgBuffer,'\0',BUFFERSIZE);
 
 	/* HEADER */
-	*(uint16_t*)&msgBuffer[ind] = 0;
+	/* Switched the USER_ID to be the ID of the player, because communication problems */
+	*(uint16_t*)&msgBuffer[ind] = htons(toPlayerID);
 	ind += sizeof(uint16_t);
 	*(uint32_t*)&msgBuffer[ind] = htonl(pGame->gameTime);
 	ind += sizeof(uint32_t);
@@ -297,8 +303,9 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 			else if(msgSubType == JOIN)
 				break;
 			else{
+				printf("ADDING TO sAcks\n");
 				*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
-				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime);
+				addAck2List(&(pGame->sAcks),msgBuffer,pGame->gameTime,plLength,pGame->gameTime, toPlayerID);
 				break;
 			}
 	    case STATISTICS_MESSAGE:
@@ -315,11 +322,10 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, in
 	else
 		*(uint32_t*) &msgBuffer[ind] = htonl(plLength);
 
-	return 0;
+	return PLIND+plLength;
 }
 
-
-int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, uint16_t outPlayerID){
+int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
 
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
 	Near *pNear = NULL;
@@ -418,16 +424,18 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 
 	switch (msgSubType) {
 		case JOIN:
+			printf("PACKING ACK JOIN\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 
 			if(status == OK){
-				*(uint16_t*) &pPL[ind] = toPlayerID;
+				*(uint16_t*) &pPL[ind] = htons(toPlayerID);
 				ind += sizeof(uint16_t);
 			}
 
 			return ind;
 		case NICK:
+			printf("PACKING ACK NICK\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 			return ind;
@@ -508,6 +516,24 @@ int checkNick(char *nick,Player *pPlayer){
 	return 1;
 }
 
+/* Function for resending unacked messages */
+/* line 139 ack for help */
+void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
+	Ack *ack = *ackList;
+	Player *p = NULL;
+
+	while(ack != NULL) {
+		p = getPlayer(ack->toPlayerID, players);
+
+		if(p == NULL) {
+			printf("\n\n\nCouldn't find the player to whom the msg should be resent\n\n\n");
+			continue;
+		}
+		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
+		ack = ack->pNext;
+	}
+}
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -544,6 +570,26 @@ int checkJoin(Player *pPlayer, struct sockaddr *from) {
 	}
 
 	return -1;
+}
+
+void checkEaten(Game *pGame, int udpFD, socklen_t addrlen){
+	/* This function checks if player is eaten, sends him a message and changes
+   * his status to eaten
+	 * TODO: send msg to all players if someone has been eaten */
+	char buf[BUFFERSIZE] = {0};
+	int msgLen;
+
+	Player *p = pGame->sPlayers;
+	for(;p!=NULL;p=p->pNext){
+		if(p->state != EATEN){ continue; } // we are only interested in EATEN states
+		msgLen = msgPacker(buf, pGame, p->ID, GAME_MESSAGE, PLAYER_DEAD, p->ID, 0);
+		if(!msgLen)
+			perror("msgPacker");
+		else {
+			p->state = DEAD;
+			sendto(udpFD,buf,msgLen,0,&p->address,addrlen);
+		}
+	}
 }
 
 /* Sends the whole buffer over tcp */

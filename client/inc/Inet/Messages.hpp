@@ -61,7 +61,7 @@ inline void PackUINT16ToPayload(uint16_t variableToPack, uint8_t * payload, int 
 
 inline void PackUINT8ToPayload(uint8_t variableToPack, uint8_t * payload, int bufferPosition) {
 	memcpy(&payload[bufferPosition], &variableToPack, sizeof(uint8_t));
-	// std::cout << "Location pointer: " << bufferPosition << std::endl;
+//	 std::cout << "Location pointer: " << bufferPosition << std::endl;
 }
 
 inline uint8_t * CreateGameMessageACKHeader(uint32_t packetID, GAME_MESSAGE_TYPE type) {
@@ -98,7 +98,7 @@ class Message: public IMessage {
 		// Constructors & Destructor
 		inline Message(MessageHeader header, MESSAGE_TYPE pMessageType) {
 			gameTime = header.gameTime;
-			userID = header.user_id;
+			messageHeaderUserID = header.user_id;
 			messageType = pMessageType;
 		};
 
@@ -117,8 +117,8 @@ class Message: public IMessage {
 			return gameTime;
 		};
 
-		inline uint32_t getUserID() const {
-			return userID;
+		inline uint32_t getMessageHeaderUserID() const {
+			return messageHeaderUserID;
 		};
 
 		inline uint32_t getPayloadSize() const {
@@ -142,7 +142,7 @@ class Message: public IMessage {
 
 	protected:
 		uint32_t gameTime;
-		uint32_t userID;
+		uint32_t messageHeaderUserID;
 		uint32_t payloadSize = 0;
 		MESSAGE_TYPE messageType;
 		static const uint32_t headerSize = 11;
@@ -208,6 +208,10 @@ class Nick : public GameMessage {
 		int PackSelf(uint8_t * payload);
 
 		static Nick * Unpack(MessageHeader, uint32_t, uint8_t*);
+
+		inline std::string getNickname(){
+			return std::string(nick);
+		};
 
 		inline static uint32_t sizeOfNick(){
 			return 12;
@@ -330,6 +334,23 @@ class GameUpdate: public GameMessage {
 		int PackSelf(uint8_t * payload);
 
 		static GameUpdate * Unpack(MessageHeader, uint32_t, uint8_t*);
+
+		inline uint16_t getPosX(){ return pos_x; };
+
+		inline uint16_t getPosY(){ return pos_y; };
+
+		inline uint16_t getDirX(){ return dir_x; };
+
+		inline uint16_t getDirY(){ return dir_y; };
+
+		inline uint8_t getNumberOfPlayers() {
+			return number_of_players;
+		};
+
+		inline uint16_t getNumberOfObjects() {
+			return number_of_objects;
+		};
+
 	private:
 		uint16_t pos_x;
 		uint16_t pos_y;

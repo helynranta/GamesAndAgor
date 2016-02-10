@@ -13,7 +13,6 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
   /* uid */
   uint16_t uid = ntohs(*(uint16_t*)&buf[index]);
   index += sizeof(uint16_t);
-
   /* game time */
   uint32_t gameTime = ntohl(*(uint32_t*)&buf[index]);
   index += sizeof(uint32_t);
@@ -43,7 +42,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       packet.msgType = GAME_MESSAGE;
       subtype = *(uint8_t*)&buf[index];
       index += sizeof(uint8_t);
-      printf("In unpackers_ subtype: %d\n", subtype);
+      //printf("In unpackers_ subtype: %d\n", subtype);
 
       /* GAME msg subtypes */
       switch (subtype) {
@@ -71,9 +70,11 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       packet.ackID = ntohl(*(uint32_t*)&buf[index]);
       index += sizeof(uint32_t);
       packet.ACKTYPE = *(uint8_t*)&buf[index];
+      index += sizeof(uint8_t);
 
       switch (packet.ACKTYPE) {
         case JOIN:
+          index += sizeof(uint8_t);
         case NICK:
         case EXIT:
         case GAME_END:
@@ -127,12 +128,13 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       break;
 
     default:
-      printf("Unknown msg\n");
+      printf("Unknown msg\nUnknown msg\nUnknown msg\nUnknown msg\nUnknown msg\nUnknown msg\nUnknown msg\n");
+      /* If we get here, error has occured */
+      packet.error=1;
+      return packet;
   }
-
-  /* If we get here, error has occured */
-  packet.error=1;
   return packet;
+
 
 }
 

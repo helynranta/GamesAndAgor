@@ -19,13 +19,13 @@ Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payl
 		message = GameMessage::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::ACK:
-/*		std::cout << " ================== HEADER INFO ================== "<< std::endl;
-		std::cout << "GameTime: " << header->gameTime << std::endl;
-		std::cout << "UserID: " << header->user_id << std::endl;
-		std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
-		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
-		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
-*/
+//		std::cout << " ================== HEADER INFO ================== "<< std::endl;
+//		std::cout << "GameTime: " << header->gameTime << std::endl;
+//		std::cout << "UserID: " << header->user_id << std::endl;
+//		std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
+//		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
+//		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
+
 		message = MessagesAck::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::PLAYER_MOVEMENT:
@@ -46,6 +46,7 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t*
 	int bufferPosition = 0;
 	uint8_t socketByteBuffer[BUFFER_SIZE];
 	memset(socketByteBuffer, 0, sizeof(struct MessageHeader));
+	memset(socketByteBuffer, 0, BUFFER_SIZE);
 	header->addrlen = sizeof(header->sender_addr);
 
 	int bytesRead = recvfrom(socket_fd, socketByteBuffer, BUFFER_SIZE, 0, reinterpret_cast<struct sockaddr*>(&header->sender_addr), &header->addrlen);
@@ -57,7 +58,7 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t*
 		bufferPosition += sizeof(uint16_t);
 
 		// Unpack GAME_TIME (UINT_32)
-		header->gameTime = UnpackUINT16_T(socketByteBuffer, bufferPosition);
+		header->gameTime = UnpackUINT32_T(socketByteBuffer, bufferPosition);
 //		std::cout << "Message.cpp: GAME TIME: " << header->gameTime << std::endl;
 		bufferPosition += sizeof(uint32_t);
 
@@ -78,7 +79,7 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t*
 		std::cout << "Message.cpp: Nothing read from recvfrom()" << std::endl;
 	}
 
-	char s[INET_ADDRSTRLEN];
+//	char s[INET_ADDRSTRLEN];
 //	std::cout << "Message.cpp: Got message from "
 //			<< inet_ntop(header->sender_addr.ss_family,
 //					reinterpret_cast<const void*>(&reinterpret_cast<struct sockaddr_in*>(reinterpret_cast<struct sockaddr*>(&header->sender_addr))->sin_addr),
@@ -90,54 +91,57 @@ void Message::UnpackHeader(int socket_fd, struct MessageHeader *header, uint8_t*
 // CreateHeader always writes to the beginning of the given buffer so make sure the object offsets their data so there is enough space for message header.
 // One can query header size using int Message::getHeaderSize()
 int Message::CreateHeader(Message * message, uint8_t * buffer) {
-			int bufferPosition = 0;
+	int bufferPosition = 0;
 
-			// insert USER_ID to buffer
-			uint16_t userID = static_cast<uint16_t>(message->getUserID());
-			PackUINT16ToPayload(userID, buffer, bufferPosition);
-			bufferPosition += sizeof(uint16_t);
+	// insert USER_ID to buffer
+	uint16_t userID = static_cast<uint16_t>(message->getMessageHeaderUserID());
+	PackUINT16ToPayload(userID, buffer, bufferPosition);
+	bufferPosition += sizeof(uint16_t);
 
-			// insert GAME_TIME to buffer
-			uint32_t gameTime = static_cast<uint32_t>(message->getgameTime());
-			PackUINT32ToPayload(gameTime, buffer, bufferPosition);
-			bufferPosition += sizeof(uint32_t);
+	// insert GAME_TIME to buffer
+	uint32_t gameTime = static_cast<uint32_t>(message->getgameTime());
+	PackUINT32ToPayload(gameTime, buffer, bufferPosition);
+	bufferPosition += sizeof(uint32_t);
 
-			// insert MESSAGE_TYPE to buffer
+	// insert MESSAGE_TYPE to buffer
 //			std::cout << "MessageType: " << message->getMessageType() << std::endl;
-			uint8_t type = static_cast<uint8_t>(message->getMessageType());
-			PackUINT8ToPayload(type, buffer, bufferPosition);
-			bufferPosition += sizeof(uint8_t);
+	uint8_t type = static_cast<uint8_t>(message->getMessageType());
+	PackUINT8ToPayload(type, buffer, bufferPosition);
+	bufferPosition += sizeof(uint8_t);
 
-			// insert payloadSize to buffer
-			uint32_t payloadSize = static_cast<uint32_t>(message->getPayloadSize());
-			PackUINT32ToPayload(payloadSize, buffer, bufferPosition);
-			bufferPosition += sizeof(uint32_t);
+	// insert payloadSize to buffer
+	uint32_t payloadSize = static_cast<uint32_t>(message->getPayloadSize());
+	PackUINT32ToPayload(payloadSize, buffer, bufferPosition);
+	bufferPosition += sizeof(uint32_t);
 
-			return bufferPosition;
-		}
+	return bufferPosition;
+}
 
 //======= GAME_MESSAGE ========//
 GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+//	std::cout << "Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
 //	std::cout << "========== UNPACK_GAME_MESSAGE_HEADER ==========" << std::endl;
 	int readByteCount = 0;
 
 	// Unpack MSG_SUBTYPE (UINT_8)
 	uint8_t messageSubtype;
 	memcpy(&messageSubtype, payload, sizeof(uint8_t));
-//	std::cout << "Message.cpp: Message subtype" << messageSubtype << std::endl;
+//	std::cout << "Message.cpp - GameMessage::Unpack - Message subtype: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 	readByteCount += sizeof(uint8_t);
 
 	// Unpack PAYLOAD_LENGTH (UINT_32)
 	uint32_t payload_length;
 	memcpy(&payload_length, &payload[readByteCount], sizeof(uint32_t));
 	payload_length = ntohl(payload_length);
-//	std::cout << "Message.cpp: Payload length: " << payload_length << std::endl;
+//	std::cout << "Message.cpp - GameMessage::Unpack - Payload length: " << payload_length << std::endl;
 	readByteCount += sizeof(uint32_t);
 
 	// Copy rest of the payload to new variable and pass it to next Unpacker
 	uint32_t remainingPayloadLength = length - readByteCount;
 	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadLength));
 	memcpy(remainingPayload, &payload[readByteCount], remainingPayloadLength);
+
+	std::cout << "Receiving -> GameMessage: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 
 	switch (messageSubtype) {
 	case GAME_MESSAGE_TYPE::JOIN:
@@ -149,7 +153,7 @@ GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	case GAME_MESSAGE_TYPE::GAME_END:
 		return GameEnd::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::GAME_UPDATE:
-		return GameMessage::Unpack(header, remainingPayloadLength, remainingPayload);
+		return GameUpdate::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::POINTS:
 		return Points::Unpack(header, remainingPayloadLength, remainingPayload);
 	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
@@ -201,16 +205,16 @@ Nick * Nick::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 }
 
 int Nick::PackSelf(uint8_t * payload) {
-	std::cout << "Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(gameMessageType) << std::endl;
+	std::cout << "Sending -> GAME_MESSAGE: " << getSubMessageTypeAsString(getGameMessageType()) << std::endl;
 	int bufferPosition = getHeaderSize();
 
 	// insert MSG_SUBTYPE to buffer
-//	std::cout << "GameMessageType: " << getGameMessageType() << std::endl;
+//	std::cout << "Nick - GameMessageType: " << unsigned(getGameMessageType()) << std::endl;
 	PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint8_t));
 
 	// insert NICK to buffer
-	memcpy(payload, nick, sizeOfNick());
+	memcpy(payload + bufferPosition, nick, sizeOfNick());
 	bufferPosition += addPayloadSize(sizeOfNick());
 
 	CreateHeader(this, payload);
@@ -223,35 +227,35 @@ int Nick::PackSelf(uint8_t * payload) {
 GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	int bufferPosition = 0;
 
-// Unpack OWN_POS_X
+	// Unpack OWN_POS_X
 	uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
-// Unpack OWN_POS_Y
+	// Unpack OWN_POS_Y
 	uint16_t pos_y = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
-// Unpack OWN_DIR_X
+	// Unpack OWN_DIR_X
 	uint16_t dir_x = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
-// Unpack OWN_DIR_Y
+	// Unpack OWN_DIR_Y
 	uint16_t dir_y = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
-// Unpack PLAYER_COUNT
+	// Unpack PLAYER_COUNT
 	uint16_t number_of_players = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
-// Unpack OBJECT_COUNT
+	// Unpack OBJECT_COUNT
 	uint16_t number_of_objects = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
-
-// TODO Will I miss the last meaningful byte?
-// return remaining of the received message
-	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(length - bufferPosition));
-	memcpy(remainingPayload, &payload[bufferPosition], length - bufferPosition);
-
+	// return remaining of the received message, if there is any
+	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
+	if( remainingPayloadSize > 0) {
+		uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(length - bufferPosition));
+		memcpy(remainingPayload, &payload[bufferPosition], length - bufferPosition);
+	}
 	return new GameUpdate(header, pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects);
 
 }
@@ -304,7 +308,6 @@ int Exit::Ack(uint8_t* payload) {
 	return bufferPosition;
 }
 
-
 ////======= PLAYER_DEAD ========//
 PlayerDead* PlayerDead::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
 	uint16_t playerID = UnpackUINT16_T(payload, 0);
@@ -328,7 +331,4 @@ PlayerOut * PlayerOut::Unpack(MessageHeader header, uint32_t length, uint8_t * p
 int PlayerOut::PackSelf(uint8_t * payload) {
 	return 0;
 }
-
-
-
 

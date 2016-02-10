@@ -91,6 +91,7 @@ typedef struct Ack{
 	uint32_t packetID;
 	uint32_t gameTimeSent;
 	uint16_t msgLength;
+	uint16_t toPlayerID;
 	char msg[BUFFERSIZE];
 	struct Ack *pNext;
 } Ack;
