@@ -17,6 +17,9 @@
 #include "Inet/Messages.hpp"
 #include "Inet/MessagesAck.hpp"
 
+// Defines if we really want to start the game or just use simple game loop to test messages
+//#define MESG_TEST = 0
+
 
 using namespace std;
 
@@ -38,8 +41,9 @@ private:
     int length = 0;
     int rval = 0;
     char dgram[1];
-    string ip = "127.0.0.1";
-    //    string ip = "157.24.108.48";
+
+//  string ip = "127.0.0.1";
+    string ip = "157.24.108.48";
     string portUDP = "8888";
     string portTCP = "8889";
     fd_set socket_fds;

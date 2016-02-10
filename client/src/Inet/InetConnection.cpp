@@ -310,9 +310,9 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
 	timeout.tv_usec = 100; // microseconds
-#ifdef MESG_TEST
-	timeout.tv_usec = 25000; // microseconds
-#endif
+	#ifdef MESG_TEST
+		timeout.tv_usec = 250000; // microseconds
+	#endif
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 	// Add listening socket to the set and check if it is the biggest socket number

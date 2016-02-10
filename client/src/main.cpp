@@ -11,8 +11,7 @@
 
 using namespace std;
 
-// Defines if we really want to start the game or just use simple game loop to test messages
-//#define MESG_TEST = 0
+
 
 enum TEST_STATES {
 	JOINING, JOINING_ACK, NICKING, NICKING_ACK, GAME_RUNNING, GAME_ENDING
@@ -47,7 +46,7 @@ void TestMessagesLoop() {
 					memset(testBuffer, 0, BUFFER_SIZE);
 					if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN && testStates == TEST_STATES::JOINING_ACK) {
 						JoinAck* joinAck = static_cast<JoinAck*>(ack);
-						MessageHeader headerForJoinAckAndNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getgameTime(),
+						MessageHeader headerForNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getgameTime(),
 								joinAck->getMessageType(), joinAck->getPayloadSize());
 
 //						messageLenght = (new JoinAck(headerForJoinAckAndNick, joinAck->getStatus(), joinAck->getUserID()))->PackSelf(testBuffer);
@@ -57,14 +56,16 @@ void TestMessagesLoop() {
 						memset(testBuffer, 0, BUFFER_SIZE);
 
 						if (testStates == TEST_STATES::NICKING) {
-							Nick * nick = new Nick(headerForJoinAckAndNick, "Oskar");
+							Nick * nick = new Nick(headerForNick, "Oskar");
 							messageLenght = nick->PackSelf(testBuffer);
 							connection->send(testBuffer, messageLenght);
 							testStates = TEST_STATES::NICKING_ACK;
 						}
 
 					} else if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::NICK && testStates == TEST_STATES::NICKING_ACK) {
-//					std::cout << "Main.cpp " << unsigned(ack->getMessageHeaderUserID()) << std::endl;
+						std::cout << "Main.cpp " << unsigned(ack->getMessageHeaderUserID()) << std::endl;
+						std::cout << "Main.cpp " << unsigned(ack->getMessageType()) << std::endl;
+						std::cout << "Main.cpp " << unsigned(ack->getGameMessageType()) << std::endl;
 						NickAck * nickAck = static_cast<NickAck*>(ack);
 						messageLenght = nickAck->PackSelf(testBuffer);
 						connection->send(testBuffer, messageLenght);
