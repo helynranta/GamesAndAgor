@@ -251,8 +251,6 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	uint16_t number_of_objects = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
-	std::cout << "Jonille with love: " << length << std::endl;
-	std::cout << "Jonille with love: " << bufferPosition << std::endl;
 	// return remaining of the received message, if there is any
 	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
 	if( remainingPayloadSize > 0) {
