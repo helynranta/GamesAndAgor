@@ -250,8 +250,11 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
 
   //memcpy(p->nick, packet.nick, 12);
   // randomLocation(p->location);
-	p->location[0]=100;
-	p->location[1]=100;
+	p->location[0]=(uint16_t)100;
+	p->location[1]=(uint16_t)100;
+
+	p->direction[0]=(uint16_t)0;
+	p->direction[1]=(uint16_t)0;
 
   /* Set initial values */
   p->scale = 1;
@@ -265,6 +268,13 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
   append2ListPlayer(pList, p);
 }
 
+void respawnPlayer(Player *pPlayer){
+	if(pPlayer->state == DEAD){
+		randomLocation(pPlayer->location);
+		pPlayer->state = ALIVE;
+	}
+
+}
 
 int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status){
 	/* toPlayerID: to Which player (ID) the message is
