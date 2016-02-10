@@ -244,19 +244,45 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	bufferPosition += sizeof(uint16_t);
 
 	// Unpack PLAYER_COUNT
-	uint16_t number_of_players = UnpackUINT16_T(payload, bufferPosition);
-	bufferPosition += sizeof(uint16_t);
+	uint8_t number_of_players = UnpackUINT8_T(payload, bufferPosition);
+	bufferPosition += sizeof(uint8_t);
 
 	// Unpack OBJECT_COUNT
 	uint16_t number_of_objects = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
+
+	std::cout << "Jonille with love: " << length << std::endl;
+	std::cout << "Jonille with love: " << bufferPosition << std::endl;
 	// return remaining of the received message, if there is any
 	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
 	if( remainingPayloadSize > 0) {
 		uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(length - bufferPosition));
 		memcpy(remainingPayload, &payload[bufferPosition], length - bufferPosition);
 	}
-	return new GameUpdate(header, pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects);
+
+
+	std::vector<GamePlayer*> playerObjects;
+	std::vector<GameObject*> gameObjects;
+
+	// Get GameObjects
+	int iterator = 0;
+	while ( iterator < number_of_objects){
+		gameObjects.push_back(GameObject::Unpack(payload, iterator));
+		bufferPosition += GameObject::getBufferReadSizeInBytes();
+		iterator++;
+	}
+
+	// Get GamePlayers
+	iterator = 0;
+	while ( iterator < number_of_players){
+		playerObjects.push_back(GamePlayer::Unpack(payload, iterator));
+		bufferPosition += GamePlayer::getBufferReadSizeInBytes();
+		iterator++;
+	}
+
+
+
+	return new GameUpdate(header, pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects, playerObjects, gameObjects);
 
 }
 

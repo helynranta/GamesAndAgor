@@ -39,7 +39,7 @@ private:
     int rval = 0;
     char dgram[1];
     string ip = "127.0.0.1";
-//    string ip = "157.24.108.48	";
+//    string ip = "157.24.108.48";
     string portUDP = "8888";
     string portTCP = "8889";
     fd_set socket_fds;
@@ -88,9 +88,11 @@ public:
     vector<GameUpdate*> getGameUpdateMessages();
     vector<ChatMessage*> getChatMessages();
     vector<PlayerDead*> getDeadPayers();
+    bool getGameEnding();
     inline void setID(uint16_t i) { id = i; }
     inline const uint16_t& getID() const { return id; }
     inline void setState(ConnectionState state) { m_state = state; }
+    MessageHeader createDummyHeader(uint16_t id, uint32_t gameTime, uint8_t messageType, uint32_t payloadLenght);
     inline MessageHeader createHeader() {
         MessageHeader header;
         header.user_id =  id;
