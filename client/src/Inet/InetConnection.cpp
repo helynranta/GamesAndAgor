@@ -2,8 +2,6 @@
 
 #include "Inet/InetConnection.hpp"
 #include "Engine.hpp"
-#include "Inet/Messages.hpp"
-#include "Inet/MessagesAck.hpp"
 
 #define PORT "3393"
 #define UDP_BUFMAX "1500"
