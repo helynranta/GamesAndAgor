@@ -444,6 +444,18 @@ vector<ChatMessage*> InetConnection::getChatMessages() {
 	return lmessages;
 }
 
+vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type) {
+	vector<Message*> lmessages;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == type) {
+			lmessages.push_back(static_cast<Message*>(messageInbox[it]));
+			messageInbox[it] = messageInbox.back();
+			messageInbox.pop_back();
+		}
+	}
+	return lmessages;
+}
+
 vector<PlayerDead*> InetConnection::getDeadPayers() {
 	vector<PlayerDead*> lmessages;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {

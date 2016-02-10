@@ -89,6 +89,7 @@ public:
     vector<GameMessage*> getGameMessages();
     vector<GameUpdate*> getGameUpdateMessages();
     vector<ChatMessage*> getChatMessages();
+    vector<Message*> getMessagesOfType(MESSAGE_TYPE type);
     vector<PlayerDead*> getDeadPayers();
     bool getGameEnding();
     inline void setID(uint16_t i) { id = i; }
