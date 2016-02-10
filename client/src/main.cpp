@@ -15,7 +15,7 @@ using namespace std;
 //#define MESG_TEST = 0
 
 enum TEST_STATES {
-	JOINING, JOINING_ACK, NICKING, NICKING_ACK, GAME_UPDATING
+	JOINING, JOINING_ACK, NICKING, NICKING_ACK, GAME_RUNNING, GAME_ENDING
 };
 
 void TestMessagesLoop() {
@@ -26,7 +26,7 @@ void TestMessagesLoop() {
 	connection->init();
 	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
-	MessageHeader dummyGameMessageHeader;
+	MessageHeader dummyGameMessageHeader = connection->createDummyHeader(0, 123123, MESSAGE_TYPE::GAME_MESSAGE, 0);
 	dummyGameMessageHeader.user_id = 0;
 	dummyGameMessageHeader.gameTime = 123123;
 	Join * joinMessage = new Join(dummyGameMessageHeader);
@@ -39,27 +39,25 @@ void TestMessagesLoop() {
 		std::cout << "==================================== LOOP START ====================================" << std::endl;
 		connection->update();
 
-		if (testStates != TEST_STATES::GAME_UPDATING) {
+		if (testStates != TEST_STATES::GAME_RUNNING) {
 			std::vector<MessagesAck*> acks = connection->getAcks();
 
 			if (acks.size() > 0) {
 				for (auto& ack : acks) {
 					memset(testBuffer, 0, BUFFER_SIZE);
 					if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN && testStates == TEST_STATES::JOINING_ACK) {
-						uint16_t id = static_cast<JoinAck*>(ack)->getUserID();
-						uint8_t status = static_cast<JoinAck*>(ack)->getStatus();
-						dummyGameMessageHeader.user_id = id;
-						dummyGameMessageHeader.gameTime = static_cast<JoinAck*>(ack)->getgameTime();
-						messageLenght = (new JoinAck(dummyGameMessageHeader, status, id))->PackSelf(testBuffer);
-						connection->send(testBuffer, messageLenght);
-//					std::cout << "NICK ID: " << unsigned(static_cast<JoinAck*>(ack)->getUserID()) << std::endl;
+						JoinAck* joinAck = static_cast<JoinAck*>(ack);
+						MessageHeader headerForJoinAckAndNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getgameTime(),
+								joinAck->getMessageType(), joinAck->getPayloadSize());
+
+//						messageLenght = (new JoinAck(headerForJoinAckAndNick, joinAck->getStatus(), joinAck->getUserID()))->PackSelf(testBuffer);
+//						connection->send(testBuffer, messageLenght);
 						testStates = TEST_STATES::NICKING;
 
 						memset(testBuffer, 0, BUFFER_SIZE);
-//					std::cout << "Main.cpp " << unsigned(dummyGameMessageHeader.user_id) << std::endl;
 
 						if (testStates == TEST_STATES::NICKING) {
-							Nick * nick = new Nick(dummyGameMessageHeader, "Oskar");
+							Nick * nick = new Nick(headerForJoinAckAndNick, "Oskar");
 							messageLenght = nick->PackSelf(testBuffer);
 							connection->send(testBuffer, messageLenght);
 							testStates = TEST_STATES::NICKING_ACK;
@@ -70,7 +68,7 @@ void TestMessagesLoop() {
 						NickAck * nickAck = static_cast<NickAck*>(ack);
 						messageLenght = nickAck->PackSelf(testBuffer);
 						connection->send(testBuffer, messageLenght);
-						testStates = TEST_STATES::GAME_UPDATING;
+						testStates = TEST_STATES::GAME_RUNNING;
 
 					}
 				}
@@ -78,19 +76,31 @@ void TestMessagesLoop() {
 			}
 		}
 
-		if (testStates == TEST_STATES::GAME_UPDATING) {
+		if (testStates == TEST_STATES::GAME_RUNNING) {
+
+			if (connection->getGameEnding()) {
+				testStates = TEST_STATES::GAME_ENDING;
+				continue;
+			}
+
 			std::vector<GameUpdate*> gameUpdates = connection->getGameUpdateMessages();
 			if (gameUpdates.size() > 0) {
 				for (auto& update : gameUpdates) {
 					memset(testBuffer, 0, BUFFER_SIZE);
-//					std::cout << "Main.cpp - GameUpdate - Dir_X: " << update->getDirX() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << update->getDirY() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << update->getNumberOfObjects() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(update->getNumberOfPlayers()) << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Pos_X: " << update->getPosX() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << update->getPosY() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Dir_X: " << update->getDirX() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << update->getDirY() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << update->getNumberOfObjects() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(update->getNumberOfPlayers()) << std::endl;
 
 				}
 				continue;
 			}
+		}
+
+		if (testStates == TEST_STATES::GAME_ENDING) {
+
 		}
 
 		std::cout << "==================================== LOOP END ====================================" << std::endl;

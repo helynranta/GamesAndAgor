@@ -31,6 +31,7 @@ int server(char* port) {
 	fd_set readset, master;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
 	long time1, time2;
+  int plLength;
 
   struct addrinfo hints = { .ai_flags = AI_PASSIVE,	/* Get addresses suitable for bind */
                             .ai_family = PF_UNSPEC,
@@ -233,8 +234,8 @@ int server(char* port) {
 											}*/
                       newPlayer(&game.sPlayers, packet, game.nPlayers);
                       game.nPlayers++;
-                      msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
-                      tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+                      plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
+                      tavut = sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
                       printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
 
 
@@ -268,9 +269,10 @@ int server(char* port) {
 												/* add the tcp connection for this new player */
 												/* Actually no, let's not do it so we can have some fun */
 											}
-											msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
-											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+											plLength = msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
+											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
                       printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
+
 											break;
 
 										case EXIT:
@@ -281,16 +283,16 @@ int server(char* port) {
 											p->state = OUT;
 
 											// Send ACK to player
-											msgPacker(sendbuffer, &game, packet.ID, ACK, EXIT, packet.ID, 0);
-											sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
+											plLength = msgPacker(sendbuffer, &game, packet.ID, ACK, EXIT, packet.ID, 0);
+											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
 
 											// Inform other clients
 											Player *pPla = game.sPlayers;
 											while (pPla != NULL) {
 												// Don't send to exiting player
 												if (pPla->ID != packet.ID) {
-													msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
-													sendto(socketfd, sendbuffer, SIZE, 0, &pPla->address, addrlen);
+													plLength = msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
+													sendto(socketfd, sendbuffer, plLength, 0, &pPla->address, addrlen);
 													pPla = pPla->pNext;
 												}
 											}
@@ -326,6 +328,10 @@ int server(char* port) {
 									calculate nearby objects etc. */
 									/* update player's position */
 									Player *p = getPlayer(packet.ID, game.sPlayers);
+                  if(p == NULL) {
+                    printf("Couldn't get player, case PLAYER_MOVEMENT\n");
+                    break;
+                  }
 
 									/* x and y position */
 									p->location[0] = packet.posX;

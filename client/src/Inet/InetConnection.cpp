@@ -309,8 +309,8 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 
 int InetConnection::checkUDPConnections() {
 	memset(&timeout, 0, sizeof(timeout));
-	//timeout.tv_usec = 25000; // microseconds
-	timeout.tv_usec = 500; // microseconds
+	timeout.tv_usec = 25000; // microseconds
+//	timeout.tv_usec = 500; // microseconds
 	timeout.tv_sec = 0; // seconds
 	FD_ZERO(&socket_fds); // Clear the set of file descriptors
 	// Add listening socket to the set and check if it is the biggest socket number
@@ -322,13 +322,18 @@ int InetConnection::checkUDPConnections() {
 			disconnect();
 			return false;
 		case 0:
-			//std::cout << "UDP timeout"	 << std::endl;
+//			std::cout << "UDP timeout" << std::endl;
 			return false;
 		default:
 			struct MessageHeader *header = static_cast<struct MessageHeader*>(malloc(sizeof(struct MessageHeader)));
 			uint8_t payloadBuffer[BUFFER_SIZE];
 			if (FD_ISSET(socketudp, &socket_fds)) {
 				Message::UnpackHeader(socketudp, header, payloadBuffer);
+
+				if (header->payload_length < 1){
+					return false;
+				}
+
 				unpackedMessage = MessageFactory::getInstance().getMessageByType(header, payloadBuffer);
 				break;
 			}
@@ -396,6 +401,19 @@ vector<GameUpdate*> InetConnection::getGameUpdateMessages() {
 	return lmessages;
 }
 
+bool InetConnection::getGameEnding(){
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
+			if(static_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::GAME_END){
+				messageInbox[it] = messageInbox.back();
+				messageInbox.pop_back();
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
 	vector<MessagesAck*> msgs;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
@@ -436,4 +454,14 @@ vector<PlayerDead*> InetConnection::getDeadPayers() {
 		}
 	}
 	return lmessages;
+}
+
+MessageHeader InetConnection::createDummyHeader(uint16_t id, uint32_t gameTime, uint8_t messageType, uint32_t payloadLenght){
+	MessageHeader dummyGameMessageHeader;
+	dummyGameMessageHeader.user_id = id;
+	dummyGameMessageHeader.message_type = messageType;
+	dummyGameMessageHeader.gameTime = gameTime;
+	dummyGameMessageHeader.payload_length = payloadLenght;
+	return dummyGameMessageHeader;
+
 }

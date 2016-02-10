@@ -5,6 +5,7 @@
 
 #include "Engine.hpp"
 #include "core/Scene.hpp"
+#include "Inet/Messages.hpp"
 
 class NickDialog : public Scene {
 private:
@@ -33,7 +34,7 @@ public:
             gui->getInput("nick")->hide();
             // put here if connect returns true
             uint8_t nickbuffer[BUFFER_SIZE];
-            Nick* nick = new Nick(Engine::connection->createHeader(), "Oskari");
+            Nick* nick = new Nick(Engine::connection->createDummyHeader(Engine::connection->getID(), 123123, MESSAGE_TYPE::GAME_MESSAGE, 0), "Oskari");
             int messageLength = nick->PackSelf(nickbuffer);
             Engine::connection->send(nickbuffer, messageLength);
         }

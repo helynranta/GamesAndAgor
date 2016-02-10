@@ -119,12 +119,13 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 	/* Euclidean distance */
     eucl = sqrt(pow(deltaX,2) + pow(deltaY,2));
-
+	printf("deltaX: %ld\t rangeX: %ld", deltaX, rangeX);
+	printf("deltaY: %ld\t rangeY: %ld", deltaY, rangeY);
 	if (eucl <  sca1 && sca1 > sca2)
         return -1;
-    else if (eucl < sca2 && sca1 > sca2)
+  else if (eucl < sca2 && sca1 < sca2)
         return -2;
-    else if (deltaX < rangeX && deltaY < rangeY)
+  else if (deltaX < rangeX && deltaY < rangeY)
 		return 1;
 	else
 		return 0;
@@ -249,7 +250,12 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
   p->address = packet.senderAddr;
 
   //memcpy(p->nick, packet.nick, 12);
-  randomLocation(p->location);
+  // randomLocation(p->location);
+	p->location[0]=(uint16_t)100;
+	p->location[1]=(uint16_t)100;
+
+	p->direction[0]=(uint16_t)0;
+	p->direction[1]=(uint16_t)0;
 
   /* Set initial values */
   p->scale = 1;
@@ -263,6 +269,13 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
   append2ListPlayer(pList, p);
 }
 
+void respawnPlayer(Player *pPlayer){
+	if(pPlayer->state == DEAD){
+		randomLocation(pPlayer->location);
+		pPlayer->state = ALIVE;
+	}
+
+}
 
 int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status){
 	/* toPlayerID: to Which player (ID) the message is
@@ -326,7 +339,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 }
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
-
+	printf("Packing game MSG\n");
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
 	Near *pNear = NULL;
 	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
@@ -349,8 +362,13 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 			}
 			return ind;
     	case GAME_UPDATE:
+			printf("Packing game update\n");
 			/* FIND CORRESPONDING PLAYER */
 			pPlayer = getPlayer(toPlayerID, pPlayer);
+			if(pPlayer == NULL){
+				printf("NULIKKA, ei pelaajaa\n");
+				return -1;
+			}
 
 			/* PLAYERS OWN INFORMATION */
 			*(uint16_t *) &pPL[ind] = htons(pPlayer->location[0]);
@@ -382,6 +400,12 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 			*(uint16_t *) &pPL[indNObj] = htons(nObjects);
 
 			/* PACK NEARBY PLAYERS */
+			if (pPlayer->nearPlayers == NULL){
+				printf("Ei pelaajia lähellä\n");
+			}
+			else{
+				printf("Pakataan lähellä olevia pelaajia\n");
+			}
 			for(pNear = pPlayer->nearPlayers; pNear != NULL; pNear = pNear->pNext, nPlayers++){
 				pPla = (Player *)(pNear->pParticle);
 				*(uint16_t *) &pPL[ind] = htons(pPla->ID);
@@ -398,6 +422,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 				ind += sizeof(uint32_t);
 			}
 			*(uint8_t *) &pPL[indNPla] = nPlayers;
+			printf("Near Players: %d\n", nPlayers);
 
 			return ind;
     	case PLAYER_DEAD:  // similar to PLAYER_OUT
