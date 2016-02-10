@@ -77,6 +77,7 @@ bool InetConnection::connectTCP() {
 		// get server address information
 		if (getaddrinfo(ip.c_str(), portTCP.c_str(), &hints, &res) != 0) {
 			cerr << "getaddrinfo error " << strerror(errno) << endl;
+			disconnect();
 			return false;
 		}
 		struct addrinfo* p = nullptr;
@@ -119,19 +120,22 @@ bool InetConnection::connectUDP() {
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_DGRAM;
 
-	close(socketudp);
+	if(socketudp != 0) close(socketudp);
 	// create udp socket and bind it
 	if ((socketudp = ::socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		cerr << "was not able to create udp socket!" << endl << strerror(errno) << endl;
+		disconnect();
 		return false;
 	}
 	if (::bind(socketudp, reinterpret_cast<struct sockaddr*>(&me_addr), sizeof(me_addr)) < 0) {
 		cerr << "was not able to bind udp port!" << endl << strerror(errno) << endl;
+		disconnect();
 		return false;
 	}
 
 	if (getaddrinfo(ip.c_str(), portUDP.c_str(), &hints, &res)) {
 		std::cout << "Cannot resolve address. Exiting" << std::endl;
+		disconnect();
 		return false;
 	} else {
 		//std::cout << "getaddrinfo success" << std::endl;
@@ -139,6 +143,7 @@ bool InetConnection::connectUDP() {
 		for (iter = res; iter != NULL; iter = iter->ai_next) {
 			if ((socketudp = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol)) < 0) {
 				std::cout << "Error socket(): " << strerror(errno) << std::endl;
+				disconnect();
 				return false;
 			}
 			/*
@@ -156,9 +161,15 @@ bool InetConnection::connectUDP() {
 bool InetConnection::disconnect() {
 	if (res == nullptr)
 		freeaddrinfo(res);
-	close(sockettcp);
+	if(sockettcp != 0) close(sockettcp);
+	if(socketudp != 0) close(socketudp);
+	
 	sockettcp = 0;
+	sockettcp = 0;
+
 	m_state = ConnectionState::DISCONNECTED;
+
+	cout << "disconnect has been successfull" << endl;
 	return true;
 }
 int InetConnection::update() {
@@ -189,6 +200,7 @@ int InetConnection::checkTCPConnection() {
 		switch(select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout)) {
 			case -1:
 				cerr << strerror(errno) << endl;
+				disconnect();
 			case 0: break;
 			default:
 				if (FD_ISSET(sockettcp, &socket_fds)) {
@@ -196,7 +208,8 @@ int InetConnection::checkTCPConnection() {
 					recv(sockettcp, buffer, sizeof(buffer), 0);
 					if(strlen(buffer) > 0) {
 						tcpsocketstatus = true;
-						cout << buffer << endl;
+						//cout << buffer << endl;
+						memcpy(buffer, 0, BUFFER_SIZE);
 					}
 				}
 				break;
@@ -306,6 +319,7 @@ int InetConnection::checkUDPConnections() {
 	switch (select(socketudp + 1, &socket_fds, NULL, NULL, &timeout)) {
 		case -1:
 			std::cout << strerror(errno) << std::endl;
+			disconnect();
 			return false;
 		case 0:
 			//std::cout << "UDP timeout"	 << std::endl;
@@ -345,7 +359,6 @@ int InetConnection::checkUDPConnections() {
 vector<MessagesAck*> InetConnection::getAcks() {
 	vector<MessagesAck*> lmessages;
 //	std::cout << "ACK_MESSAGES_SIZE: " << messageInbox.size() << std::endl;
-
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
 			lmessages.push_back(static_cast<MessagesAck*>(messageInbox[it]));

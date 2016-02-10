@@ -80,6 +80,8 @@ public:
 
     void destroy();
     inline const ConnectionState& getState() const { return m_state; }
+    inline void setState(ConnectionState state) { m_state = state; }
+    
     inline const bool& getTCPStatus() const { return tcpsocketstatus; }
     inline void setIP(const string& i) { ip = i; }
     MessagesAck* getAck(GAME_MESSAGE_TYPE type);
@@ -90,7 +92,6 @@ public:
     vector<PlayerDead*> getDeadPayers();
     inline void setID(uint16_t i) { id = i; }
     inline const uint16_t& getID() const { return id; }
-    inline void setState(ConnectionState state) { m_state = state; }
     inline MessageHeader createHeader() {
         MessageHeader header;
         header.user_id =  id;
