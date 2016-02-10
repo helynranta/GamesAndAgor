@@ -249,7 +249,9 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
   p->address = packet.senderAddr;
 
   //memcpy(p->nick, packet.nick, 12);
-  randomLocation(p->location);
+  // randomLocation(p->location);
+	p->location[0]=100;
+	p->location[1]=100;
 
   /* Set initial values */
   p->scale = 1;
