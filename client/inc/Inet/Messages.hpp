@@ -16,6 +16,8 @@
 class Message;
 class Points;
 class GameMessage;
+class GamePlayer;
+class GameObject;
 
 enum MESSAGE_TYPE {
 	GAME_MESSAGE = 0, ACK = 1, PLAYER_MOVEMENT = 2, PLAYER_CHAT_MESSAGE = 3, STATISTICS_MESSAGE = 4
@@ -319,7 +321,9 @@ class PlayerOut: public GameMessage {
 class GameUpdate: public GameMessage {
 	public:
 		inline GameUpdate(MessageHeader header, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint8_t pNumber_of_players,
-				uint16_t pNnumber_of_objects) :
+				uint16_t pNnumber_of_objects,
+				std::vector<GamePlayer*> pPlayers,
+				std::vector<GameObject*> pObjects) :
 				GameMessage(header, GAME_MESSAGE_TYPE::GAME_UPDATE) {
 			pos_x = pPos_x;
 			pos_y = pPos_y;
@@ -327,6 +331,8 @@ class GameUpdate: public GameMessage {
 			dir_y = pDir_y;
 			number_of_players = pNumber_of_players;
 			number_of_objects = pNumber_of_players;
+			players = pPlayers;
+			objects = pObjects;
 		};
 
 		inline ~GameUpdate() {};
@@ -358,9 +364,29 @@ class GameUpdate: public GameMessage {
 		uint16_t dir_y;
 		uint8_t number_of_players;
 		uint16_t number_of_objects;
-		std::vector<int> players;
-		std::vector<int> objects;
+		std::vector<GamePlayer*> players;
+		std::vector<GameObject*> objects;
 
+};
+
+class Ping : public  Message {
+	public:
+		inline Ping(MessageHeader header, uint16_t pPing) : Message(header, MESSAGE_TYPE::GAME_MESSAGE) {
+			ping = pPing;
+		}
+
+		inline void Update(){};
+
+		static inline Ping * Unpack(MessageHeader header, uint32_t bufferPosition, uint8_t * payload) {
+
+			// Unpack CURRENT_PING
+			uint16_t currentPING = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			return new Ping(header, currentPING);
+		}
+	private :
+		uint16_t ping;
 };
 
 class GamePlayer {
@@ -373,6 +399,40 @@ class GamePlayer {
 			dir_y = pDir_y;
 			size = pSize;
 		};
+
+		static inline GamePlayer* Unpack(uint8_t * payload, int bufferPosition ){
+
+			// Unpack PLAYER_ID
+			uint16_t player_id = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// Unpack OWN_POS_X
+			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// Unpack OWN_POS_Y
+			uint16_t pos_y = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// Unpack OWN_DIR_X
+			uint16_t dir_x = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// Unpack OWN_DIR_Y
+			uint16_t dir_y = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// Unpack OWN_DIR_Y
+			uint16_t size = UnpackUINT32_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint32_t);
+
+			return new GamePlayer(player_id, pos_x, pos_y, dir_x, dir_y, size);
+		}
+
+		static inline int getBufferReadSizeInBytes(){
+			return 14;
+		}
+
 
 	private:
 		uint16_t playerID;
@@ -390,6 +450,27 @@ class GameObject {
 			loc_x = pLoc_x;
 			loc_y = pLoc_y;
 		};
+
+		static inline GameObject* Unpack(uint8_t * payload, int bufferPosition){
+
+			// Unpack OBJECT_ID
+			uint16_t object_id = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// Unpack OBJECT_POS_X
+			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			// Unpack OBJECT_POS_Y
+			uint16_t pos_y = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			return new GameObject(object_id, pos_x, pos_y);
+		}
+
+		static inline int getBufferReadSizeInBytes(){
+			return 6;
+		}
 
 	private:
 		uint16_t objectID;
@@ -457,7 +538,6 @@ inline std::string getSubMessageTypeAsString(uint8_t subType) {
 
 	}
 	return "Cannot determinate";
-
 }
 
 #endif
