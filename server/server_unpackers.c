@@ -9,6 +9,7 @@
 struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen_t addrlen){
 
   int index = 0;
+  int sent = 0;
 
   /* uid */
   uint16_t uid = ntohs(*(uint16_t*)&buf[index]);
@@ -120,7 +121,8 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
     case STATISTICS_MESSAGE:
 
       /* Send the buffer right back */
-      sendto(socket, buf, strlen(buf), 0, from, addrlen);
+      sent = sendto(socket, buf, 256, 0, from, addrlen);
+      printf("STAISTICS_MESSAGE sent: %d\n", sent);
       packet.msgType = STATISTICS_MESSAGE;
       /* Statistics a.k.a ping message */
       /* ping is in milliseconds */
