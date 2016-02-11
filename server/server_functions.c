@@ -30,7 +30,7 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
     int isIn = 0;
 	if (sPlayers==NULL){return;}
 	// Clear the previous Near lists of players
-	printf("CNP\n");
+	//printf("CNP\n");
 	for(p1 = sPlayers; p1 != NULL; p1 = p1->pNext){
 		clearListNear(&(p1->nearPlayers));
 		clearListNear(&(p1->nearObjects));
@@ -126,8 +126,8 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 	/* Euclidean distance */
     eucl = sqrt(pow(deltaX,2) + pow(deltaY,2));
-		printf("deltaX: %ld\t rangeX: %f\n", deltaX, rangeX);
-		printf("deltaY: %ld\t rangeY: %f\n", deltaY, rangeY);
+		//printf("deltaX: %ld\t rangeX: %f\n", deltaX, rangeX);
+		//printf("deltaY: %ld\t rangeY: %f\n", deltaY, rangeY);
 
 	if (eucl <  sca1 && sca1 > sca2)
         return -1;
@@ -222,7 +222,7 @@ void append2ListObject(Object **pList, Object *pNew){
 }
 
 void clearListNear(Near **pList){
-	printf("CLN\n");
+	//printf("CLN\n");
 	Near *next = NULL, *p = NULL;
 	p = *pList;
 	while(p != NULL){
