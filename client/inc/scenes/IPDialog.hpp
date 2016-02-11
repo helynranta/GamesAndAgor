@@ -2,6 +2,8 @@
 #define _IPDIALOG_HPP
 
 #include <iostream>
+#include <vector>
+#include <string>
 #include <cerrno>
 
 #include "Engine.hpp"
@@ -9,7 +11,7 @@
 
 class IPDialog : public Scene {
 private:
-
+    bool connecting = false;
 public:
     inline IPDialog () {}
 
@@ -29,14 +31,16 @@ public:
     inline void update(float dt) override {
         ConnectionState cstate = Engine::connection->getState();
         int tcpstatus = Engine::connection->getTCPStatus();
-        if(Engine::input->isKeyPressed(SDLK_d) && cstate != ConnectionState::CONNECTING) {
+        if(Engine::input->isKeyPressed(SDLK_d) && connecting) {
             Engine::input->getchar();
             Engine::connection->disconnect();
             gui->getText("hint")->setText("Enter server IP address");
             gui->getInput("input")->show();
+            connecting = false;
         }
-        else if(Engine::input->isKeyPressed(SDLK_RETURN) && cstate != ConnectionState::CONNECTING) {
+        else if(Engine::input->isKeyPressed(SDLK_RETURN) && !connecting) {
             // show right text
+            connecting = true;
             gui->getText("hint")->setText("Trying to connect to server... press d to return");
             gui->getInput("input")->hide();
 
@@ -58,33 +62,41 @@ public:
         if(cstate == ConnectionState::TIMED_OUT) {
             gui->getText("hint")->setText("Connection timed out...");
             gui->getInput("input")->show();
+            connecting = false;
         }
-
-        MessagesAck* ack = Engine::connection->getAck(GAME_MESSAGE_TYPE::JOIN);
-        if(ack != nullptr) {
-            switch(static_cast<JoinAck*>(ack)->getStatus()) {
-                case 0: // negative
-                    gui->getText("hint")->setText("connection refused");
-                    gui->getInput("input")->show();
-                    //Engine::connection->disconnect();
-                    break;
-                case 1: // positive
-                    gui->getText("hint")->setText("UDP penetrated, test TCP");
-                    gui->getInput("input")->hide();
-                    Engine::connection->setState(ConnectionState::CONNECTED);
-                    Engine::connection->connectTCP();
-                    Engine::connection->setID(static_cast<JoinAck*>(ack)->getUserID());
-                    break;
-            }
-        }
+        checkAck();
         if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {
             cout << "both tcp and udp status ok" << endl;
-            //gui->getText("hint")->setText("Enter server IP address");
-            //gui->getInput("input")->show();
+            // revert back
+            gui->getText("hint")->setText("Enter server IP address");
+            gui->getInput("input")->show();
             Engine::startScene("NickDialog");
         }
     }
-
+    inline void checkAck() {
+        vector<Message*> msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::ACK, GAME_MESSAGE_TYPE::JOIN);
+        if(msgs.size() > 0 ){
+            JoinAck* ack = static_cast<JoinAck*>(msgs.back());
+            if(ack != nullptr) {
+                switch(ack->getStatus()) {
+                    case 0: // negative
+                        gui->getText("hint")->setText("connection refused");
+                        gui->getInput("input")->show();
+                        //Engine::connection->disconnect();
+                        connecting = false;
+                        break;
+                    case 1: // positive
+                        gui->getText("hint")->setText("UDP penetrated, test TCP");
+                        gui->getInput("input")->hide();
+                        Engine::connection->setState(ConnectionState::CONNECTED);
+                        Engine::connection->connectTCP();
+                        Engine::connection->setID(static_cast<JoinAck*>(ack)->getUserID());
+                        connecting = true;
+                        break;
+                }
+            }
+        }
+    }
     inline void end() override {}
 
     inline void draw() override {}

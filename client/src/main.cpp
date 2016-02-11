@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <string>
 #include <map>
 
@@ -11,18 +12,18 @@
 
 using namespace std;
 
-
-
 enum TEST_STATES {
 	JOINING, JOINING_ACK, NICKING, NICKING_ACK, GAME_RUNNING, GAME_ENDING
 };
 
 void TestMessagesLoop() {
-	std::cout << "USING MESSAGE TEST LOOP" << std::endl;
+	cout << "USING MESSAGE TEST LOOP" << endl;
 	TEST_STATES testStates = TEST_STATES::JOINING;
 
 	InetConnection * connection = new InetConnection();
 	connection->init();
+	
+	//connection->setIP("157.24.108.48");
 	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
 	MessageHeader dummyGameMessageHeader = connection->createDummyHeader(0, 123123, MESSAGE_TYPE::GAME_MESSAGE, 0);
@@ -35,22 +36,18 @@ void TestMessagesLoop() {
 
 	int loopCounter = 0;
 	while (loopCounter < 1000) {
-		std::cout << "==================================== LOOP START ====================================" << std::endl;
+		//std::cout << "==================================== LOOP START ====================================" << std::endl;
 		connection->update();
-
 		if (testStates != TEST_STATES::GAME_RUNNING) {
-			std::vector<MessagesAck*> acks = connection->getAcks();
-
-			if (acks.size() > 0) {
-				for (auto& ack : acks) {
+			vector<Message*> vmsgs = connection->getMessagesOfType(MESSAGE_TYPE::ACK);
+			if (vmsgs.size() > 0) {
+				for (auto& a : vmsgs) {
+					MessagesAck* ack = static_cast<MessagesAck*>(a);
 					memset(testBuffer, 0, BUFFER_SIZE);
 					if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN && testStates == TEST_STATES::JOINING_ACK) {
 						JoinAck* joinAck = static_cast<JoinAck*>(ack);
 						MessageHeader headerForNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getGameTime(),
 								joinAck->getMessageType(), joinAck->getPayloadSize());
-
-//						messageLenght = (new JoinAck(headerForNick, joinAck->getStatus(), joinAck->getUserID()))->PackSelf(testBuffer);
-//						connection->send(testBuffer, messageLenght);
 						testStates = TEST_STATES::NICKING;
 
 						memset(testBuffer, 0, BUFFER_SIZE);
@@ -70,7 +67,6 @@ void TestMessagesLoop() {
 						messageLenght = nickAck->PackSelf(testBuffer);
 						connection->send(testBuffer, messageLenght);
 						testStates = TEST_STATES::GAME_RUNNING;
-
 					}
 				}
 				continue;
@@ -94,7 +90,6 @@ void TestMessagesLoop() {
 					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << update->getDirY() << std::endl;
 					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << update->getNumberOfObjects() << std::endl;
 					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(update->getNumberOfPlayers()) << std::endl;
-
 				}
 				continue;
 			}
@@ -104,7 +99,7 @@ void TestMessagesLoop() {
 
 		}
 
-		std::cout << "==================================== LOOP END ====================================" << std::endl;
+		//std::cout << "==================================== LOOP END ====================================" << std::endl;
 		loopCounter++;
 	}
 }

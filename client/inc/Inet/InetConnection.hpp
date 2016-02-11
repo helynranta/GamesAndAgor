@@ -42,8 +42,7 @@ private:
     int rval = 0;
     char dgram[1];
 
-//    string ip = "127.0.0.1";
-    string ip = "157.24.108.48";
+    string ip = "127.0.0.1";
     string portUDP = "8888";
     string portTCP = "8889";
     fd_set socket_fds;
@@ -65,10 +64,10 @@ private:
     uint16_t id = -1;
 protected:
     /* protected data */
-    ~InetConnection() {;}
+
 public:
     InetConnection();
-
+    virtual ~InetConnection();
     bool sendChatMessage(const string& message);
     bool connectTCP();
     bool connectUDP();
@@ -89,9 +88,10 @@ public:
 
     inline const bool& getTCPStatus() const { return tcpsocketstatus; }
     inline void setIP(const string& i) { ip = i; }
-    MessagesAck* getAck(GAME_MESSAGE_TYPE type);
-    vector<MessagesAck*> getAcks();
-    vector<GameMessage*> getGameMessages();
+
+    vector<Message*> getMessagesOfType(MESSAGE_TYPE);
+    vector<Message*> getMessagesOfType(MESSAGE_TYPE, GAME_MESSAGE_TYPE);
+
     vector<GameUpdate*> getGameUpdateMessages();
     vector<string> getChatMessages();
     vector<PlayerDead*> getDeadPayers();

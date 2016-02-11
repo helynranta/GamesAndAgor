@@ -8,14 +8,13 @@
 
 vector<Message*> messages;
 
-InetConnection::InetConnection() {
+InetConnection::InetConnection() {}
+InetConnection::~InetConnection() {}
+void InetConnection::init(void) {
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-}
-
-void InetConnection::init(void) {
 }
 void InetConnection::destroy(void) {
 	// delete messages behind pointers
@@ -59,8 +58,8 @@ void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
 //m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
 void InetConnection::sendTCP(const string& msg) {
-	const char* m = (string(Engine::getNick() + ": " + msg)).c_str();
-	if(::send(sockettcp, m, sizeof(m), 0)<0) {
+	string m = (string(Engine::getNick() + ": " + msg));
+	if(::send(sockettcp, m.c_str(), sizeof(char*)*m.size(), 0)<0) {
 		cerr << strerror(errno) << endl;
 	}
 }
@@ -188,8 +187,8 @@ int InetConnection::checkTCPConnection() {
 	socklen_t len = sizeof(err);
 	if (getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len) < 0) {
 		cerr << "getsockopt error: " << strerror(errno) << endl;
+		connectTCP();
 		tcpsocketstatus = false;
-		disconnect();
 	}
 	else if (err == 0) {
 		memset(&timeout, 0, sizeof(timeout));
@@ -198,7 +197,7 @@ int InetConnection::checkTCPConnection() {
 		int res;
 		if((res = select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout))<0) {
 			cerr << strerror(errno) << endl;
-			disconnect();
+			tcpsocketstatus = false;
 			return false;
 		} else {
 			if (FD_ISSET(sockettcp, &socket_fds)) {
@@ -331,7 +330,6 @@ int InetConnection::checkUDPConnections() {
 			return false;
 	}
 
-
 	if(unpackedMessage != nullptr) {
 		switch (unpackedMessage->getMessageType()) {
 			case MESSAGE_TYPE::GAME_MESSAGE:
@@ -352,23 +350,11 @@ int InetConnection::checkUDPConnections() {
 	}
 	return false;
 }
-vector<MessagesAck*> InetConnection::getAcks() {
-	vector<MessagesAck*> lmessages;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
-			lmessages.push_back(static_cast<MessagesAck*>(messageInbox[it]));
-			messageInbox[it] = messageInbox.back();
-			messageInbox.pop_back();
-		}
-	}
 
-	return lmessages;
-}
-
-vector<GameMessage*> InetConnection::getGameMessages() {
-	vector<GameMessage*> lmessages;
+vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type) {
+	vector<Message*> lmessages;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
+		if (messageInbox[it]->getMessageType() == type) {
 			lmessages.push_back(static_cast<GameMessage*>(messageInbox[it]));
 			messageInbox[it] = messageInbox.back();
 			messageInbox.pop_back();
@@ -376,7 +362,20 @@ vector<GameMessage*> InetConnection::getGameMessages() {
 	}
 	return lmessages;
 }
-
+vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type, GAME_MESSAGE_TYPE subtype) {
+	vector<Message*> msgs;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == type) {
+			MessagesAck* tmp = static_cast<MessagesAck*>(messageInbox[it]);
+			if(tmp->getGameMessageType() == subtype) {
+				msgs.push_back(static_cast<MessagesAck*>(messageInbox[it]));
+				messageInbox[it] = messageInbox.back();
+				messageInbox.pop_back();
+			}
+		}
+	}
+	return msgs;
+}
 vector<GameUpdate*> InetConnection::getGameUpdateMessages() {
 	vector<GameUpdate*> lmessages;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
@@ -402,22 +401,6 @@ bool InetConnection::getGameEnding(){
 		}
 	}
 	return false;
-}
-
-MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
-	vector<MessagesAck*> msgs;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
-			MessagesAck* tmp = static_cast<MessagesAck*>(messageInbox[it]);
-			if(tmp->getGameMessageType() == type) {
-				msgs.push_back(static_cast<MessagesAck*>(messageInbox[it]));
-				messageInbox[it] = messageInbox.back();
-				messageInbox.pop_back();
-			}
-		}
-	}
-	if(msgs.size() == 0) return nullptr;
-	return msgs.back();
 }
 
 vector<string> InetConnection::getChatMessages() {

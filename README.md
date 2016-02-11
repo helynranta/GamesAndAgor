@@ -3,14 +3,14 @@ Gamus and Agor
 
 Course assigment at Lappeenranta University of Technology, course CT30A5002 Games and Networking (7 cr)
 
-Game Architecture
--------------------------------
-write something about engine here
+Agor.io clone, some1 write abstacr
 
-classes we need:
- * Camera
- * Circle
- * InputManager
- * AudioEngine (not necessary)
- * network stuff (depends on what technique we implement)
- * ParticleEngine (not necessary)
+
+### Folder structure
+```
++-client
+| -- all of client
++-server
+| -- all of server
+```
+

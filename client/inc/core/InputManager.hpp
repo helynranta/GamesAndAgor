@@ -6,17 +6,19 @@
 #include <string>
 #include <unordered_map>
 
-
 #include "SDL2/SDL.h"
+
+using namespace std;
 
 class InputManager {
 friend class Engine;
 private:
     /* private data */
-    std::unordered_map<unsigned int, bool> m_keys;          // is key down map
-    std::unordered_map<unsigned int, bool> m_previousKeys;  // was key previously down map
-    bool wasKeyDown(unsigned int key);                      // this is dedicately used for keypress
+    unordered_map<unsigned int, bool> m_keys;          // is key down map
+    unordered_map<unsigned int, bool> m_previousKeys;  // was key previously down map
+    bool wasKeyDown(unsigned int key);                 // this is dedicately used for keypress
     int m_lastCharacter = -1;
+    vector<string> textInput;
 protected:
     /* protected data */
     inline InputManager() {;}
@@ -37,7 +39,13 @@ public:
     inline void empty() {
         m_keys.empty();
         m_previousKeys.empty();
-
+    }
+    inline void addInput(const string& s) { textInput.push_back(s); }
+    inline vector<string> getInput() {
+        vector<string> i;
+        for(auto& it : textInput) i.push_back(it);
+        textInput.clear();
+        return i;
     }
 };
 
