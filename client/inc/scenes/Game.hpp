@@ -25,15 +25,17 @@ public:
     inline Game () : Scene() {}
     inline ~Game () {}
     // game init
-    void awake();
+    void awake(void);
     // this runs game
-    void gameLoop();
+    void gameLoop(void);
     // this does game update
     void update(float dt);
+    void updateChat(void);
+    void handleMessages(void);
     // end
-    void end();
+    void end(void);
     // generic drawing function
-    void draw();
+    void draw(void);
 };
 
 #endif

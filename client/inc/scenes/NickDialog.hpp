@@ -22,35 +22,38 @@ public:
         gui->getInput("nick")->setX(Engine::camera->getWidth()/2.0f-200)->setY(Engine::camera->getHeight()/2.0f+30);
     }
     inline void update(float dt) {
-        if(Engine::connection->getState() == ConnectionState::DISCONNECTED) {
-            gui->getText("hint")->setText("FUCKED UP, RETURNING TO IP DIALOG");
-            gui->getInput("nick")->hide();
-            Engine::setTimeout(3000, [&]() {
-                Engine::startScene("IPDialog");
-            });
-        }
         if(Engine::input->isKeyPressed(SDLK_RETURN) && (gui->getInput("nick")->getText()).size()) {
             gui->getText("hint")->setText("Checking username availability");
             gui->getInput("nick")->hide();
-            // put here if connect returns true
+            // try to send nick to server via udp
             uint8_t nickbuffer[BUFFER_SIZE];
-            Nick* nick = new Nick(Engine::connection->createDummyHeader(Engine::connection->getID(), 123123, MESSAGE_TYPE::GAME_MESSAGE, 0), "Oskari");
+            Nick* nick = new Nick(Engine::connection->createDummyHeader(Engine::connection->getID(), 123123, MESSAGE_TYPE::GAME_MESSAGE, 0), gui->getInput("nick")->getText());
             int messageLength = nick->PackSelf(nickbuffer);
             Engine::connection->send(nickbuffer, messageLength);
         }
-        
-        MessagesAck* ack = Engine::connection->getAck(GAME_MESSAGE_TYPE::NICK);
-        if(ack != nullptr) {
-            cout << "lol" << endl;
-            switch(static_cast<NickAck*>(ack)->getStatus()) {
-                case 0: // negative
-                    gui->getText("hint")->setText("This nick is already in use, choose another one");
-                    gui->getInput("nick")->show();
-                    break;
-                case 1: // positive
-                    Engine::startScene("Game");
-                    break;
-                default: break;
+        // check if nick has been acked
+        vector<Message*> msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::ACK, GAME_MESSAGE_TYPE::NICK);
+        if(msgs.size()>0) {
+            NickAck* ack = static_cast<NickAck*>(msgs.back());
+            if(ack != nullptr) {
+                switch(ack->getStatus()) {
+                    case 0: // negative
+                        gui->getText("hint")->setText("This nick is already in use, choose another one");
+                        gui->getInput("nick")->show();
+                        break;
+                    case 1: // positive
+                        Engine::setNick(gui->getInput("nick")->getText());
+                        // revert inputs back
+                        gui->getText("hint")->setText("Enter username:");
+                        gui->getInput("nick")->setText("");
+                        // start game
+                        Engine::startScene("Game");
+                        break;
+                    default:
+                        gui->getText("hint")->setText("Server had unhandeld error");
+                        gui->getInput("nick")->hide();
+                        break;
+                }
             }
         }
     }

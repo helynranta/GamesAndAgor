@@ -70,6 +70,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       packet.ackID = ntohl(*(uint32_t*)&buf[index]);
       index += sizeof(uint32_t);
       packet.ACKTYPE = *(uint8_t*)&buf[index];
+      printf("ACK TYPE FROM buffer %d \n", *(uint8_t*)&buf[index]);
       index += sizeof(uint8_t);
 
       switch (packet.ACKTYPE) {

@@ -17,11 +17,14 @@ bool GUIInput::update() {
             else if (tmp == "Return") {
                 return true;
             }
-            else if(tmp.length() == 1) {
-                if(m_maxInputLength == 0)
-                    m_text = m_text+tmp;
-                else if(m_text.length() < m_maxInputLength)
-                    m_text = m_text+tmp;
+            else {
+                vector<string> keys = Engine::input->getInput();
+                for(auto& k : keys) {
+                    if(m_maxInputLength == 0)
+                        m_text = m_text+k;
+                    else if(m_text.length() < m_maxInputLength)
+                        m_text = m_text+k;
+                }
             }
         }
     } else Engine::input->getchar();

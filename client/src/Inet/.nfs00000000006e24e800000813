@@ -99,7 +99,7 @@ int Message::CreateHeader(Message * message, uint8_t * buffer) {
 	bufferPosition += sizeof(uint16_t);
 
 	// insert GAME_TIME to buffer
-	uint32_t gameTime = static_cast<uint32_t>(message->getGameTime());
+	uint32_t gameTime = static_cast<uint32_t>(message->getgameTime());
 	PackUINT32ToPayload(gameTime, buffer, bufferPosition);
 	bufferPosition += sizeof(uint32_t);
 
@@ -251,6 +251,8 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	uint16_t number_of_objects = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
+	std::cout << "Jonille with love: " << length << std::endl;
+	std::cout << "Jonille with love: " << bufferPosition << std::endl;
 	// return remaining of the received message, if there is any
 	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
 	if( remainingPayloadSize > 0) {

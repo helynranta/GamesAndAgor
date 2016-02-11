@@ -115,7 +115,7 @@ class Message: public IMessage {
 		static void UnpackHeader(int socket_fd, struct MessageHeader*, uint8_t*);
 
 
-		inline uint32_t getgameTime() const {
+		inline uint32_t getGameTime() const {
 			return gameTime;
 		};
 

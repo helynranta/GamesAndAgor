@@ -119,8 +119,9 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 	/* Euclidean distance */
     eucl = sqrt(pow(deltaX,2) + pow(deltaY,2));
-	printf("deltaX: %ld\t rangeX: %ld", deltaX, rangeX);
-	printf("deltaY: %ld\t rangeY: %ld", deltaY, rangeY);
+		printf("deltaX: %ld\t rangeX: %f\n", deltaX, rangeX);
+		printf("deltaY: %ld\t rangeY: %f\n", deltaY, rangeY);
+
 	if (eucl <  sca1 && sca1 > sca2)
         return -1;
   else if (eucl < sca2 && sca1 < sca2)
@@ -505,8 +506,11 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 	int plLength;
 	while(pPla != NULL){
 		/*  */
-		if(pPla->state != ALIVE)
+		if(pPla->state != ALIVE){
+			pPla = pPla->pNext;
 			continue;
+		}
+
 		/* Pack msg */
 		msgPacker(buf, game, pPla->ID, GAME_MESSAGE, GAME_UPDATE, 0, 0);
 		/* Send msg */
@@ -624,17 +628,19 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	int total = 0;
 	int bytesleft = *length;
 
-	int sent;
+	int sent = 0;
+	printf("Sending over TCP: %s\n", buf);
 
 	/* Keep on sending while there's stuff to send */
-	while (total < *length) {
+	/*while (total < *length) {
 		sent = send(socket, buf+total, bytesleft, 0);
 		if(sent == -1) break;
 		total += sent;
 		bytesleft -= sent;
-	}
+		printf("?");
+	}*/
 
-	*length = total;
-
-	return sent == -1?-1:0; /* -1 on failure, 0 OK */
+	//*length = total; // tämä kaikki ei
+	send(socket, buf, 1024 , 0); // tämä toimii
+	return 0; /* -1 on failure, 0 OK */
 }

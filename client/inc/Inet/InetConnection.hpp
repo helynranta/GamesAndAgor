@@ -42,8 +42,7 @@ private:
     int rval = 0;
     char dgram[1];
 
-//  string ip = "127.0.0.1";
-    string ip = "157.24.108.48";
+    string ip = "127.0.0.1";
     string portUDP = "8888";
     string portTCP = "8889";
     fd_set socket_fds;
@@ -61,13 +60,14 @@ private:
     vector<Message*> messageInbox;
     vector<Message*> m_outgoing;
     bool tcpsocketstatus = false;
+    vector<string> chatmessage;
     uint16_t id = -1;
 protected:
     /* protected data */
-    ~InetConnection() {;}
+
 public:
     InetConnection();
-
+    virtual ~InetConnection();
     bool sendChatMessage(const string& message);
     bool connectTCP();
     bool connectUDP();
@@ -85,15 +85,15 @@ public:
     void destroy();
     inline const ConnectionState& getState() const { return m_state; }
     inline void setState(ConnectionState state) { m_state = state; }
-    
+
     inline const bool& getTCPStatus() const { return tcpsocketstatus; }
     inline void setIP(const string& i) { ip = i; }
-    MessagesAck* getAck(GAME_MESSAGE_TYPE type);
-    vector<MessagesAck*> getAcks();
-    vector<GameMessage*> getGameMessages();
+
+    vector<Message*> getMessagesOfType(MESSAGE_TYPE);
+    vector<Message*> getMessagesOfType(MESSAGE_TYPE, GAME_MESSAGE_TYPE);
+
     vector<GameUpdate*> getGameUpdateMessages();
-    vector<ChatMessage*> getChatMessages();
-    vector<Message*> getMessagesOfType(MESSAGE_TYPE type);
+    vector<string> getChatMessages();
     vector<PlayerDead*> getDeadPayers();
     bool getGameEnding();
     inline void setID(uint16_t i) { id = i; }
