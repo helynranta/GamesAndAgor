@@ -9,6 +9,8 @@
 
 class NickDialog : public Scene {
 private:
+    uint8_t nickbuffer[BUFFER_SIZE];
+    int messageLength;
 protected:
 public:
     inline NickDialog() {;}
@@ -26,9 +28,8 @@ public:
             gui->getText("hint")->setText("Checking username availability");
             gui->getInput("nick")->hide();
             // try to send nick to server via udp
-            uint8_t nickbuffer[BUFFER_SIZE];
             Nick* nick = new Nick(Engine::connection->createDummyHeader(Engine::connection->getID(), 123123, MESSAGE_TYPE::GAME_MESSAGE, 0), gui->getInput("nick")->getText());
-            int messageLength = nick->PackSelf(nickbuffer);
+            messageLength = nick->PackSelf(nickbuffer);
             Engine::connection->send(nickbuffer, messageLength);
         }
         // check if nick has been acked
@@ -46,6 +47,9 @@ public:
                         // revert inputs back
                         gui->getText("hint")->setText("Enter username:");
                         gui->getInput("nick")->setText("");
+                        // ack the ack
+                        messageLength = ack->PackSelf(nickbuffer);
+                        Engine::connection->send(nickbuffer, messageLength);
                         // start game
                         Engine::startScene("Game");
                         break;
