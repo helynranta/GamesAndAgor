@@ -131,6 +131,7 @@ int server(char* port) {
     if(getsockopt(socketfd,SOL_SOCKET,SO_RCVBUF,&optval,&optlen) == -1) perror("Cannot get read buffer size getsockopt()");
     else printf("Server: Read buffer in bytes: %u\n",optval);
 
+
     memset(&recvbuffer,0,SIZE);
     printf("Server: Waiting for datagram..\n");
 
@@ -438,6 +439,9 @@ int server(char* port) {
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
 				}
+
+        /* respawn dead players */
+        respawnPlayers(game.sPlayers);
 
 			}
 
