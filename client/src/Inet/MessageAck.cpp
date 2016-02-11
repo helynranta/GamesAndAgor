@@ -5,10 +5,10 @@
  *      Author: ode
  */
 
-#include "Inet/MessagesAck.hpp"
+#include "../../inc/Inet/MessageAck.hpp"
 
 
-MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+MessageAck* MessageAck::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 //	std::cout << "========== UNPACK_MESSAGE_ACK_HEADER ==========" << std::endl;
 	//std::cout << "MessageType: " << unsigned(header.message_type) << std::endl;
 	//std::cout << "Length: " << length << std::endl;
@@ -58,7 +58,7 @@ MessagesAck* MessagesAck::Unpack(MessageHeader header, uint32_t length, uint8_t 
 	return nullptr;
 }
 
-int MessagesAck::createMessageAckHeader(uint8_t* payload, int bufferPosition){
+int MessageAck::createMessageAckHeader(uint8_t* payload, int bufferPosition){
 	// insert PACKER_ID to buffer
 	PackUINT32ToPayload(static_cast<uint32_t>(getAckMessagePackerID()), payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint32_t));

@@ -254,7 +254,7 @@ void InetConnection::UnpackGameMessageSubType(Message* unpackedMessage) {
 }
 
 void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
-	switch (dynamic_cast<MessagesAck*>(unpackedMessage)->getGameMessageType()) {
+	switch (dynamic_cast<MessageAck*>(unpackedMessage)->getGameMessageType()) {
 	case GAME_MESSAGE_TYPE::JOIN:
 		//std::cout << "============== GOT JOIN ACK ==============" << std::endl;
 		messageInbox.push_back(dynamic_cast<JoinAck*>(unpackedMessage));
@@ -366,9 +366,9 @@ vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type, GAME_MESSA
 	vector<Message*> msgs;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == type) {
-			MessagesAck* tmp = static_cast<MessagesAck*>(messageInbox[it]);
+			MessageAck* tmp = static_cast<MessageAck*>(messageInbox[it]);
 			if(tmp->getGameMessageType() == subtype) {
-				msgs.push_back(static_cast<MessagesAck*>(messageInbox[it]));
+				msgs.push_back(static_cast<MessageAck*>(messageInbox[it]));
 				messageInbox[it] = messageInbox.back();
 				messageInbox.pop_back();
 			}

@@ -15,10 +15,10 @@
 #include <map>
 
 #include "Inet/Messages.hpp"
-#include "Inet/MessagesAck.hpp"
+#include "MessageAck.hpp"
 
 // Defines if we really want to start the game or just use simple game loop to test messages
-//#define MESG_TEST = 0
+#define MESG_TEST = 0
 
 
 using namespace std;

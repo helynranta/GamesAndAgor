@@ -3,21 +3,21 @@
 
 #include "Inet/Messages.hpp"
 
-class MessagesAck : public Message {
+class MessageAck : public Message {
 	public:
-		inline MessagesAck(MessageHeader header, uint32_t pAckMessagePacketID, GAME_MESSAGE_TYPE pGameMessageType) :
+		inline MessageAck(MessageHeader header, uint32_t pAckMessagePacketID, GAME_MESSAGE_TYPE pGameMessageType) :
 				Message(header, MESSAGE_TYPE::ACK) {
 			gameMessageType = pGameMessageType;
 			ackMessagePacketID = pAckMessagePacketID;
 		};
 
-		inline ~MessagesAck(){};
+		inline ~MessageAck(){};
 
 		inline GAME_MESSAGE_TYPE getGameMessageType() const {
 			return gameMessageType;
 		};
 
-		static MessagesAck * Unpack(MessageHeader, uint32_t, uint8_t*);
+		static MessageAck * Unpack(MessageHeader, uint32_t, uint8_t*);
 
 		int createMessageAckHeader(uint8_t*,int);
 
@@ -39,10 +39,10 @@ class MessagesAck : public Message {
 		uint32_t ackMessagePacketID;
 };
 
-class JoinAck: public MessagesAck {
+class JoinAck: public MessageAck {
 	public:
 		inline JoinAck(MessageHeader header, uint32_t pAckMessagePacketID, uint8_t statusAck, uint8_t idAck) :
-				MessagesAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::JOIN) {
+				MessageAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::JOIN) {
 			status = statusAck;
 			id = idAck;
 		};
@@ -58,10 +58,10 @@ class JoinAck: public MessagesAck {
 		uint16_t id;
 };
 
-class NickAck: public MessagesAck {
+class NickAck: public MessageAck {
 	public:
 		inline NickAck(MessageHeader header, uint32_t pAckMessagePacketID , uint8_t nickStatus) :
-			MessagesAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::NICK) {
+			MessageAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::NICK) {
 			status = nickStatus;
 		};
 
@@ -74,10 +74,10 @@ class NickAck: public MessagesAck {
 		uint8_t status;
 };
 
-class ExitAck: public MessagesAck {
+class ExitAck: public MessageAck {
 	public:
 		inline ExitAck(MessageHeader header, uint32_t pAckMessagePacketID) :
-			MessagesAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::EXIT) {;};
+			MessageAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::EXIT) {;};
 
 		inline ~ExitAck(){;};
 
@@ -85,10 +85,10 @@ class ExitAck: public MessagesAck {
 		static ExitAck* Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload);
 };
 
-class RestartAck: public MessagesAck {
+class RestartAck: public MessageAck {
 	public:
 		inline RestartAck(MessageHeader header, uint32_t pAckMessagePacketID) :
-			MessagesAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::RESTART) {;};
+			MessageAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::RESTART) {;};
 
 		inline ~RestartAck(){;};
 
@@ -96,10 +96,10 @@ class RestartAck: public MessagesAck {
 		static RestartAck* Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload);
 };
 
-class GameEndAck: public MessagesAck {
+class GameEndAck: public MessageAck {
 	public:
 		inline GameEndAck(MessageHeader header, uint32_t pAckMessagePacketID) :
-			MessagesAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::GAME_END) {;};
+			MessageAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::GAME_END) {;};
 
 		inline ~GameEndAck(){;};
 
@@ -107,10 +107,10 @@ class GameEndAck: public MessagesAck {
 		static GameEndAck* Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload);
 };
 
-class PlayerDeadAck: public MessagesAck {
+class PlayerDeadAck: public MessageAck {
 	public:
 		inline PlayerDeadAck(MessageHeader header, uint32_t pAckMessagePacketID) :
-			MessagesAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::PLAYER_DEAD) {;};
+			MessageAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::PLAYER_DEAD) {;};
 
 		inline ~PlayerDeadAck(){;};
 
@@ -118,10 +118,10 @@ class PlayerDeadAck: public MessagesAck {
 		static PlayerDeadAck* Unpack(MessageHeader header, uint32_t ackMessagePacketID, uint32_t length, uint8_t* payload);
 };
 
-class PlayerOutAck: public MessagesAck {
+class PlayerOutAck: public MessageAck {
 	public:
 		inline PlayerOutAck(MessageHeader header, uint32_t pAckMessagePacketID) :
-			MessagesAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::PLAYER_OUT) {;};
+			MessageAck(header, pAckMessagePacketID, GAME_MESSAGE_TYPE::PLAYER_OUT) {;};
 
 		inline ~PlayerOutAck(){;};
 

@@ -42,7 +42,7 @@ void TestMessagesLoop() {
 			vector<Message*> vmsgs = connection->getMessagesOfType(MESSAGE_TYPE::ACK);
 			if (vmsgs.size() > 0) {
 				for (auto& a : vmsgs) {
-					MessagesAck* ack = static_cast<MessagesAck*>(a);
+					MessageAck* ack = static_cast<MessageAck*>(a);
 					memset(testBuffer, 0, BUFFER_SIZE);
 					if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN && testStates == TEST_STATES::JOINING_ACK) {
 						JoinAck* joinAck = static_cast<JoinAck*>(ack);

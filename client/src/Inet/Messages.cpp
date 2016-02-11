@@ -2,7 +2,8 @@
 #include <cstring>
 
 #include "Inet/Messages.hpp"
-#include "Inet/MessagesAck.hpp"
+
+#include "../../inc/Inet/MessageAck.hpp"
 
 IMessage::IMessage() {
 }
@@ -26,7 +27,7 @@ Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payl
 //		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
 //		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
 
-		message = MessagesAck::Unpack(*header, header->payload_length, payload);
+		message = MessageAck::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::PLAYER_MOVEMENT:
 		return nullptr;
