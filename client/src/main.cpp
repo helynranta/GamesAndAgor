@@ -43,7 +43,7 @@ void printGameStateAsString(){
 			stateAsString = "CANNOT DEFINE";
 			break;
 	}
-	std::cout << "TEST_STATES::" << stateAsString << std::endl;
+	std::cout << " Entering state: " << stateAsString << std::endl;
 }
 
 void TestMessagesLoop() {
