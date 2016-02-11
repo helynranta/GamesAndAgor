@@ -68,7 +68,14 @@ void Game::updateChat(void) {
     }
 }
 void Game::handleMessages(void) {
-
+    static vector<Message*> update;
+    update.clear();
+    update = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::GAME_UPDATE);
+    if(update.size()>0) {
+        GameUpdate* u = static_cast<GameUpdate*>(update.back());
+        m_player.setPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
+        delete u;       
+    }
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;

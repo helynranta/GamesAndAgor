@@ -12,6 +12,7 @@
 class IPDialog : public Scene {
 private:
     bool connecting = false;
+    int connectStart = 0;
 public:
     inline IPDialog () {}
 
@@ -41,7 +42,7 @@ public:
         else if(Engine::input->isKeyPressed(SDLK_RETURN) && !connecting) {
             // show right text
             connecting = true;
-            gui->getText("hint")->setText("Trying to connect to server... press d to return");
+            gui->getText("hint")->setText("Trying to connect to server...");
             gui->getInput("input")->hide();
 
             string newIP = gui->getInput("input")->getText();
@@ -49,6 +50,7 @@ public:
             Engine::connection->setIP(newIP);
 
             Engine::connection->connectUDP();
+            connectStart = int(SDL_GetTicks());
             //tmp
             uint8_t testBuffer[BUFFER_SIZE];
             MessageHeader dummyGameMessageHeader;
@@ -58,20 +60,21 @@ public:
             int messageLenght = joinMessage->PackSelf(testBuffer);
             Engine::connection->send(testBuffer, messageLenght);
         }
-
-        if(cstate == ConnectionState::TIMED_OUT) {
+        else if(cstate == ConnectionState::TIMED_OUT) {
             gui->getText("hint")->setText("Connection timed out...");
             gui->getInput("input")->show();
             connecting = false;
         }
-        checkAck();
-        if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {
+        else if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {
             cout << "both tcp and udp status ok" << endl;
             // revert back
             gui->getText("hint")->setText("Enter server IP address");
             gui->getInput("input")->show();
             Engine::startScene("NickDialog");
+        } else if (connecting) {
+            gui->getText("hint")->setText("Trying to connect to server: "+to_string(uint(SDL_GetTicks()-connectStart)/1000));
         }
+        checkAck();
     }
     inline void checkAck() {
         vector<Message*> msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::ACK, GAME_MESSAGE_TYPE::JOIN);

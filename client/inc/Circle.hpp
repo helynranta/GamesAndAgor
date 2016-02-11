@@ -15,6 +15,9 @@ class Circle {
 protected:
     float m_x = 0;
     float m_y = 0;
+    float m_sx = 0;
+    float m_sy = 0;
+    float m_st = 0;
     float m_r = 100;
     SDL_Rect m_destRect = {int(m_x), int(m_y), int(m_r*2), int(m_r*2)};
     Color color;
@@ -30,6 +33,7 @@ public:
     inline int getX () const { return m_x; }
     inline int getY () const { return m_y; }
     inline int getR () const { return m_r; }
+    inline void setPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
     inline const SDL_Rect& getDestRect() const { return m_destRect; }
 
     inline void scale(float x) {
