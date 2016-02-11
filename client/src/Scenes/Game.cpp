@@ -13,8 +13,7 @@ void Game::awake(void) {
     m_player.init();
     //m_enemies[0].init();
     //gui->addText(m_enemies[0].getNick(), new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
-    gui->addText(m_player.getNick(), new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
-/*    */
+    gui->addText(m_player.getNick(), new GUIText());
 }
 void Game::update(float dt) {
     // this is how camera behaves in real gameplay
@@ -22,7 +21,7 @@ void Game::update(float dt) {
     Engine::camera->setScale(float(m_player.getR())/100);
     m_player.update(dt);
     updateChat();
-
+    handleMessages();
 }
 void Game::updateChat(void) {
     // activate chat
@@ -55,6 +54,9 @@ void Game::updateChat(void) {
         }
         messages.clear();
     }
+}
+void Game::handleMessages(void) {
+
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;

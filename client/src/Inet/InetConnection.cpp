@@ -8,14 +8,13 @@
 
 vector<Message*> messages;
 
-InetConnection::InetConnection() {
+InetConnection::InetConnection() {}
+InetConnection::~InetConnection() {}
+void InetConnection::init(void) {
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-}
-
-void InetConnection::init(void) {
 }
 void InetConnection::destroy(void) {
 	// delete messages behind pointers
@@ -331,7 +330,6 @@ int InetConnection::checkUDPConnections() {
 			return false;
 	}
 
-
 	if(unpackedMessage != nullptr) {
 		switch (unpackedMessage->getMessageType()) {
 			case MESSAGE_TYPE::GAME_MESSAGE:
@@ -352,6 +350,7 @@ int InetConnection::checkUDPConnections() {
 	}
 	return false;
 }
+// GET all acks
 vector<MessagesAck*> InetConnection::getAcks() {
 	vector<MessagesAck*> lmessages;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
@@ -364,11 +363,27 @@ vector<MessagesAck*> InetConnection::getAcks() {
 
 	return lmessages;
 }
-
-vector<GameMessage*> InetConnection::getGameMessages() {
-	vector<GameMessage*> lmessages;
+// GET all acks of TYPE
+MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
+	vector<MessagesAck*> msgs;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
+			MessagesAck* tmp = static_cast<MessagesAck*>(messageInbox[it]);
+			if(tmp->getGameMessageType() == type) {
+				msgs.push_back(static_cast<MessagesAck*>(messageInbox[it]));
+				messageInbox[it] = messageInbox.back();
+				messageInbox.pop_back();
+			}
+		}
+	}
+	if(msgs.size() == 0) return nullptr;
+	return msgs.back();
+}
+//
+vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type) {
+	vector<Message*> lmessages;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == type) {
 			lmessages.push_back(static_cast<GameMessage*>(messageInbox[it]));
 			messageInbox[it] = messageInbox.back();
 			messageInbox.pop_back();
@@ -376,7 +391,20 @@ vector<GameMessage*> InetConnection::getGameMessages() {
 	}
 	return lmessages;
 }
-
+vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type, GAME_MESSAGE_TYPE subtype) {
+	vector<Message*> msgs;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == type) {
+			MessagesAck* tmp = static_cast<MessagesAck*>(messageInbox[it]);
+			if(tmp->getGameMessageType() == subtype) {
+				msgs.push_back(static_cast<MessagesAck*>(messageInbox[it]));
+				messageInbox[it] = messageInbox.back();
+				messageInbox.pop_back();
+			}
+		}
+	}
+	return msgs;
+}
 vector<GameUpdate*> InetConnection::getGameUpdateMessages() {
 	vector<GameUpdate*> lmessages;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
@@ -402,22 +430,6 @@ bool InetConnection::getGameEnding(){
 		}
 	}
 	return false;
-}
-
-MessagesAck* InetConnection::getAck(GAME_MESSAGE_TYPE type) {
-	vector<MessagesAck*> msgs;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
-			MessagesAck* tmp = static_cast<MessagesAck*>(messageInbox[it]);
-			if(tmp->getGameMessageType() == type) {
-				msgs.push_back(static_cast<MessagesAck*>(messageInbox[it]));
-				messageInbox[it] = messageInbox.back();
-				messageInbox.pop_back();
-			}
-		}
-	}
-	if(msgs.size() == 0) return nullptr;
-	return msgs.back();
 }
 
 vector<string> InetConnection::getChatMessages() {

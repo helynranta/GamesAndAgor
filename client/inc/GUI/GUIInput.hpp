@@ -32,7 +32,7 @@ public:
   /* GETTERS */
   /* SETTERS */
   inline void setCursorVisibility(bool b) { cursorEnabled = b; }
-  inline const void setActive(bool a) { isActive = a; } 
+  inline void setActive(bool a) { isActive = a; } 
   inline void setMaxLength(unsigned int x) { m_maxInputLength = x;}
 };
 
