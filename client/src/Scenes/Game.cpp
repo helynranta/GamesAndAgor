@@ -24,26 +24,6 @@ void Game::update(float dt) {
     handleMessages();
 }
 void Game::updateChat(void) {
-    // activate chat
-    if(Engine::input->isKeyPressed(SDLK_t) && chat->isActive() == false) {
-        chat->Activate();
-        // throw away all input before this
-        Engine::input->getchar();
-        Engine::input->getInput();
-    }
-    // send new chat message
-    else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && (gui->getInput("chat")->getText()).size()) {
-        Engine::input->getInput();
-        Engine::input->getchar();
-        Engine::connection->sendTCP(gui->getInput("chat")->getText());
-        gui->getInput("chat")->setText("");
-    }
-    // if input is empty and return is pressed, close chat window
-    else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && !(gui->getInput("chat")->getText()).size()) {
-        chat->deActivate();
-        Engine::input->getchar();
-        Engine::input->getInput();
-    }
     // stop input from player if chat is active
     m_player.setTakeInput(!chat->isActive());
     // fetch all chat messages from server
@@ -53,6 +33,38 @@ void Game::updateChat(void) {
             chat->addLog(msg);
         }
         messages.clear();
+    }
+    // activate chat
+    if(Engine::input->isKeyPressed(SDLK_t) && chat->isActive() == false) {
+        // throw away all input before this
+        Engine::input->getchar();
+        Engine::input->getInput();
+        // clear old text and activate
+        gui->getInput("chat")->setText("");
+        chat->Activate();
+        return;
+    }
+    // send new chat message
+    else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && (gui->getInput("chat")->getText()).size()) {
+        // throw away all input before this
+        Engine::input->getInput();
+        Engine::input->getchar();
+        // send the text via tcp
+        Engine::connection->sendTCP(gui->getInput("chat")->getText());
+        // clear input
+        gui->getInput("chat")->setText("");
+        return;
+    }
+    // if input is empty and return is pressed, close chat window
+    else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && !(gui->getInput("chat")->getText()).size()) {
+        // throw away all input before this
+        Engine::input->getchar();
+        Engine::input->getInput();
+        // hide chat
+        chat->deActivate();
+        // clear input
+        gui->getInput("chat")->setText("");
+        return;
     }
 }
 void Game::handleMessages(void) {

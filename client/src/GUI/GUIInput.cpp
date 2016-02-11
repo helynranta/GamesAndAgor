@@ -27,7 +27,10 @@ bool GUIInput::update() {
                 }
             }
         }
-    } else Engine::input->getchar();
+    } else {
+        Engine::input->getchar(); 
+        Engine::input->getInput();
+    }
     return false;
 }
 void GUIInput::draw() {
