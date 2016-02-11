@@ -38,7 +38,7 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 
 	// Go through each player
 	for(p1 = sPlayers; p1 != NULL; p1 = p1->pNext){
-		if (p1->state != ALIVE){printf("%d\n", p1->state);continue;}
+		if (p1->state != ALIVE){continue;}
 
 		// Calculate distances to each player
 		for(p2 = p1->pNext; p2 != NULL; p2 = p2->pNext){
