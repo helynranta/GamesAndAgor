@@ -41,6 +41,8 @@ int checkJoin(Player *pPlayer, struct sockaddr *from);
 void checkEaten(Game *pGame, int udpFD, socklen_t addrlen);
 int sendAllTCP(int socket, char *buf, int *length);
 void resendMsg(int socket, socklen_t addrlen, Ack **ackList,Player *players);
+void informTheDead(Game *game, char *buf, int socket, socklen_t addrlen);
+
 
 /* PACKING FUNCTIONS */
 int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status);

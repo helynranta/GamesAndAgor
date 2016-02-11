@@ -441,7 +441,7 @@ int server(char* port) {
 				}
 
         /* inform dead players about their death (unfortunate faith) */
-        informTheDead(game.sPlayers);
+        informTheDead(&game, sendbuffer, socketfd, addrlen);
         /* respawn dead players */
         respawnPlayers(game.sPlayers);
 

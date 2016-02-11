@@ -539,6 +539,21 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 		pPla = pPla->pNext;
 	}
 }
+void informTheDead(Game *game, char *buf, int socket, socklen_t addrlen) {
+	Player *p = game->sPlayers;
+	int plLength;
+
+	while(p != NULL) {
+		if(p->state == EATEN) {
+			p->state = DEAD;
+			/* inform the player */
+			plLength = msgPacker(buf, game, p->ID, GAME_MESSAGE, PLAYER_DEAD, 0, 0);
+			sendto(socket, buf, plLength, 0, &p->address, addrlen);
+		}
+		p = p->pNext;
+	}
+}
+
 
 /* Check nick, new nick must be available */
 /* Return Status: 1 OK,  0 NOT OK */
