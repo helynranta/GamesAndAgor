@@ -16,14 +16,45 @@ enum TEST_STATES {
 	JOINING, JOINING_ACK, NICKING, NICKING_ACK, GAME_RUNNING, GAME_ENDING
 };
 
+TEST_STATES testStates = TEST_STATES::JOINING;
+
+void printGameStateAsString(){
+	string stateAsString;
+	switch (testStates) {
+		case TEST_STATES::JOINING:
+			stateAsString = "JOINING";
+			break;
+		case TEST_STATES::JOINING_ACK:
+			stateAsString = "JOINING_ACK";
+			break;
+		case TEST_STATES::NICKING:
+			stateAsString = "NICKING";
+			break;
+		case TEST_STATES::NICKING_ACK:
+			stateAsString = "NICKING_ACK";
+			break;
+		case TEST_STATES::GAME_RUNNING:
+			stateAsString = "GAME_RUNNING";
+			break;
+		case TEST_STATES::GAME_ENDING:
+			stateAsString = "GAME_ENDING";
+			break;
+		default:
+			stateAsString = "CANNOT DEFINE";
+			break;
+	}
+	std::cout << "TEST_STATES::" << stateAsString << std::endl;
+}
+
 void TestMessagesLoop() {
 	cout << "USING MESSAGE TEST LOOP" << endl;
-	TEST_STATES testStates = TEST_STATES::JOINING;
+	testStates = TEST_STATES::JOINING;
+	printGameStateAsString();
 
 	InetConnection * connection = new InetConnection();
 	connection->init();
 	
-	//connection->setIP("157.24.108.48");
+	connection->setIP("157.24.108.48");
 	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
 	MessageHeader dummyGameMessageHeader = connection->createDummyHeader(0, 123123, MESSAGE_TYPE::GAME_MESSAGE, 0);
@@ -33,10 +64,11 @@ void TestMessagesLoop() {
 	int messageLenght = joinMessage->PackSelf(testBuffer);
 	connection->send(testBuffer, messageLenght);
 	testStates = TEST_STATES::JOINING_ACK;
+	printGameStateAsString();
 
 	int loopCounter = 0;
 	while (loopCounter < 1000) {
-		//std::cout << "==================================== LOOP START ====================================" << std::endl;
+		std::cout << "==================================== LOOP START ====================================" << std::endl;
 		connection->update();
 		if (testStates != TEST_STATES::GAME_RUNNING) {
 			vector<Message*> vmsgs = connection->getMessagesOfType(MESSAGE_TYPE::ACK);
@@ -49,6 +81,7 @@ void TestMessagesLoop() {
 						MessageHeader headerForNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getGameTime(),
 								joinAck->getMessageType(), joinAck->getPayloadSize());
 						testStates = TEST_STATES::NICKING;
+						printGameStateAsString();
 
 						memset(testBuffer, 0, BUFFER_SIZE);
 
@@ -57,16 +90,18 @@ void TestMessagesLoop() {
 							messageLenght = nick->PackSelf(testBuffer);
 							connection->send(testBuffer, messageLenght);
 							testStates = TEST_STATES::NICKING_ACK;
+							printGameStateAsString();
 						}
 
 					} else if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::NICK && testStates == TEST_STATES::NICKING_ACK) {
-						std::cout << "Main.cpp " << unsigned(ack->getMessageHeaderUserID()) << std::endl;
-						std::cout << "Main.cpp " << unsigned(ack->getMessageType()) << std::endl;
-						std::cout << "Main.cpp " << unsigned(ack->getGameMessageType()) << std::endl;
+//						std::cout << "Main.cpp " << unsigned(ack->getMessageHeaderUserID()) << std::endl;
+//						std::cout << "Main.cpp " << unsigned(ack->getMessageType()) << std::endl;
+//						std::cout << "Main.cpp " << unsigned(ack->getGameMessageType()) << std::endl;
 						NickAck * nickAck = static_cast<NickAck*>(ack);
 						messageLenght = nickAck->PackSelf(testBuffer);
 						connection->send(testBuffer, messageLenght);
 						testStates = TEST_STATES::GAME_RUNNING;
+						printGameStateAsString();
 					}
 				}
 				continue;
@@ -77,6 +112,7 @@ void TestMessagesLoop() {
 
 			if (connection->getGameEnding()) {
 				testStates = TEST_STATES::GAME_ENDING;
+				printGameStateAsString();
 				continue;
 			}
 
@@ -96,10 +132,9 @@ void TestMessagesLoop() {
 		}
 
 		if (testStates == TEST_STATES::GAME_ENDING) {
-
+			exit(0);
 		}
-
-		//std::cout << "==================================== LOOP END ====================================" << std::endl;
+		std::cout << "==================================== LOOP END ====================================" << std::endl;
 		loopCounter++;
 	}
 }
