@@ -418,7 +418,7 @@ int server(char* port) {
 					}
 				}
 				/* Do game functions */
-				//ComputeNearParticles(game.sPlayers, &game.sObjects);
+				ComputeNearParticles(game.sPlayers, &game.sObjects);
 
 				/* If player eaten inform the player and others? */
 
@@ -440,6 +440,8 @@ int server(char* port) {
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
 				}
 
+        /* inform dead players about their death (unfortunate faith) */
+        informTheDead(game.sPlayers);
         /* respawn dead players */
         respawnPlayers(game.sPlayers);
 

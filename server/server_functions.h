@@ -27,6 +27,7 @@ void append2ListAck(Ack **pList, Ack *pNew);
 void removeAck(Ack **pList, uint32_t ackID);
 void append2ListNear(Near **pList, Near *pNew);
 void append2ListPlayer(Player **pList, Player *pNew);
+void newObject(Object **pList, uint32_t *nObjects);
 void append2ListObject(Object **pList, Object *pNew);
 void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
