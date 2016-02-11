@@ -384,6 +384,28 @@ class GameUpdate: public GameMessage {
 
 };
 
+class Move : public Message {
+	public:
+		inline Move(MessageHeader header, uint8_t pEventType, uint16_t pPosX, uint16_t pPosY ,uint16_t pDirX ,uint16_t pDirY) : Message(header, MESSAGE_TYPE::PLAYER_MOVEMENT) {
+				eventType = pEventType;
+				posX = pPosX;
+				posY = pPosY;
+				dirX = pDirX;
+				dirY = pDirY;
+		}
+
+		inline void Update(){};
+
+		int PackSelf(uint8_t * payload);
+
+	private:
+		uint8_t eventType;
+		uint16_t posX;
+		uint16_t posY;
+		uint16_t dirX;
+		uint16_t dirY;
+};
+
 class Ping : public  Message {
 	public:
 		inline Ping(MessageHeader header, uint16_t pPing) : Message(header, MESSAGE_TYPE::STATISTICS_MESSAGE) {

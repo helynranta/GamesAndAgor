@@ -8,18 +8,7 @@ IMessage::IMessage() {
 }
 IMessage::~IMessage() {
 }
-int Ping::PackSelf(uint8_t * payload) {
-	std::cout << "Sending -> PING: "<< std::endl;
-	int bufferPosition = getHeaderSize();
-	// insert MSG_SUBTYPE to buffer
-	//	std::cout << "GameMessageType: " << getGameMessageType() << std::endl;
-	//PackUINT8ToPayload(*payload, payload, bufferPosition);
-	
-	//bufferPosition += addPayloadSize(sizeof(uint8_t));
-	bufferPosition = CreateHeader(this, payload);
-	//	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
-	return bufferPosition;
-}
+
 Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payload) {
 
 	// TODO Make better solution here
@@ -331,6 +320,51 @@ Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload
 }
 int Points::PackSelf(uint8_t * payload) {
 	return 0;
+}
+
+int Ping::PackSelf(uint8_t * payload) {
+	std::cout << "Sending -> PING: "<< std::endl;
+	int bufferPosition = getHeaderSize();
+	// insert MSG_SUBTYPE to buffer
+	//	std::cout << "GameMessageType: " << getGameMessageType() << std::endl;
+	//PackUINT8ToPayload(*payload, payload, bufferPosition);
+
+	//bufferPosition += addPayloadSize(sizeof(uint8_t));
+	bufferPosition = CreateHeader(this, payload);
+	//	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
+	return bufferPosition;
+}
+
+int Move::PackSelf(uint8_t * payload) {
+	std::cout << "Sending -> MOVE: "<< std::endl;
+
+	int bufferPosition = getHeaderSize();
+
+	// insert EVENT_TYPE to buffer
+	PackUINT8ToPayload(eventType, payload, bufferPosition);
+	bufferPosition += addPayloadSize(sizeof(uint8_t));
+
+	// insert POS_X to buffer
+	PackUINT16ToPayload(posX, payload, bufferPosition);
+	bufferPosition += addPayloadSize(sizeof(uint16_t));
+
+	// insert POX_Y to buffer
+	PackUINT16ToPayload(posY, payload, bufferPosition);
+	bufferPosition += addPayloadSize(sizeof(uint16_t));
+
+	// insert DIR_X to buffer
+	PackUINT16ToPayload(dirX, payload, bufferPosition);
+	bufferPosition += addPayloadSize(sizeof(uint16_t));
+
+	// insert DIR_Y to buffer
+	PackUINT16ToPayload(dirY, payload, bufferPosition);
+	bufferPosition += addPayloadSize(sizeof(uint16_t));
+
+
+	//bufferPosition += addPayloadSize(sizeof(uint8_t));
+	bufferPosition = CreateHeader(this, payload);
+	//	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
+	return bufferPosition;
 }
 
 ////======= EXIT ========//
