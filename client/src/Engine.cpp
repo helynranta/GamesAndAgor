@@ -200,7 +200,6 @@ void Engine::draw() {
 	// render buffer to screen
 	SDL_RenderPresent(window->getRenderer());
 }
-/* SCENE RELATED */
 bool Engine::startScene(string name) {
 	auto it = m_scenes.find(name);
 	if (it == m_scenes.end()) {

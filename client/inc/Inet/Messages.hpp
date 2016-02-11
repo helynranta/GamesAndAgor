@@ -228,7 +228,14 @@ class Exit: public GameMessage {
 		// Constructor & Destructor
 		inline Exit(MessageHeader header) : GameMessage(header, GAME_MESSAGE_TYPE::EXIT) {};
 		inline ~Exit() {};
-
+		inline int PackSelf(uint8_t * payload) {
+			std::cout << "Sending -> EXIT: " << std::endl;
+			int bufferPosition = getHeaderSize();
+			PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
+			bufferPosition += addPayloadSize(sizeof(uint8_t));
+			CreateHeader(this, payload);
+			return bufferPosition;
+		}
 		int Ack(uint8_t * payload);
 };
 

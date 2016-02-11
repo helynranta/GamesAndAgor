@@ -164,7 +164,10 @@ bool InetConnection::disconnect() {
 
 	m_state = ConnectionState::DISCONNECTED;
 	tcpsocketstatus = false;
-
+	uint8_t buffer[BUFFER_SIZE];
+	Exit* exit = new Exit(createDummyHeader(id, SDL_GetTicks(), MESSAGE_TYPE::GAME_MESSAGE, 32));
+	int length = exit->PackSelf(buffer);
+	send(buffer, length);
 	cout << "disconnect has been successfull" << endl;
 	return true;
 }
