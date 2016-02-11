@@ -33,6 +33,7 @@ void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
 void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers);
+void respawnPlayers(Player *pPlayer);
 
 /* ltr did this, blame me if something bad happens */
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen);
@@ -51,3 +52,4 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType, int s
 int statPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType);
 Player *getPlayer(uint16_t playerID, Player *pPlayer);
 void randomLocation(uint16_t *location);
+void gameDestructor(Game *pGame);

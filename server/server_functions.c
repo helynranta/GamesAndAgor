@@ -679,3 +679,20 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	send(socket, buf, 1024 , 0); // tämä toimii
 	return 0; /* -1 on failure, 0 OK */
 }
+
+void gameDestructor(Game *pGame){
+	Player *pP = pGame->sPlayers;
+
+	// first, clear all nearParticles in player structs
+	while(pP != NULL){
+		clearListNear(&pP->nearObjects);
+		clearListNear(&pP->nearPlayers);
+		pP = pP->pNext;
+	}
+
+	//clear the Player and Object lists in game
+	clearListPlayer(&pGame->sPlayers);
+	clearListObject(&pGame->sObjects);
+
+	// All the memory has been freed
+}
