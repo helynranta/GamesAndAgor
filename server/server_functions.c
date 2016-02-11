@@ -1,29 +1,36 @@
-#define LIMIT_X 3
-#define LIMIT_Y 4
-#define LIMIT_R 5
 #define OK 1
 #define NOT_OK 0
 #define PLIND 11 // Payload index location
 #include "server_functions.h"
+#define MAX_GAME_X (uint16_t)(pow(2,16)-1) //max x location
+#define MAX_GAME_Y (uint16_t)(pow(2,16)-1) //max y location
 
 void gameInit(Game *pGame){
+	int i=0;
+	srand(time(NULL));
 	pGame->gameTime = 0;
 	pGame->nPlayers = 0;
+	pGame->nObjects = 0;
 	pGame->sPlayers = NULL;
 	pGame->sObjects = NULL;
 	pGame->sAcks = NULL;
 	pGame->packetID =0;
 	pGame->pingID = 0;
+
+	// make static objects
+	for(;i<100;i++){
+		newObject(&pGame->sObjects, &pGame->nObjects);
+	}
 }
 
 void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 	Player *p1 = NULL, *p2 = NULL;
 	Near *temp = NULL;
 	Object *pObj = *sObjects, *pT = NULL, *pPrev = NULL;
-
     int isIn = 0;
 	if (sPlayers==NULL){return;}
 	// Clear the previous Near lists of players
+	printf("CNP\n");
 	for(p1 = sPlayers; p1 != NULL; p1 = p1->pNext){
 		clearListNear(&(p1->nearPlayers));
 		clearListNear(&(p1->nearObjects));
@@ -31,22 +38,22 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 
 	// Go through each player
 	for(p1 = sPlayers; p1 != NULL; p1 = p1->pNext){
-		if (p1->state != ALIVE){continue;}
+		if (p1->state != ALIVE){printf("%d\n", p1->state);continue;}
 
 		// Calculate distances to each player
 		for(p2 = p1->pNext; p2 != NULL; p2 = p2->pNext){
 			if (p2->state != ALIVE){continue;}
 
-            isIn = isWithinRange(p1->location, p2->location, p1->scale, p2->scale);
+      isIn = isWithinRange(p1->location, p2->location, p1->scale, p2->scale);
 			if(isIn){
 				if(isIn == -1) { // That p1 fucker just ate p2.
-                    eventEatPlayer(p1,p2);
-                }
-                else if (isIn == -2) {// p2 ate p1. p1 totally deserved it.
-                    eventEatPlayer(p2,p1);
-                }
+          eventEatPlayer(p1,p2);
+        }
+        else if (isIn == -2) {// p2 ate p1. p1 totally deserved it.
+        	eventEatPlayer(p2,p1);
+      	}
 
-                if(!(temp = calloc(1,sizeof(Near))))
+      	if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
 
 				temp->pParticle = p2;
@@ -54,7 +61,7 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 				temp = NULL;
 			}
 
-			else if (isWithinRange(p1->location, p2->location, p2->scale, p1->scale)){
+			if (isWithinRange(p1->location, p2->location, p2->scale, p1->scale)){
 				if(!(temp = calloc(1,sizeof(Near))))
 					perror("calloc");
 
@@ -198,6 +205,16 @@ void append2ListPlayer(Player **pList, Player *pNew){
 	*pList = pNew;
 }
 
+void newObject(Object **pList, uint32_t *nObjects){
+	Object *pNew;
+	if((pNew = calloc(1, sizeof(Object))) == NULL){ perror("calloc");}
+	*nObjects += 1;
+	pNew->ID = *nObjects;
+	randomLocation(pNew->location);
+	pNew->pNext = NULL;
+	append2ListObject(pList, pNew);
+}
+
 void append2ListObject(Object **pList, Object *pNew){
 	if(pNew==NULL){return;}
 	pNew->pNext = *pList;
@@ -205,6 +222,7 @@ void append2ListObject(Object **pList, Object *pNew){
 }
 
 void clearListNear(Near **pList){
+	printf("CLN\n");
 	Near *next = NULL, *p = NULL;
 	p = *pList;
 	while(p != NULL){
@@ -497,9 +515,8 @@ Player *getPlayer(uint16_t playerID, Player *pPlayer){
 }
 
 void randomLocation(uint16_t *location){
-    srand(time(NULL));
-    location[0] = rand() % LIMIT_X;
-    location[1] = rand() % LIMIT_Y;
+    location[0] = (uint16_t)rand() % MAX_GAME_X;
+    location[1] = (uint16_t)rand() % MAX_GAME_Y;
 }
 
 /* ltr to blame from the code below */

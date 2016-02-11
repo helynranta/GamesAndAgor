@@ -99,6 +99,7 @@ typedef struct Ack{
 typedef struct Game {
 	uint32_t gameTime;
 	uint16_t nPlayers;
+	uint32_t nObjects;
 	Player *sPlayers;
 	Object *sObjects;
 	Ack *sAcks; // List of messages that haven't been acknowledged
