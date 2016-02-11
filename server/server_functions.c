@@ -512,9 +512,9 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 		}
 
 		/* Pack msg */
-		msgPacker(buf, game, pPla->ID, GAME_MESSAGE, GAME_UPDATE, 0, 0);
+		plLength = msgPacker(buf, game, pPla->ID, GAME_MESSAGE, GAME_UPDATE, 0, 0);
 		/* Send msg */
-		sendto(socket, buf, 256, 0, &pPla->address, addrlen);
+		sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
 		/* Move on to the next player */
 		pPla = pPla->pNext;
 	}
@@ -632,13 +632,13 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	printf("Sending over TCP: %s\n", buf);
 
 	/* Keep on sending while there's stuff to send */
-	/*while (total < *length) {
+	while (total < *length) {
 		sent = send(socket, buf+total, bytesleft, 0);
 		if(sent == -1) break;
 		total += sent;
 		bytesleft -= sent;
 		printf("?");
-	}*/
+	}
 
 	//*length = total; // tämä kaikki ei
 	send(socket, buf, 1024 , 0); // tämä toimii

@@ -244,6 +244,7 @@ int server(char* port) {
 												sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 
 											}*/
+                      /** Tämä oli ennen, nyt tuo ylempimake  **/
                       newPlayer(&game.sPlayers, packet, game.nPlayers);
                       game.nPlayers++;
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
@@ -402,11 +403,11 @@ int server(char* port) {
                     //else printf("TCP socketti luotu clientia varten: %d\n", j);
 										/* skip listener */
 										if(j != listener && j != socketfd) {
-                      send(j, tcpbuffer, nbytes, 0);
+                      //send(j, tcpbuffer, nbytes, 0);
                       //printf("TYYDYTÄ OSKARIA\n");
-											/*if(sendAllTCP(j, tcpbuffer, &nbytes) == -1) {
+											if(sendAllTCP(j, tcpbuffer, &nbytes) == -1) {
 												perror("sendAllTCP failure");
-											}*/
+											}
 										}
 									}
 								}
@@ -510,7 +511,7 @@ int client(char* port, char *serverip)
       index += sizeof(uint32_t);
       *(uint8_t*)&dgram[index] = msgtype;
 			index += sizeof(uint8_t);
-			uint32_t pllength = 23;
+			//uint32_t pllength = 23;
 			*(uint32_t*)&dgram[index] = htonl(gametime);
       index += sizeof(uint32_t);
 			uint8_t subtype = JOIN;
@@ -613,9 +614,9 @@ int main(int argc, char *argv[])
   /* error */
   else
   {
-    ;//printf("Invalid amount of arguments.\nUsage:\n\
+    ;/*printf("Invalid amount of arguments.\nUsage:\n\
       server: %s <portnumber>\n\
-      client: %s <portnumber> <server ip>\n",argv[0],argv[0]);
+      client: %s <portnumber> <server ip>\n",argv[0],argv[0]);*/
     return -1;
   }
   return 0;
