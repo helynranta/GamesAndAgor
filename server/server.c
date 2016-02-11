@@ -250,7 +250,7 @@ int server(char* port) {
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
                       //if(plLength < 0) printf("Payload length error\n");
                       tavut = sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
-                      //printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
+                      printf("Lähetettiin clientille JOIN ACK: \n");
 
 
 											break;
@@ -286,7 +286,7 @@ int server(char* port) {
 											plLength = msgPacker(sendbuffer, &game, packet.ID, ACK, NICK, 0, nickStatus);
                       //if(plLength < 0) printf("Payload length error2\n");
 											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
-                      //printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
+                      printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
 
 											break;
 
@@ -327,11 +327,11 @@ int server(char* port) {
 
                     p = getPlayer(packet.ID, game.sPlayers);
                     if(p == NULL) {
-                      //printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
+                      printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
                       break;
                     }
                     p->state = ALIVE;
-                    //printf("Player is now ALIVE\n" );
+                    printf("Player is now ALIVE\n" );
                   }
 									/* Handle ack */
 									/* remove ack from server's own ack list */
@@ -429,11 +429,11 @@ int server(char* port) {
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
 					/* Send game update to everyone */
-					//sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
           //printf("game update sent\n" );
 
           /* Resend lost msgs */
-          //resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
+          resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
 					}
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
