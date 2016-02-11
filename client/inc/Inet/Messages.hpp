@@ -357,6 +357,14 @@ class GameUpdate: public GameMessage {
 			return number_of_objects;
 		};
 
+		inline std::vector<GamePlayer*> getGamePlayers(){
+			return players;
+		}
+
+		inline std::vector<GameObject*> getGameObjects(){
+			return objects;
+		}
+
 	private:
 		uint16_t pos_x;
 		uint16_t pos_y;
