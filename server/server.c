@@ -352,13 +352,18 @@ int server(char* port) {
                     break;
                   }
 
-									/* x and y position */
-									p->location[0] = packet.posX;
-									p->location[1] = packet.posY;
+                  if(p->lastPacket < packet.gameTime) {
+                    /* x and y position */
+  									p->location[0] = packet.posX;
+  									p->location[1] = packet.posY;
 
-									/* dirX and dirY */
-									p->direction[0] = packet.dirX;
-									p->direction[1] = packet.dirY;
+  									/* dirX and dirY */
+  									p->direction[0] = packet.dirX;
+  									p->direction[1] = packet.dirY;
+                    p->lastPacket = packet.gameTime;
+                  }
+
+
 									break;
 
 								// Statisic packet
