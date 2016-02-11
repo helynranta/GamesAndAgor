@@ -59,8 +59,8 @@ void InetConnection::sendUDP(GAME_MESSAGE_TYPE type, const string& message) {
 //m_outgoing.insert({int(SDL_GetTicks()), msg});
 }
 void InetConnection::sendTCP(const string& msg) {
-	const char* m = (string(Engine::getNick() + ": " + msg)).c_str();
-	if(::send(sockettcp, m, sizeof(m), 0)<0) {
+	string m = (string(Engine::getNick() + ": " + msg));
+	if(::send(sockettcp, m.c_str(), sizeof(char*)*m.size(), 0)<0) {
 		cerr << strerror(errno) << endl;
 	}
 }
@@ -188,8 +188,8 @@ int InetConnection::checkTCPConnection() {
 	socklen_t len = sizeof(err);
 	if (getsockopt(sockettcp, SOL_SOCKET, SO_ERROR, &err, &len) < 0) {
 		cerr << "getsockopt error: " << strerror(errno) << endl;
+		connectTCP();
 		tcpsocketstatus = false;
-		disconnect();
 	}
 	else if (err == 0) {
 		memset(&timeout, 0, sizeof(timeout));
@@ -198,7 +198,7 @@ int InetConnection::checkTCPConnection() {
 		int res;
 		if((res = select(sockettcp + 1, &socket_fds, NULL, NULL, &timeout))<0) {
 			cerr << strerror(errno) << endl;
-			disconnect();
+			tcpsocketstatus = false;
 			return false;
 		} else {
 			if (FD_ISSET(sockettcp, &socket_fds)) {

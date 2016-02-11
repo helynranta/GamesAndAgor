@@ -155,22 +155,11 @@ void Engine::processInput() {
 			break;
 		case SDL_KEYUP:
 			input->releaseKey(uint(e.key.keysym.sym));
+		case SDL_TEXTINPUT:
+			if(string(e.text.text) != "\0") input->addInput(string(e.text.text));
+			break;
 		default:
 			break;
-		}
-	}
-	if (input->isKeyPressed(SDLK_p)) {
-		if (gameState == PLAY)
-			gameState = GameState::PAUSE;
-		else
-			gameState = GameState::PLAY;
-	}
-	if (int(debugKey) != -1) {
-		if (input->isKeyPressed(debugKey)) {
-			if (debugging)
-				debugging = false;
-			else
-				debugging = true;
 		}
 	}
 }
