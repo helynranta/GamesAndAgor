@@ -17,7 +17,7 @@
 class Game : public Scene {
 private:
     // player circle
-    Player m_player = Player("player", 255, 255, 255);
+    Player* m_player;
     vector<Player> m_enemies;
     vector<Player> m_statics;
     Chat* chat = nullptr;

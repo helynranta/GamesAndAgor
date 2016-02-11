@@ -22,11 +22,8 @@ public:
         color.g = g;
         color.b = b;
     }
-    inline virtual ~Player () {
-
-    }
-    inline void init() {
-    }
+    inline virtual ~Player () {}
+    inline void init() {}
     void update(float dT);
     inline const string& getNick() const { return nick; }
     inline const void setTakeInput(bool i) {takeInput = i;}

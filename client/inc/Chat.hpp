@@ -35,6 +35,10 @@ public:
 			);
 		if(m_isActive) Activate();
 		else deActivate();
+		// if chatlog has more than entries remove first
+		if(chatlog.size() > 15) {
+			gui->removeText("chatlog"+to_string(msg_index-15));
+		} 
 		updatePos();
 	}
 	inline const void updatePos() {

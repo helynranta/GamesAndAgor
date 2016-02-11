@@ -16,9 +16,7 @@ private:
 public:
     inline IPDialog () {}
 
-    inline virtual ~IPDialog () {
-
-    }
+    inline virtual ~IPDialog () { }
 
     inline void awake() override {
         gui->addText("hint", new GUIText());
@@ -85,7 +83,6 @@ public:
                     case 0: // negative
                         gui->getText("hint")->setText("connection refused");
                         gui->getInput("input")->show();
-                        //Engine::connection->disconnect();
                         connecting = false;
                         break;
                     case 1: // positive

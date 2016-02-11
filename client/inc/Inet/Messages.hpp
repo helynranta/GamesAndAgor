@@ -379,11 +379,13 @@ class GameUpdate: public GameMessage {
 
 class Ping : public  Message {
 	public:
-		inline Ping(MessageHeader header, uint16_t pPing) : Message(header, MESSAGE_TYPE::GAME_MESSAGE) {
+		inline Ping(MessageHeader header, uint16_t pPing) : Message(header, MESSAGE_TYPE::STATISTICS_MESSAGE) {
 			ping = pPing;
 		}
 
 		inline void Update(){};
+		
+		int PackSelf(uint8_t * payload);
 
 		static inline Ping * Unpack(MessageHeader header, uint32_t bufferPosition, uint8_t * payload) {
 

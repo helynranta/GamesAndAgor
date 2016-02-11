@@ -2,14 +2,24 @@
 #include <cstring>
 
 #include "Inet/Messages.hpp"
-
-#include "../../inc/Inet/MessageAck.hpp"
+#include "Inet/MessageAck.hpp"
 
 IMessage::IMessage() {
 }
 IMessage::~IMessage() {
 }
-
+int Ping::PackSelf(uint8_t * payload) {
+	std::cout << "Sending -> PING: "<< std::endl;
+	int bufferPosition = getHeaderSize();
+	// insert MSG_SUBTYPE to buffer
+	//	std::cout << "GameMessageType: " << getGameMessageType() << std::endl;
+	//PackUINT8ToPayload(*payload, payload, bufferPosition);
+	
+	//bufferPosition += addPayloadSize(sizeof(uint8_t));
+	bufferPosition = CreateHeader(this, payload);
+	//	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
+	return bufferPosition;
+}
 Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payload) {
 
 	// TODO Make better solution here
@@ -360,4 +370,3 @@ int PlayerOut::PackSelf(uint8_t * payload) {
 ChatMessage * ChatMessage::Unpack(MessageHeader, uint32_t, uint8_t*){
 	return nullptr;
 }
-

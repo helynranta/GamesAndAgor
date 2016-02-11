@@ -15,7 +15,7 @@
 #include <map>
 
 #include "Inet/Messages.hpp"
-#include "MessageAck.hpp"
+#include "Inet/MessageAck.hpp"
 
 // Defines if we really want to start the game or just use simple game loop to test messages
 //#define MESG_TEST = 0
@@ -61,6 +61,7 @@ private:
     vector<Message*> m_outgoing;
     bool tcpsocketstatus = false;
     vector<string> chatmessage;
+    vector<int> pings;
     uint16_t id = -1;
 protected:
     /* protected data */
@@ -76,6 +77,7 @@ public:
     bool send(uint8_t *, int);
     bool disconnect();
     int  update();
+    void calculatePing();
     int checkUDPConnections();
 	int checkTCPConnection();
 
@@ -85,7 +87,12 @@ public:
     void destroy();
     inline const ConnectionState& getState() const { return m_state; }
     inline void setState(ConnectionState state) { m_state = state; }
-
+    inline const int getPing() {
+        if(pings.size()==0) return 0;
+        int ping = 0;
+        for(auto& p : pings)ping+=p;
+        return ping/pings.size();
+    }
     inline const bool& getTCPStatus() const { return tcpsocketstatus; }
     inline void setIP(const string& i) { ip = i; }
 

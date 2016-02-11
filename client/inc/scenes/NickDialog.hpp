@@ -28,7 +28,7 @@ public:
             gui->getText("hint")->setText("Checking username availability");
             gui->getInput("nick")->hide();
             // try to send nick to server via udp
-            Nick* nick = new Nick(Engine::connection->createDummyHeader(Engine::connection->getID(), 123123, MESSAGE_TYPE::GAME_MESSAGE, 0), gui->getInput("nick")->getText());
+            Nick* nick = new Nick(Engine::connection->createDummyHeader(Engine::connection->getID(), SDL_GetTicks(), MESSAGE_TYPE::GAME_MESSAGE, 0), gui->getInput("nick")->getText());
             messageLength = nick->PackSelf(nickbuffer);
             Engine::connection->send(nickbuffer, messageLength);
         }

@@ -53,6 +53,14 @@ public:
         else std::cout << "no element found in gui by name " << name << std::endl;
         return nullptr;
     }
+    inline void removeText(const string& name) {
+        for(auto it = m_GUITexts.begin(); it != m_GUITexts.end(); it++) {
+            if(it->first == name) {
+                m_GUITexts.erase(it);
+                break;
+            }
+        }
+    }
 };
 
 #endif

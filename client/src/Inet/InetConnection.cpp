@@ -46,7 +46,7 @@ bool InetConnection::send(uint8_t * message, int size) {
 	 	std::cout << "Error sentto(): " << strerror(errno) << std::endl;
 	 	return false;
 	 } else {
-//		std::cout << "Client: Sent datagram" << std::endl;
+		//		std::cout << "Client: Sent datagram" << std::endl;
 	 }
 	 return true;
 }
@@ -172,7 +172,25 @@ int InetConnection::update() {
 	int dataProsessed = false;
 	checkTCPConnection();
 	dataProsessed = checkUDPConnections();
+	calculatePing();
 	return dataProsessed;
+}
+//uint InetConnection::lastChecked = 0;
+void InetConnection::calculatePing() {
+	// calculate ping
+	if(pings.size() > 5) pings.erase(pings.begin());
+	// send new ping packages
+	static uint lastChecked;
+	static uint16_t ping_index;
+	static uint8_t pingBuffer[BUFFER_SIZE];
+	Ping* ping;
+	if(lastChecked + 1000 < SDL_GetTicks() && m_state == ConnectionState::CONNECTED) {
+		ping = new Ping(createDummyHeader(id, SDL_GetTicks(), MESSAGE_TYPE::STATISTICS_MESSAGE, sizeof(uint32_t)), ++ping_index);
+		int messageLength = ping->PackSelf(pingBuffer);
+		send(pingBuffer, messageLength);
+		lastChecked = SDL_GetTicks();
+		delete ping;
+	}
 }
 int InetConnection::checkTCPConnection() {
 // if connecting tcp
@@ -321,6 +339,9 @@ int InetConnection::checkUDPConnections() {
 				Message::UnpackHeader(socketudp, header, payloadBuffer);
 
 				if (header->payload_length < 1){
+					if(getMessageTypeAsString(header->message_type) == "STATISTICS_MESSAGE") {
+						pings.push_back(SDL_GetTicks() - header->gameTime);
+					}
 					return false;
 				}
 
