@@ -22,7 +22,9 @@ void Game::awake(void) {
     gui->addText(m_player->getNick(), new GUIText());
 
     gui->addText("player-pos", new GUIText());
-    gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 30);
+    gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 20);
+    gui->addText("player-pos-server", new GUIText());
+    gui->getText("player-pos-server")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 50);
     // this is test
     Engine::camera->setPos(1000, 1000);
 }
@@ -35,6 +37,8 @@ void Game::update(float dt) {
     handleMessages();
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
     gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
+    gui->getText("player-pos-server")->setText("("+std::to_string(m_player->getSX())+","+std::to_string(m_player->getSY())+")");
+
 }
 void Game::updateChat(void) {
     // stop input from player if chat is active
@@ -85,10 +89,14 @@ void Game::handleMessages(void) {
     if(update.size()>0) {
         GameUpdate* u = reinterpret_cast<GameUpdate*>(update.front());
         if(u == nullptr) cerr << "update cast failed" << endl;
-        m_player->setPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
+        m_player->setSPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
         m_player->setDir(u->getDirX(), u->getDirX());
         //cout <<"recieved "<< u->getPosX() << " " << u->getPosY() << endl;
         delete u;
+        vector<GameObject*> objs = u->getGameObjects();
+        //cout << objs.size() << endl;
+        vector<GamePlayer*> players = u->getGamePlayers();
+        cout << "Game.cpp - Number of players: " << players.size() << endl;
     }
 }
 void Game::draw(void) {

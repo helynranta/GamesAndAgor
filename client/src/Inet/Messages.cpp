@@ -359,9 +359,10 @@ int Move::PackSelf(uint8_t * payload) {
 	// insert POS_X to buffer
 	PackUINT16ToPayload(posX, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
-//	std::cout << "Messages.cpp - Move::PackSelf - POS_X: " << posX <<  std::endl;
 
-
+#ifdef MESG_TEST
+	std::cout << "Messages.cpp - Move::PackSelf - POS_X: " << posX <<  std::endl;
+#endif
 	// insert POX_Y to buffer
 	PackUINT16ToPayload(posY, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
@@ -374,7 +375,8 @@ int Move::PackSelf(uint8_t * payload) {
 	PackUINT16ToPayload(dirY, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
 
-
+	//printf("quebor: %d %d\n", uint16_t(posX), posY);
+	
 	//bufferPosition += addPayloadSize(sizeof(uint8_t));
 	CreateHeader(this, payload);
 	//	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;

@@ -75,7 +75,7 @@ void TestMessagesLoop(string ip_addr) {
 
 	int loopCounter = 0;
 	while (loopCounter < 1000) {
-		std::cout << "==================================== LOOP START ====================================" << std::endl;
+		std::cout << "==================================== " << loopCounter << ": LOOP START "<< "====================================" << std::endl;
 		connection->update();
 		vector<Message*> messages;
 		if (testStates == TEST_STATES::JOINING ||
@@ -168,7 +168,6 @@ void TestMessagesLoop(string ip_addr) {
 //					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
 //					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
 				}
-				continue;
 			}
 		}
 

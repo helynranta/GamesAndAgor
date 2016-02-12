@@ -738,7 +738,7 @@ void signalHandler(int signo){
 void checkTimeOut(Game *pGame, char *msgBuffer, int socket, socklen_t addrlen){
 	Player *p1 = pGame->sPlayers, *p2 = NULL, *tmp = NULL;
 	int pl=0;
-
+	memset(msgBuffer, '\0', BUFFERSIZE);
 	while(p1 != NULL){
 		if((pGame->gameTime - p1->lastServerTime) > 15000){
 			p1->state = OUT;
