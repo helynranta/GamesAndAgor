@@ -296,6 +296,10 @@ int server(char* port) {
 
 											// Set player as OUT
 											p = getPlayer(packet.ID, game.sPlayers);
+                      if(p == NULL) {
+                        printf("Player already gone | not found in EXIT:\n" );
+                        break;
+                      }
 											p->state = OUT;
 
 											// Send ACK to player
@@ -312,6 +316,7 @@ int server(char* port) {
 													pPla = pPla->pNext;
 												}
 											}
+                      removePlayer(&game.sPlayers, packet.ID);
 
 											break;
 									}
