@@ -265,12 +265,19 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	bufferPosition += sizeof(uint16_t);
 
 	// return remaining of the received message, if there is any
+
+//	std::cout << "Messages.hpp - GameUpdate::Unpack length: " << length << std::endl;
+//	std::cout << "Messages.hpp - GameUpdate::Unpack bufferPosition: " << bufferPosition << std::endl;
+
+	uint8_t * remainingPayload;
 	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
 	if( remainingPayloadSize > 0) {
-		uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(length - bufferPosition));
+		remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadSize));
 		memcpy(remainingPayload, &payload[bufferPosition], length - bufferPosition);
 	}
 
+	bufferPosition = 0;
+	std::cout << "Messages.hpp - GameUpdate::Unpack bufferPosition: " << bufferPosition << std::endl;
 
 	std::vector<GamePlayer*> playerObjects;
 	std::vector<GameObject*> gameObjects;
@@ -278,7 +285,7 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	// Get GameObjects
 	int iterator = 0;
 	while ( iterator < number_of_objects){
-		gameObjects.push_back(GameObject::Unpack(payload, bufferPosition));
+		gameObjects.push_back(GameObject::Unpack(remainingPayload, iterator));
 		bufferPosition += GameObject::getBufferReadSizeInBytes();
 		iterator++;
 	}
@@ -286,7 +293,8 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	// Get GamePlayers
 	iterator = 0;
 	while ( iterator < number_of_players){
-		playerObjects.push_back(GamePlayer::Unpack(payload, bufferPosition));
+		playerObjects.push_back(GamePlayer::Unpack(remainingPayload, iterator));
+
 		bufferPosition += GamePlayer::getBufferReadSizeInBytes();
 		iterator++;
 	}
@@ -365,7 +373,7 @@ int Move::PackSelf(uint8_t * payload) {
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
 
 #ifdef MESG_TEST
-	std::cout << "Messages.cpp - Move::PackSelf - POS_X: " << posX <<  std::endl;
+//	std::cout << "Messages.cpp - Move::PackSelf - POS_X: " << posX <<  std::endl;
 #endif
 	// insert POX_Y to buffer
 	PackUINT16ToPayload(posY, payload, bufferPosition);

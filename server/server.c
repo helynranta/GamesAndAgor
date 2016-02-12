@@ -465,6 +465,7 @@ int server(char* port) {
           informTheDead(&game, sendbuffer, socketfd, addrlen);
 
           /* respawn dead players */
+          /*TODO: Move this to ACK::PLAYER_DEADm on receive respawn */
           respawnPlayers(game.sPlayers);
 				}
 
