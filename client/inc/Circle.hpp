@@ -18,8 +18,8 @@ struct Color {
 class Circle {
 protected:
     // local 
-    float m_x = 100;
-    float m_y = 100;
+    float m_x = 1000;
+    float m_y = 1000;
     float m_r = 40;
     // server given attributes
     float m_sx = 0;
@@ -52,7 +52,7 @@ public:
     inline void setPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
     inline void setDir (int x, int y) {m_dir.x = x; m_dir.y = y;}
     inline void setR (int r) { m_r = r; }
-    
+
     inline const SDL_Rect& getDestRect() const { return m_destRect; }
 
     inline void scale(float x) {

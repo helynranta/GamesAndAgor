@@ -23,11 +23,13 @@ void Game::awake(void) {
 
     gui->addText("player-pos", new GUIText());
     gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 30);
+    // this is test
+    Engine::camera->setPos(1000, 1000);
 }
 void Game::update(float dt) {
     // this is how camera behaves in real gameplay
-    Engine::camera->setPos(m_player->getX(), m_player->getY());
-    Engine::camera->setScale(float(m_player->getR())/100);
+    //Engine::camera->setPos(m_player->getX(), m_player->getY());
+    //Engine::camera->setScale(float(m_player->getR())/100);
     m_player->update(dt);
     updateChat();
     handleMessages();
@@ -83,8 +85,9 @@ void Game::handleMessages(void) {
     if(update.size()>0) {
         GameUpdate* u = reinterpret_cast<GameUpdate*>(update.front());
         if(u == nullptr) cerr << "update cast failed" << endl;
-        //m_player->setPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
-        cout <<"recieved "<< u->getPosX() << " " << u->getPosY() << endl;
+        m_player->setPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
+        m_player->setDir(u->getDirX(), u->getDirX());
+        //cout <<"recieved "<< u->getPosX() << " " << u->getPosY() << endl;
         delete u;
     }
 }

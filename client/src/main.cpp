@@ -181,11 +181,12 @@ void TestMessagesLoop() {
 }
 
 int main(void) {
-
+/*
 #ifdef MESG_TEST
 	TestMessagesLoop();
 	return 0;
 #endif
+*/
 	std::cout << "Starting game" << std::endl;
 	Engine* engine = new Engine();
 	engine->addScenes( { { "Game", new Game() }, { "NickDialog", new NickDialog() }, { "IPDialog", new IPDialog() } });
