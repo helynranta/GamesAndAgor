@@ -123,8 +123,8 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 
 	// RECTANGLE
-	deltaY = abs(loc1[1] - loc2[1] - floor(sca2/2));
-	deltaX = abs(loc1[0] - loc2[0] - floor(sca2/2));
+	deltaY = abs(loc1[1] - loc2[1]) + floor(sca2/2);
+	deltaX = abs(loc1[0] - loc2[0]) + floor(sca2/2);
 
 	/* Euclidean distance */
     eucl = sqrt(pow(deltaX,2) + pow(deltaY,2));
@@ -360,6 +360,9 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 	switch (msgType){
 		case GAME_MESSAGE:
 			plLength = gameMsgPacker(pPL, pGame, toPlayerID, msgSubType, outPlayerID);
+			if ((msgSubType == PLAYER_OUT) || (msgSubType == PLAYER_OUT)) {
+				addAck2List(&pGame->sAcks,msgBuffer,pGame->gameTime,plLength,pGame->gameTime, toPlayerID);
+			}
 			break;
 	    case ACK:
 			plLength = ackPacker(pPL, pGame, toPlayerID, msgSubType, status);
