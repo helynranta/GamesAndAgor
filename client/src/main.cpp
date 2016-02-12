@@ -13,7 +13,7 @@
 using namespace std;
 
 enum TEST_STATES {
-	JOINING, JOINING_ACK, NICKING, NICKING_ACK, GAME_RUNNING, GAME_ENDING
+	JOINING, JOINING_ACK, NICKING, NICKING_ACK, GAME_RUNNING, GAME_ENDING, EXITING_GAME, EXITING_GAME_ACK
 };
 
 TEST_STATES testStates = TEST_STATES::JOINING;
@@ -116,6 +116,14 @@ void TestMessagesLoop() {
 				continue;
 			}
 
+			if(loopCounter == 20){
+				testStates = TEST_STATES::EXITING_GAME;
+				printGameStateAsString();
+				Exit(connection->createDummyHeader( 0, connection->getID(), MESSAGE_TYPE::GAME_MESSAGE, 0));
+				testStates = TEST_STATES::EXITING_GAME_ACK;
+				printGameStateAsString();
+			}
+
 			std::vector<GameUpdate*> gameUpdates = connection->getGameUpdateMessages();
 			if (gameUpdates.size() > 0) {
 				for (auto& update : gameUpdates) {
@@ -132,8 +140,28 @@ void TestMessagesLoop() {
 		}
 
 		if (testStates == TEST_STATES::GAME_ENDING) {
+			std::cout << "Main.cpp - GAME_ENDING: Game ended by server" << std::endl;
 			exit(0);
 		}
+
+		if(testStates == TEST_STATES::EXITING_GAME_ACK){
+			std::cout << "Main.cpp - EXITING: Game ended by user" << std::endl;
+			std::vector<Message*> gameExits = connection->getMessagesOfType(MESSAGE_TYPE::ACK, GAME_MESSAGE_TYPE::EXIT);
+			if(gameExits.size() > 0){
+				ExitAck* exitAck = static_cast<ExitAck*>(gameExits.front());
+				Exit exitMessageAck = Exit(connection->createDummyHeader( exitAck->getAckMessagePackerID(), connection->getID(), MESSAGE_TYPE::ACK, 0));
+				// Send three messages so most lickely at least one will get there
+				memset(testBuffer, 0, BUFFER_SIZE);
+				int messageSize = exitMessageAck.PackSelf(testBuffer);
+				connection->send(testBuffer, messageSize);
+				connection->send(testBuffer, messageSize);
+				connection->send(testBuffer, messageSize);
+
+				exit(0);
+			}
+		}
+
+
 		std::cout << "==================================== LOOP END ====================================" << std::endl;
 		loopCounter++;
 	}
