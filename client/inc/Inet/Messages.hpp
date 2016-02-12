@@ -238,6 +238,9 @@ class Exit: public GameMessage {
 			CreateHeader(this, payload);
 			return bufferPosition;
 		}
+
+		inline static Exit * Unpack(MessageHeader, uint32_t, uint8_t*){return nullptr;};
+
 		int Ack(uint8_t * payload);
 };
 
@@ -295,17 +298,20 @@ class PlayerDead: public GameMessage {
 			playerID = static_cast<uint8_t>(id);
 		};
 
-		inline ~PlayerDead() {};
+		inline ~PlayerDead() {
+		};
 
 		int PackSelf(uint8_t * payload);
 
 		static PlayerDead* Unpack(MessageHeader header, uint32_t length, uint8_t* payload);
-	private:
-		uint16_t playerID;
+
 		inline uint16_t getPlayerID() {
 			return playerID;
-		}
-		;
+		};
+
+	private:
+		uint16_t playerID;
+
 };
 
 // =========  PLAYER_OUT =========  //
@@ -332,7 +338,7 @@ class PlayerOut: public GameMessage {
 
 class GameUpdate: public GameMessage {
 	public:
-		inline GameUpdate(MessageHeader header, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint8_t pNumber_of_players,
+		inline GameUpdate(MessageHeader header, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint32_t pSize, uint8_t pNumber_of_players,
 				uint16_t pNnumber_of_objects,
 				std::vector<GamePlayer*> pPlayers,
 				std::vector<GameObject*> pObjects) :
@@ -341,8 +347,10 @@ class GameUpdate: public GameMessage {
 			pos_y = pPos_y;
 			dir_x = pDir_x;
 			dir_y = pDir_y;
+			size = pSize;
+
 			number_of_players = pNumber_of_players;
-			number_of_objects = pNumber_of_players;
+			number_of_objects = pNnumber_of_objects;
 			players = pPlayers;
 			objects = pObjects;
 		};
@@ -360,6 +368,8 @@ class GameUpdate: public GameMessage {
 		inline uint16_t getDirX(){ return dir_x; };
 
 		inline uint16_t getDirY(){ return dir_y; };
+
+		inline uint32_t getSize(){ return size; };
 
 		inline uint8_t getNumberOfPlayers() {
 			return number_of_players;
@@ -382,6 +392,7 @@ class GameUpdate: public GameMessage {
 		uint16_t pos_y;
 		uint16_t dir_x;
 		uint16_t dir_y;
+		uint32_t size;
 		uint8_t number_of_players;
 		uint16_t number_of_objects;
 		std::vector<GamePlayer*> players;
