@@ -116,7 +116,7 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 	long sca1 = (long)scale1;
 	long sca2 = (long)scale2;
 
-	printf("sca1: %d sca2: %d\n",sca1, sca2 );
+	//printf("sca1: %d sca2: %d\n",sca1, sca2 );
 
 	float range = sca1/PLA_SIZE, eucl = 0;
 	float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
