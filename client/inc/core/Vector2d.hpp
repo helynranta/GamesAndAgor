@@ -16,5 +16,6 @@ public:
       vec.y=y/sqrt(x*x+y*y);
       return vec;
     }
+    int length() {return sqrt(x*x + y*y);}
 };
 #endif

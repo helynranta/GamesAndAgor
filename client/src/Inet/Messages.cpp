@@ -371,7 +371,8 @@ int Move::PackSelf(uint8_t * payload) {
 	PackUINT16ToPayload(dirY, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
 
-
+	//printf("quebor: %d %d\n", uint16_t(posX), posY);
+	
 	//bufferPosition += addPayloadSize(sizeof(uint8_t));
 	bufferPosition = CreateHeader(this, payload);
 	//	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;

@@ -32,6 +32,7 @@ public:
         int tcpstatus = Engine::connection->getTCPStatus();
         if(Engine::input->isKeyPressed(SDLK_d) && connecting) {
             Engine::input->getchar();
+            Engine::input->getInput();
             Engine::connection->disconnect();
             gui->getText("hint")->setText("Enter server IP address");
             gui->getInput("input")->show();

@@ -44,12 +44,14 @@ public:
     /* GETTERS */
     inline int getX () const { return m_x; }
     inline int getY () const { return m_y; }
+    inline int getSX () const { return m_sx; }
+    inline int getSY () const { return m_sy; }
     inline int getR () const { return m_r; }
 
     inline Vector2d getDir() const { return m_dir; }
     inline const string& getNick() const { return nick; }
 
-    inline void setPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
+    inline void setSPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
     inline void setDir (int x, int y) {m_dir.x = x; m_dir.y = y;}
     inline void setR (int r) { m_r = r; }
 
