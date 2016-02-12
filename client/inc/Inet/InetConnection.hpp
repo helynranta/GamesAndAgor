@@ -18,7 +18,7 @@
 #include "Inet/MessageAck.hpp"
 
 // Defines if we really want to start the game or just use simple game loop to test messages
-#define MESG_TEST = 0
+//#define MESG_TEST = 0
 
 
 using namespace std;
@@ -100,7 +100,6 @@ public:
     vector<Message*> getMessagesOfType(MESSAGE_TYPE, GAME_MESSAGE_TYPE);
 
     vector<GameUpdate*> getGameUpdateMessages();
-    vector<PlayerOut*> getPLayerOutMessages();
     vector<string> getChatMessages();
     vector<PlayerDead*> getDeadPayers();
     bool getGameEnding();
