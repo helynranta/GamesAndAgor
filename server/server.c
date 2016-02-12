@@ -74,6 +74,7 @@ int server(char* port) {
         return -1;
       }
 
+
       //Try to bind to this address
       if (bind(socketfd,iter->ai_addr, iter->ai_addrlen) < 0 ) {
         close(socketfd); /* Even when bind fails, socket remains, close it */
@@ -440,7 +441,7 @@ int server(char* port) {
 
 
 				/* If eough time has passed send game update */
-				if ((time2 - time1) >= 1500) {
+				if ((time2 - time1) >= 50) {
 					//printf("Game update!\n");
 					gettimeofday(&tvUpdate1, NULL);
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
