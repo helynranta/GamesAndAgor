@@ -49,6 +49,7 @@ int server(char* port) {
 	tv.tv_usec = 1000000;
 	tv.tv_sec = 0;
   int yes = 1;
+  int tavut;
 
   socklen_t addrlen = 0;
   unsigned int optval = 0;
@@ -165,7 +166,7 @@ int server(char* port) {
 		while (!exitFlag) {
       p = NULL;
 
-			// Refresh select() set
+			// Refresh select() setmake
 			//FD_ZERO(&readset);
 			//FD_SET(socketfd, &readset);
 			readset = master; // /* Copy master fd_set, so that won't change*/
@@ -304,8 +305,10 @@ int server(char* port) {
 											p->state = OUT;
 
 											// Send ACK to player
-											plLength = msgPacker(sendbuffer, &game, packet.ID, ACK, EXIT, packet.ID, 0);
-											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
+											plLength = msgPacker(sendbuffer, &game, packet.ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
+                      printf("payload length in case EXIT: %d\n", plLength);
+											tavut = sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
+                      printf("Sended %d bytes to client EXIT ACK\n", tavut);
 
 											// Inform other clients
 											Player *pPla = game.sPlayers;
@@ -314,10 +317,13 @@ int server(char* port) {
 												if (pPla->ID != packet.ID) {
 													plLength = msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
 													sendto(socketfd, sendbuffer, plLength, 0, &pPla->address, addrlen);
-													pPla = pPla->pNext;
+
 												}
+                        pPla = pPla->pNext;
+
 											}
                       removePlayer(&game.sPlayers, packet.ID);
+                      
 
 											break;
 									}
