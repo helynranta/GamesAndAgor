@@ -9,11 +9,14 @@
 #include "Engine.hpp"
 #include "core/Scene.hpp"
 
+void startJoinAck();
+
 class IPDialog : public Scene {
 private:
-    bool connecting = false;
     int connectStart = 0;
 public:
+    static bool connecting;
+
     inline IPDialog () {}
 
     inline virtual ~IPDialog () { }
@@ -36,33 +39,25 @@ public:
             Engine::connection->disconnect();
             gui->getText("hint")->setText("Enter server IP address");
             gui->getInput("input")->show();
-            connecting = false;
+            IPDialog::connecting = false;
         }
         else if(Engine::input->isKeyPressed(SDLK_RETURN) && !connecting) {
             // show right text
-            connecting = true;
+            IPDialog::connecting = true;
             gui->getText("hint")->setText("Trying to connect to server...");
             gui->getInput("input")->hide();
 
             string newIP = gui->getInput("input")->getText();
-            if(newIP == "" || newIP == "localhost") newIP = "157.24.108.48";
+            if(newIP == "" || newIP == "localhost") newIP = "127.0.0.1";
             Engine::connection->setIP(newIP);
-
             Engine::connection->connectUDP();
             connectStart = int(SDL_GetTicks());
-            //tmp
-            uint8_t testBuffer[BUFFER_SIZE];
-            MessageHeader dummyGameMessageHeader;
-            dummyGameMessageHeader.user_id = 0;
-            dummyGameMessageHeader.gameTime = 12;
-            Join * joinMessage = new Join(dummyGameMessageHeader);
-            int messageLenght = joinMessage->PackSelf(testBuffer);
-            Engine::connection->send(testBuffer, messageLenght);
+            startJoinAck();
         }
         else if(cstate == ConnectionState::TIMED_OUT) {
             gui->getText("hint")->setText("Connection timed out...");
             gui->getInput("input")->show();
-            connecting = false;
+            IPDialog::connecting = false;
         }
         else if(cstate == ConnectionState::CONNECTED && tcpstatus == 1) {
             cout << "both tcp and udp status ok" << endl;
@@ -70,7 +65,8 @@ public:
             gui->getText("hint")->setText("Enter server IP address");
             gui->getInput("input")->show();
             Engine::startScene("NickDialog");
-        } else if (connecting) {
+            IPDialog::connecting = false;
+        } else if (IPDialog::connecting) {
             gui->getText("hint")->setText("Trying to connect to server: "+to_string(uint(SDL_GetTicks()-connectStart)/1000));
         }
         checkAck();
@@ -84,7 +80,7 @@ public:
                     case 0: // negative
                         gui->getText("hint")->setText("connection refused");
                         gui->getInput("input")->show();
-                        connecting = false;
+                        IPDialog::connecting = false;
                         break;
                     case 1: // positive
                         gui->getText("hint")->setText("UDP penetrated, test TCP");
@@ -92,15 +88,29 @@ public:
                         Engine::connection->setState(ConnectionState::CONNECTED);
                         Engine::connection->connectTCP();
                         Engine::connection->setID(static_cast<JoinAck*>(ack)->getUserID());
-                        connecting = true;
+                        IPDialog::connecting = true;
                         break;
                 }
             }
         }
     }
     inline void end() override {}
-
     inline void draw() override {}
+
 };
+
+bool IPDialog::connecting = false;
+// this will ack as long as still not joined
+void startJoinAck() {
+    if(!IPDialog::connecting) return;
+    uint8_t testBuffer[BUFFER_SIZE];
+    MessageHeader dummyGameMessageHeader;
+    dummyGameMessageHeader.user_id = 0;
+    dummyGameMessageHeader.gameTime = 12;
+    Join * joinMessage = new Join(dummyGameMessageHeader);
+    int messageLenght = joinMessage->PackSelf(testBuffer);
+    Engine::connection->send(testBuffer, messageLenght);
+    if(IPDialog::connecting) Engine::setTimeout(1000, startJoinAck);
+}
 
  #endif

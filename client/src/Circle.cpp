@@ -12,8 +12,8 @@ void Circle::update() {
 	m_sx = m_sx + m_dir.x * dt;
 	m_sy = m_sy + m_dir.y * dt;
 	// update drawable sphere
-	m_x = (m_x + ((m_sx-m_x)/5));
-	m_y = (m_y + ((m_sy-m_y)/5));
+	m_x = (m_x + ((m_sx-m_x)/2));
+	m_y = (m_y + ((m_sy-m_y)/2));
 
     m_destRect = {
         int(m_x), int(m_y),        		// make center of circle true center of drawed texture
