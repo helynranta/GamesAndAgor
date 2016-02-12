@@ -45,7 +45,7 @@ public:
             gui->getInput("input")->hide();
 
             string newIP = gui->getInput("input")->getText();
-            if(newIP == "" || newIP == "localhost") newIP = "157.24.108.48";
+            if(newIP == "" || newIP == "localhost") newIP = "127.0.0.1";
             Engine::connection->setIP(newIP);
 
             Engine::connection->connectUDP();

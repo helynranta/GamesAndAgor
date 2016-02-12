@@ -91,10 +91,9 @@ void Game::handleMessages(void) {
         if(u == nullptr) cerr << "update cast failed" << endl;
         m_player->setSPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
         m_player->setDir(u->getDirX(), u->getDirX());
-        //cout <<"recieved "<< u->getPosX() << " " << u->getPosY() << endl;
         delete u;
         vector<GameObject*> objs = u->getGameObjects();
-        //cout << objs.size() << endl;
+        cout << "Game.cpp - Number of static objects: " << objs.size() << endl;
         vector<GamePlayer*> players = u->getGamePlayers();
         cout << "Game.cpp - Number of players: " << players.size() << endl;
     }

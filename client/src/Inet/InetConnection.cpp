@@ -146,13 +146,6 @@ bool InetConnection::connectUDP() {
 				disconnect();
 				return false;
 			}
-			/*
-			if (bind(socketudp, iter->ai_addr, iter->ai_addrlen) < 0) {
-				close(socketudp);
-				std::cout << "Error bind(): " << strerror(errno) << std::endl;
-				return false;
-			}
-			*/
 			break;
 		}
 	}
@@ -167,8 +160,7 @@ bool InetConnection::disconnect() {
 		send(buffer, length);
 	}
 
-	if (res == nullptr)
-		freeaddrinfo(res);
+	if (res != nullptr) freeaddrinfo(res);
 
 	m_state = ConnectionState::DISCONNECTED;
 	tcpsocketstatus = false;
