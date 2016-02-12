@@ -32,6 +32,7 @@ void append2ListObject(Object **pList, Object *pNew);
 void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
+void removePlayer(Player **pList, uint32_t playerID);
 void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers);
 void respawnPlayers(Player *pPlayer);
 

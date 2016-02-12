@@ -259,6 +259,32 @@ void clearListObject(Object **pList){
 	*pList = NULL;
 }
 
+void removePlayer(Player **pList, uint32_t playerID){
+    Player *p = *pList, *prev = NULL;
+
+		if (p==NULL) {return;}
+    else if (p->ID == playerID){ // if first in list
+        p = p->pNext;
+        free(*pList);
+        *pList = p;
+    }
+    else {
+        while(p->ID != playerID){
+            if(p->pNext == NULL) {
+                return;
+            }
+            else {
+                prev = p;
+                p = p->pNext;
+						}
+        }
+				prev->pNext = p->pNext;
+
+				free(p);
+				p = NULL;
+    }
+}
+
 void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
 	Player *p = NULL;
   if (!(p = calloc(1,sizeof(Player))))
