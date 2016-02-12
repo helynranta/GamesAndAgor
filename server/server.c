@@ -301,6 +301,7 @@ int server(char* port) {
                       //if(plLength < 0) printf("Payload length error2\n");
 											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
                       printf("Lähetettiin clientille NICK ACK - status: %d\n", nickStatus);
+                      printf("packet.nick: %s\n", packet.nick);
 
 											break;
 
@@ -354,8 +355,7 @@ int server(char* port) {
                       printf("Couldn't find Player id %d from ACK::PLAYER_DEAD packet\n", packet.ID);
                       break;
                     }
-                    /* TODO: REMOVE COMMENTS when implementation has changed */
-                    //respawnPlayers(p);
+                    respawnPlayer(p);
                   }
 
 									/* remove ack from server's own ack list */
@@ -475,7 +475,7 @@ int server(char* port) {
 
           /* respawn dead players */
           /*TODO: Move this to ACK::PLAYER_DEADm on receive respawn */
-          respawnPlayers(game.sPlayers);
+          //respawnPlayers(game.sPlayers);
 				}
 
         gameDestructor(&game);

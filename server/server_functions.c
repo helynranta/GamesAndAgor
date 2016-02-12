@@ -318,15 +318,11 @@ void newPlayer(Game *game, struct Packet packet){
   append2ListPlayer(&game->sPlayers, p);
 }
 
-void respawnPlayers(Player *pPlayer){
-	Player *p = pPlayer;
-	while(p != NULL) {
-		if(p->state == DEAD){
-			randomLocation(p->location);
-			p->state = ALIVE;
+void respawnPlayer(Player *pPlayer){
+		if(pPlayer->state == DEAD){
+			randomLocation(pPlayer->location);
+			pPlayer->state = ALIVE;
 		}
-		p = p->pNext;
-	}
 }
 
 int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status){
