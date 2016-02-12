@@ -311,18 +311,21 @@ class PlayerOut: public GameMessage {
 	public:
 		inline PlayerOut(MessageHeader header, uint16_t id) :
 				GameMessage(header, GAME_MESSAGE_TYPE::PLAYER_OUT) {
-			playerID = static_cast<uint8_t>(id);
+			playerID = static_cast<uint16_t>(id);
 		};
 		inline ~PlayerOut() {};
 
 		static PlayerOut * Unpack(MessageHeader, uint32_t, uint8_t*);
 
 		int PackSelf(uint8_t * payload);
-	private:
-		uint16_t playerID;
+
 		inline uint16_t getPlayerID() {
 			return playerID;
 		};
+
+	private:
+		uint16_t playerID;
+
 };
 
 class GameUpdate: public GameMessage {

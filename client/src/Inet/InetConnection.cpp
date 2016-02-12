@@ -291,7 +291,7 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 		messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::EXIT:
-		//std::cout << "============== GOT EXIT ACK ==============" << std::endl;
+		std::cout << "============== GOT EXIT ACK ==============" << std::endl;
 		messageInbox.push_back(dynamic_cast<ExitAck*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::RESTART:
@@ -332,7 +332,7 @@ int InetConnection::checkUDPConnections() {
 	Message* unpackedMessage = nullptr;
 	switch (select(socketudp + 1, &socket_fds, NULL, NULL, &timeout)) {
 		case -1:
-			std::cout << strerror(errno) << std::endl;
+			std::cout << "CheckUDPConnection error: " << strerror(errno) << std::endl;
 			disconnect();
 			return false;
 		case 0:
@@ -402,6 +402,24 @@ vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type, GAME_MESSA
 	}
 	return msgs;
 }
+
+vector<PlayerOut*> InetConnection::getPLayerOutMessages() {
+	vector<PlayerOut*> lmessages;
+	for (unsigned int it = 0; it < messageInbox.size(); it++) {
+		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
+			if(static_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_OUT){
+				lmessages.push_back(static_cast<PlayerOut*>(messageInbox[it]));
+				messageInbox[it] = messageInbox.back();
+				messageInbox.pop_back();
+			}
+		}
+	}
+	std::cout << "InetConnection.cpp - exitings acks size: " << lmessages.size() << std::endl;
+
+	return lmessages;
+}
+
+
 vector<GameUpdate*> InetConnection::getGameUpdateMessages() {
 	vector<GameUpdate*> lmessages;
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {

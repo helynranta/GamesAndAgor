@@ -39,11 +39,17 @@ void printGameStateAsString(){
 		case TEST_STATES::GAME_ENDING:
 			stateAsString = "GAME_ENDING";
 			break;
+		case TEST_STATES::EXITING_GAME:
+			stateAsString = "EXITING_GAME";
+			break;
+		case TEST_STATES::EXITING_GAME_ACK:
+			stateAsString = "EXITING_GAME_ACK";
+			break;
 		default:
 			stateAsString = "CANNOT DEFINE";
 			break;
 	}
-	std::cout << " Entering state: " << stateAsString << std::endl;
+	std::cout << "Entering state: " << stateAsString << std::endl;
 }
 
 void TestMessagesLoop() {
@@ -54,7 +60,8 @@ void TestMessagesLoop() {
 	InetConnection * connection = new InetConnection();
 	connection->init();
 	
-	connection->setIP("157.24.108.48");
+//	connection->setIP("157.24.108.48");
+	connection->setIP("127.0.0.1");
 	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
 	MessageHeader dummyGameMessageHeader = connection->createDummyHeader(0, 123123, MESSAGE_TYPE::GAME_MESSAGE, 0);
@@ -80,6 +87,7 @@ void TestMessagesLoop() {
 						JoinAck* joinAck = static_cast<JoinAck*>(ack);
 						MessageHeader headerForNick = connection->createDummyHeader(joinAck->getUserID(), joinAck->getGameTime(),
 								joinAck->getMessageType(), joinAck->getPayloadSize());
+						connection->setID(joinAck->getUserID());
 						testStates = TEST_STATES::NICKING;
 						printGameStateAsString();
 
@@ -116,10 +124,15 @@ void TestMessagesLoop() {
 				continue;
 			}
 
-			if(loopCounter == 20){
+			if(loopCounter == 6){
 				testStates = TEST_STATES::EXITING_GAME;
 				printGameStateAsString();
-				Exit(connection->createDummyHeader( 0, connection->getID(), MESSAGE_TYPE::GAME_MESSAGE, 0));
+				Exit exitMessage = Exit(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::GAME_MESSAGE, 0));
+				cout << "Main.cpp - Exit: " << exitMessage.getMessageHeaderUserID() << endl;
+				cout << "Main.cpp - Exit: " << connection->getID() << endl;
+				memset(testBuffer, 0, BUFFER_SIZE);
+				int messageSize = exitMessage.PackSelf(testBuffer);
+				connection ->send(testBuffer, messageSize);
 				testStates = TEST_STATES::EXITING_GAME_ACK;
 				printGameStateAsString();
 			}
@@ -145,18 +158,18 @@ void TestMessagesLoop() {
 		}
 
 		if(testStates == TEST_STATES::EXITING_GAME_ACK){
-			std::cout << "Main.cpp - EXITING: Game ended by user" << std::endl;
-			std::vector<Message*> gameExits = connection->getMessagesOfType(MESSAGE_TYPE::ACK, GAME_MESSAGE_TYPE::EXIT);
-			if(gameExits.size() > 0){
-				ExitAck* exitAck = static_cast<ExitAck*>(gameExits.front());
-				Exit exitMessageAck = Exit(connection->createDummyHeader( exitAck->getAckMessagePackerID(), connection->getID(), MESSAGE_TYPE::ACK, 0));
-				// Send three messages so most lickely at least one will get there
+			std::vector<PlayerOut*> playerOuts = connection->getPLayerOutMessages();
+			std::cout << "Main.cpp - EXITING_ACK: BOOBS" << std::endl;
+			if(playerOuts.size() > 0){
+				std::cout << "Main.cpp - EXITING: Game ended by user" << std::endl;
+				PlayerOut* playerOut = playerOuts.front();
+				PlayerOutAck playerOutAck = PlayerOutAck(connection->createDummyHeader(playerOut->getMessageHeaderUserID(), playerOut->getGameMessageType(), MESSAGE_TYPE::ACK, 0), playerOut->getMessageHeaderUserID());
+				// Send three messages so most likely at least one will get there
 				memset(testBuffer, 0, BUFFER_SIZE);
-				int messageSize = exitMessageAck.PackSelf(testBuffer);
+				int messageSize = playerOutAck.PackSelf(testBuffer);
 				connection->send(testBuffer, messageSize);
 				connection->send(testBuffer, messageSize);
 				connection->send(testBuffer, messageSize);
-
 				exit(0);
 			}
 		}
