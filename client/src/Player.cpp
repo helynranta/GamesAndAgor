@@ -28,7 +28,7 @@ void Player::update(float dT) {
         l_dir.normalize();
     }
     // do this after PackSelf is implemented
-    static int lastSend = 0;
+    static uint lastSend = 0;
     if(lastSend + 200 < SDL_GetTicks()) {
         uint8_t updateBuffer[BUFFER_SIZE];
         Move* m = new Move(Engine::connection->createDummyHeader(
