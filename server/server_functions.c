@@ -18,9 +18,9 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	/*for(;i<100;i++){
+	for(;i<100;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
-	}*/
+	}
 }
 
 void ComputeNearParticles(Player *sPlayers, Object **sObjects){

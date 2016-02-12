@@ -76,15 +76,20 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       switch (packet.ACKTYPE) {
         case JOIN:
           printf("JOIN ACK\n" );
+          return packet;
           break;
         case NICK:
           printf("NICK ACK\n" );
+          return packet;
           break;
         case EXIT:
         case GAME_END:
         case POINTS:
         case PLAYER_DEAD:
         case PLAYER_OUT:
+          printf("PLAYER_OUT ACK\n" );
+          return packet;
+          break;
         case PING:
           /* move pointer past payloadlength */
           index += sizeof(uint32_t);
