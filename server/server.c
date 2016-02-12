@@ -302,8 +302,6 @@ int server(char* port) {
 											break;
 
 										case EXIT:
-											//printf("Player exits the game!\n");
-
 											// Set player as OUT
 											p = getPlayer(packet.ID, game.sPlayers);
                       if(p == NULL) {
@@ -312,26 +310,19 @@ int server(char* port) {
                       }
 											p->state = OUT;
 
-											// Send ACK to player
-											plLength = msgPacker(sendbuffer, &game, packet.ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
-                      printf("payload length in case EXIT: %d\n", plLength);
-											tavut = sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
-                      printf("Sended %d bytes to client EXIT ACK\n", tavut);
-
-											// Inform other clients
+											// Send player out to clients
 											Player *pPla = game.sPlayers;
 											while (pPla != NULL) {
 												// Don't send to exiting player
-												if (pPla->ID != packet.ID) {
-													plLength = msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
-													sendto(socketfd, sendbuffer, plLength, 0, &pPla->address, addrlen);
-
-												}
+												plLength = msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
+												sendto(socketfd, sendbuffer, plLength, 0, &pPla->address, addrlen);
                         pPla = pPla->pNext;
 
 											}
+
                       removePlayer(&game.sPlayers, packet.ID);
 
+                      printf("Player exit!\n");
 
 											break;
 									}
