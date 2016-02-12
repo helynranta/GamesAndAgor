@@ -35,7 +35,7 @@ void clearListNear(Near **pList);
 void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
 void removePlayer(Player **pList, uint32_t playerID);
-void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers);
+void newPlayer(Game *game, struct Packet);
 void respawnPlayers(Player *pPlayer);
 
 /* ltr did this, blame me if something bad happens */

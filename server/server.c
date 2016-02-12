@@ -30,9 +30,11 @@ int server(char* port) {
   signal(SIGINT, signalHandler);
   int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes, tmpPlayerID;
 	fd_set readset, master;
-	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
+	struct timeval tvSelect, tvUpdate1, tvUpdate2;
 	long time1, time2;
   int plLength;
+
+  struct timespec tStart = {0,0}, tNow = {0,0};
 
   struct addrinfo hints = { .ai_flags = AI_PASSIVE,	/* Get addresses suitable for bind */
                             .ai_family = PF_UNSPEC,
@@ -46,9 +48,7 @@ int server(char* port) {
   char recvbuffer[SIZE] = { 0 };
 	char sendbuffer[SIZE] = {0};
   char tcpbuffer[SIZE] = {0};
-	tv.tv_usec = 1000000;
-	tv.tv_sec = 0;
-  int yes = 1;
+	int yes = 1;
   int tavut;
 
   socklen_t addrlen = 0;
@@ -156,15 +156,20 @@ int server(char* port) {
 
 		/* Create a game */
 		Game game;
-		game.sPlayers=NULL;
-		game.sObjects=NULL;
-		game.sAcks=NULL;
-		game.nPlayers = 0;
+    gameInit(&game);
 		int tavut = -2;
     Player *p = NULL;
     int nickStatus;
+
+    clock_gettime(CLOCK_MONOTONIC, &tStart);
 		while (!exitFlag) {
+      clock_gettime(CLOCK_MONOTONIC, &tNow);
+      game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
+          round((tNow.tv_nsec-tStart.tv_nsec)/1000000));
+
+      // printf("%d\n", gameTime);
       p = NULL;
+
 
 			// Refresh select() setmake
 			//FD_ZERO(&readset);
@@ -248,7 +253,7 @@ int server(char* port) {
 
 											}*/
                       /** Tämä oli ennen, nyt tuo ylempimake  **/
-                      newPlayer(&game.sPlayers, packet, game.nPlayers);
+                      newPlayer(&game, packet);
                       game.nPlayers++;
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
                       //if(plLength < 0) printf("Payload length error\n");
@@ -323,7 +328,7 @@ int server(char* port) {
 
 											}
                       removePlayer(&game.sPlayers, packet.ID);
-                      
+
 
 											break;
 									}
