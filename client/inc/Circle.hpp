@@ -20,7 +20,7 @@ protected:
     // local 
     float m_x = 100;
     float m_y = 100;
-    float m_r = 100;
+    float m_r = 40;
     // server given attributes
     float m_sx = 0;
     float m_sy = 0;
@@ -33,7 +33,6 @@ protected:
     Color color;
 
     bool isStatic = true;
-
 public:
     inline Circle (const string& n, bool s = true) : nick(n), isStatic(s) {;}
     inline Circle (int x, int y, int r) : m_x(x), m_y(y), m_r(r) {}
@@ -46,12 +45,14 @@ public:
     inline int getX () const { return m_x; }
     inline int getY () const { return m_y; }
     inline int getR () const { return m_r; }
+
     inline Vector2d getDir() const { return m_dir; }
     inline const string& getNick() const { return nick; }
 
     inline void setPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
     inline void setDir (int x, int y) {m_dir.x = x; m_dir.y = y;}
-
+    inline void setR (int r) { m_r = r; }
+    
     inline const SDL_Rect& getDestRect() const { return m_destRect; }
 
     inline void scale(float x) {

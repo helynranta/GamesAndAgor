@@ -6,6 +6,9 @@
 #include <time.h> // time
 
 void Game::awake(void) {
+    // populate static object list
+    for(int i = 0; i < 100; i++) m_statics.insert({i, new Circle("")});
+
     m_player = new Player(Engine::getNick(), 50, 50, 50);
     //cout << Engine::getNick() << endl;
     gui->addText("ping", new GUIText());
@@ -73,6 +76,7 @@ void Game::updateChat(void) {
     }
 }
 void Game::handleMessages(void) {
+    // handle game update messages
     static vector<Message*> update;
     update.clear();
     update = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::GAME_UPDATE);
@@ -88,12 +92,12 @@ void Game::draw(void) {
     SDL_Rect l_ppos;
     // draw all "enemies"
     for(auto& circle : m_enemies) {
-        Color c = circle.getColor();
-        l_ppos = Engine::camera->transformToWorldCordinates(circle.getDestRect());
+        Color c = circle->getColor();
+        l_ppos = Engine::camera->transformToWorldCordinates(circle->getDestRect());
         SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), c.r, c.g, c.b);
         SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
-        gui->getText(circle.getNick())->setPos(l_ppos.x+l_ppos.w/3.0f, l_ppos.y+l_ppos.h/2.4f)->show();
-        gui->getText(circle.getNick())->setScale(0.5f/Engine::camera->getScale());
+        gui->getText(circle->getNick())->setPos(l_ppos.x+l_ppos.w/3.0f, l_ppos.y+l_ppos.h/2.4f)->show();
+        gui->getText(circle->getNick())->setScale(0.5f/Engine::camera->getScale());
     }
     // draw player
     l_ppos = Engine::camera->transformToWorldCordinates(m_player->getDestRect());
@@ -103,6 +107,11 @@ void Game::draw(void) {
 
 }
 void Game::end(void) {
+    // free memory
     delete chat;
     delete m_player;
+    for(auto& it : m_statics) delete it.second;
+    for(auto& it : m_enemies) delete it;
+    m_statics.clear();
+    m_enemies.clear();
 }
