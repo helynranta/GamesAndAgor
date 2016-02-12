@@ -164,11 +164,9 @@ int server(char* port) {
     clock_gettime(CLOCK_MONOTONIC, &tStart);
 		while (!exitFlag) {
       clock_gettime(CLOCK_MONOTONIC, &tNow);
-
       game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
           round((tNow.tv_nsec-tStart.tv_nsec)/1000000));
 
-      printf("%d\n", game.gameTime);
       // printf("%d\n", gameTime);
       p = NULL;
 

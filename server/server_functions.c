@@ -285,7 +285,7 @@ void removePlayer(Player **pList, uint32_t playerID){
     }
 }
 
-void newPlayer(Game *game, struct Packet){
+void newPlayer(Game *game, struct Packet packet){
 	Player *p = NULL;
   if (!(p = calloc(1,sizeof(Player))))
     perror("Calloc");
@@ -312,7 +312,7 @@ void newPlayer(Game *game, struct Packet){
 	p->lastPacket = game->gameTime;
 
   /* Add new player to the list */
-  append2ListPlayer(game->pList, p);
+  append2ListPlayer(&game->sPlayers, p);
 }
 
 void respawnPlayers(Player *pPlayer){
