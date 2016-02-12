@@ -590,7 +590,7 @@ int checkNick(char *nick,Player *pPlayer){
 	int result = 1;
 
 	while(tmp != NULL){
-		result = strncmp(nick, pPlayer->nick, 12);
+		result = strncmp(nick, tmp->nick, 12);
 		if(result == 0){
 			return 0;
 		}
