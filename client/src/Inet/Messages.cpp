@@ -122,14 +122,14 @@ int Message::CreateHeader(Message * message, uint8_t * buffer) {
 GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 
 #ifdef MESG_TEST	
-	std::cout << "========== UNPACK_GAME_MESSAGE_HEADER ==========" << std::endl;
+//	std::cout << "========== UNPACK_GAME_MESSAGE_HEADER ==========" << std::endl;
 #endif	
 	int readByteCount = 0;
 	// Unpack MSG_SUBTYPE (UINT_8)
 	uint8_t messageSubtype;
 	memcpy(&messageSubtype, payload, sizeof(uint8_t));
 #ifdef MESG_TEST	
-	std::cout << "Message.cpp - GameMessage::Unpack - Message subtype: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
+//	std::cout << "Message.cpp - GameMessage::Unpack - Message subtype: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 #endif	
 	readByteCount += sizeof(uint8_t);
 
@@ -359,10 +359,10 @@ int Move::PackSelf(uint8_t * payload) {
 	// insert POS_X to buffer
 	PackUINT16ToPayload(posX, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
+
 #ifdef MESG_TEST
 	std::cout << "Messages.cpp - Move::PackSelf - POS_X: " << posX <<  std::endl;
 #endif
-
 	// insert POX_Y to buffer
 	PackUINT16ToPayload(posY, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));

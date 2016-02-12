@@ -57,3 +57,4 @@ Player *getPlayer(uint16_t playerID, Player *pPlayer);
 void randomLocation(uint16_t *location);
 void gameDestructor(Game *pGame);
 void signalHandler(int signo);
+void checkTimeOut(Game *pGame, char *msgBuffer, int socket, socklen_t addrlen);

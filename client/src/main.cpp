@@ -52,7 +52,7 @@ void printGameStateAsString(){
 	std::cout << "Entering state: " << stateAsString << std::endl;
 }
 
-void TestMessagesLoop() {
+void TestMessagesLoop(string ip_addr) {
 	cout << "USING MESSAGE TEST LOOP" << endl;
 	testStates = TEST_STATES::JOINING;
 	printGameStateAsString();
@@ -60,8 +60,8 @@ void TestMessagesLoop() {
 	InetConnection * connection = new InetConnection();
 	connection->init();
 	
-//	connection->setIP("157.24.55.212");
-	connection->setIP("127.0.0.1");
+	connection->setIP(ip_addr);
+//	connection->setIP("127.0.0.1");
 	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
 	MessageHeader dummyGameMessageHeader = connection->createDummyHeader(0, 123123, MESSAGE_TYPE::GAME_MESSAGE, 0);
@@ -135,7 +135,6 @@ void TestMessagesLoop() {
 
 			memset(testBuffer, 0, BUFFER_SIZE);
 			int moveLenght = move.PackSelf(testBuffer);
-			std::cout << "Main.cpp - Move - length: " << moveLenght << std::endl;
 
 			connection->send(testBuffer, moveLenght);
 
@@ -162,12 +161,12 @@ void TestMessagesLoop() {
 				for (auto& update : messages) {
 					GameUpdate* gamemessage = static_cast<GameUpdate*>(update);
 					memset(testBuffer, 0, BUFFER_SIZE);
-					std::cout << "Main.cpp - GameUpdate - Pos_X: " << gamemessage->getPosX() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << gamemessage->getPosY() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Dir_X: " << gamemessage->getDirX() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Pos_X: " << gamemessage->getPosX() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << gamemessage->getPosY() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Dir_X: " << gamemessage->getDirX() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
 				}
 				continue;
 			}
@@ -200,12 +199,15 @@ void TestMessagesLoop() {
 	}
 }
 
-int main(void) {
-
-#ifdef MESG_TEST
-	TestMessagesLoop();
-	return 0;
-#endif
+int main(int argc, char* argv[]) {
+	string ip_addr = "127.0.0.1";
+	if(argc != 1){
+		ip_addr = argv[1];
+	}
+	#ifdef MESG_TEST
+		TestMessagesLoop(ip_addr);
+		return 0;
+	#endif
 
 	std::cout << "Starting game" << std::endl;
 	Engine* engine = new Engine();

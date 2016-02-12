@@ -441,7 +441,7 @@ int server(char* port) {
 
 
 				/* If eough time has passed send game update */
-				if ((time2 - time1) >= 50) {
+				if ((time2 - time1) >= 100) {
 					//printf("Game update!\n");
 					gettimeofday(&tvUpdate1, NULL);
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
