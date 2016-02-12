@@ -266,8 +266,8 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 
 	// return remaining of the received message, if there is any
 
-//	std::cout << "Messages.hpp - GameUpdate::Unpack length: " << length << std::endl;
-//	std::cout << "Messages.hpp - GameUpdate::Unpack bufferPosition: " << bufferPosition << std::endl;
+	std::cout << "Messages.hpp - GameUpdate::Unpack players: " << unsigned(number_of_players) << std::endl;
+	std::cout << "Messages.hpp - GameUpdate::Unpack objects: " << number_of_objects << std::endl;
 
 	uint8_t * remainingPayload;
 	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
@@ -284,7 +284,7 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	// Get GameObjects
 	int iterator = 0;
 	while ( iterator < number_of_objects){
-		gameObjects.push_back(GameObject::Unpack(remainingPayload, iterator));
+		gameObjects.push_back(GameObject::Unpack(remainingPayload, bufferPosition));
 		bufferPosition += GameObject::getBufferReadSizeInBytes();
 		iterator++;
 	}
@@ -292,8 +292,7 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	// Get GamePlayers
 	iterator = 0;
 	while ( iterator < number_of_players){
-		playerObjects.push_back(GamePlayer::Unpack(remainingPayload, iterator));
-
+		playerObjects.push_back(GamePlayer::Unpack(remainingPayload, bufferPosition));
 		bufferPosition += GamePlayer::getBufferReadSizeInBytes();
 		iterator++;
 	}
