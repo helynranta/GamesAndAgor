@@ -112,7 +112,7 @@ void TestMessagesLoop(string ip_addr) {
 
 						if (testStates == TEST_STATES::NICKING) {
 							cout << uliuli() << endl;
-							Nick * nick = new Nick(headerForNick, "Oskar" + uliuli());
+							Nick * nick = new Nick(headerForNick, "Oskar" + to_string(uliuli()));
 							messageLenght = nick->PackSelf(testBuffer);
 							connection->send(testBuffer, messageLenght);
 							testStates = TEST_STATES::NICKING_ACK;
@@ -154,7 +154,7 @@ void TestMessagesLoop(string ip_addr) {
 				continue;
 			}
 
-			if(loopCounter == 200){
+			if(loopCounter == 100){
 				testStates = TEST_STATES::EXITING_GAME;
 				printGameStateAsString();
 				Exit exitMessage = Exit(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::GAME_MESSAGE, 0));
@@ -179,10 +179,10 @@ void TestMessagesLoop(string ip_addr) {
 				for (auto& update : messages) {
 					GameUpdate* gamemessage = static_cast<GameUpdate*>(update);
 					memset(testBuffer, 0, BUFFER_SIZE);
-					std::cout << "Main.cpp - GameUpdate - Pos_X: " << gamemessage->getPosX() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << gamemessage->getPosY() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Dir_X: " << gamemessage->getDirX() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Pos_X: " << gamemessage->getPosX() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << gamemessage->getPosY() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Dir_X: " << gamemessage->getDirX() << std::endl;
+//					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
 					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
 					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
 				}
@@ -199,7 +199,12 @@ void TestMessagesLoop(string ip_addr) {
 			if(messages.size() > 0){
 				std::cout << "Main.cpp - EXITING: Game ended by user" << std::endl;
 				PlayerOut* playerOut = static_cast<PlayerOut*>(messages.front());
-				PlayerOutAck playerOutAck = PlayerOutAck(connection->createDummyHeader(playerOut->getMessageHeaderUserID(), playerOut->getGameMessageType(), MESSAGE_TYPE::ACK, 0), playerOut->getMessageHeaderUserID());
+				PlayerOutAck playerOutAck = PlayerOutAck(connection->createDummyHeader(playerOut->getMessageHeaderUserID(), 0, MESSAGE_TYPE::ACK, 0), playerOut->getMessageHeaderUserID());
+				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getAckMessagePackerID() << std::endl;
+				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getGameTime() << std::endl;
+				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getMessageHeaderUserID() << std::endl;
+				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << getSubMessageTypeAsString(playerOutAck.getGameMessageType()) << std::endl;
+				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << getMessageTypeAsString(playerOutAck.getMessageType())<< std::endl;
 				// Send three messages so most likely at least one will get there
 				memset(testBuffer, 0, BUFFER_SIZE);
 				int messageSize = playerOutAck.PackSelf(testBuffer);
