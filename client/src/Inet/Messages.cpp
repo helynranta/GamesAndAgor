@@ -14,18 +14,18 @@ Message* MessageFactory::getMessageByType(MessageHeader * header, uint8_t * payl
 	// TODO Make better solution here
 	Message* message = nullptr;
 
+//	std::cout << " ================== HEADER INFO ================== "<< std::endl;
+//	std::cout << "GameTime: " << header->gameTime << std::endl;
+//	std::cout << "UserID: " << header->user_id << std::endl;
+//	std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
+//	std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
+//	std::cout << " ================ HEADER INFO END ================ "<< std::endl;
+
 	switch (header->message_type) {
 	case MESSAGE_TYPE::GAME_MESSAGE:
 		message = GameMessage::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::ACK:
-//		std::cout << " ================== HEADER INFO ================== "<< std::endl;
-//		std::cout << "GameTime: " << header->gameTime << std::endl;
-//		std::cout << "UserID: " << header->user_id << std::endl;
-//		std::cout << "MessageType: " << getMessageTypeAsString(header->message_type) << std::endl;
-//		std::cout << "PayloadLength: " << unsigned(header->payload_length) << std::endl;
-//		std::cout << " ================ HEADER INFO END ================ "<< std::endl;
-
 		message = MessageAck::Unpack(*header, header->payload_length, payload);
 		break;
 	case MESSAGE_TYPE::PLAYER_MOVEMENT:
@@ -119,29 +119,28 @@ int Message::CreateHeader(Message * message, uint8_t * buffer) {
 
 //======= GAME_MESSAGE ========//
 GameMessage* GameMessage::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
-//	std::cout << "Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
-//	std::cout << "========== UNPACK_GAME_MESSAGE_HEADER ==========" << std::endl;
+	std::cout << "========== UNPACK_GAME_MESSAGE_HEADER ==========" << std::endl;
 	int readByteCount = 0;
 
 	// Unpack MSG_SUBTYPE (UINT_8)
 	uint8_t messageSubtype;
 	memcpy(&messageSubtype, payload, sizeof(uint8_t));
-//	std::cout << "Message.cpp - GameMessage::Unpack - Message subtype: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
+	std::cout << "Message.cpp - GameMessage::Unpack - Message subtype: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 	readByteCount += sizeof(uint8_t);
 
-	// Unpack PAYLOAD_LENGTH (UINT_32)
-	uint32_t payload_length;
-	memcpy(&payload_length, &payload[readByteCount], sizeof(uint32_t));
-	payload_length = ntohl(payload_length);
+//	// Unpack PAYLOAD_LENGTH (UINT_32)
+//	uint32_t payload_length;
+//	memcpy(&payload_length, &payload[readByteCount], sizeof(uint32_t));
+//	payload_length = ntohl(payload_length);
 //	std::cout << "Message.cpp - GameMessage::Unpack - Payload length: " << payload_length << std::endl;
-	readByteCount += sizeof(uint32_t);
+//	readByteCount += sizeof(uint32_t);
 
 	// Copy rest of the payload to new variable and pass it to next Unpacker
 	uint32_t remainingPayloadLength = length - readByteCount;
 	uint8_t * remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadLength));
 	memcpy(remainingPayload, &payload[readByteCount], remainingPayloadLength);
 
-	//std::cout << "Receiving -> GameMessage: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
+	std::cout << "Receiving -> GameMessage: " << getSubMessageTypeAsString(messageSubtype) << std::endl;
 
 	switch (messageSubtype) {
 	case GAME_MESSAGE_TYPE::JOIN:
@@ -379,7 +378,11 @@ int Exit::Ack(uint8_t* payload) {
 
 ////======= PLAYER_DEAD ========//
 PlayerDead* PlayerDead::Unpack(MessageHeader header, uint32_t length, uint8_t* payload) {
+	std::cout << "Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
+
+	// Unpack player id (UINT_16)
 	uint16_t playerID = UnpackUINT16_T(payload, 0);
+
 	return new PlayerDead(header, playerID);
 }
 
@@ -390,9 +393,11 @@ int PlayerDead::PackSelf(uint8_t * payload) {
 //
 //======= PLAYER_OUT ========//
 PlayerOut * PlayerOut::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
+	std::cout << "Receiving -> GAME_MESSAGE: " << getSubMessageTypeAsString(header.message_type) << std::endl;
+
 	// Unpack player id (UINT_16)
 	uint16_t playerID = UnpackUINT16_T(payload, 0);
-//	std::cout << "Message.cpp: Played id: " << playerID << " had disappeared" << std::endl;
+	//	std::cout << "Message.cpp: Played id: " << playerID << " had disappeared" << std::endl;
 
 	return new PlayerOut(header, playerID);
 }
