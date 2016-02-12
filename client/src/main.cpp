@@ -77,14 +77,18 @@ void TestMessagesLoop() {
 	while (loopCounter < 1000) {
 		std::cout << "==================================== LOOP START ====================================" << std::endl;
 		connection->update();
+		vector<Message*> messages;
 		if (testStates == TEST_STATES::JOINING ||
 				testStates == TEST_STATES::JOINING_ACK ||
 				testStates == TEST_STATES::NICKING ||
 				testStates == TEST_STATES::NICKING_ACK
 				) {
-			vector<Message*> vmsgs = connection->getMessagesOfType(MESSAGE_TYPE::ACK);
-			if (vmsgs.size() > 0) {
-				for (auto& a : vmsgs) {
+
+
+
+			messages = connection->getMessagesOfType(MESSAGE_TYPE::ACK);
+			if (messages.size() > 0) {
+				for (auto& a : messages) {
 					MessageAck* ack = static_cast<MessageAck*>(a);
 					memset(testBuffer, 0, BUFFER_SIZE);
 					if (ack->getGameMessageType() == GAME_MESSAGE_TYPE::JOIN && testStates == TEST_STATES::JOINING_ACK) {
@@ -139,16 +143,18 @@ void TestMessagesLoop() {
 				printGameStateAsString();
 			}
 
-			std::vector<GameUpdate*> gameUpdates = connection->getGameUpdateMessages();
-			if (gameUpdates.size() > 0) {
-				for (auto& update : gameUpdates) {
+
+			messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE);
+			if (messages.size() > 0) {
+				for (auto& update : messages) {
+					GameUpdate* gamemessage = static_cast<GameUpdate*>(update);
 					memset(testBuffer, 0, BUFFER_SIZE);
-					std::cout << "Main.cpp - GameUpdate - Pos_X: " << update->getPosX() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << update->getPosY() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Dir_X: " << update->getDirX() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << update->getDirY() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << update->getNumberOfObjects() << std::endl;
-					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(update->getNumberOfPlayers()) << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Pos_X: " << gamemessage->getPosX() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << gamemessage->getPosY() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Dir_X: " << gamemessage->getDirX() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
 				}
 				continue;
 			}
@@ -160,7 +166,7 @@ void TestMessagesLoop() {
 		}
 
 		if(testStates == TEST_STATES::EXITING_GAME_ACK){
-			std::vector<Message*> messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_OUT);
+			messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_OUT);
 			if(messages.size() > 0){
 				std::cout << "Main.cpp - EXITING: Game ended by user" << std::endl;
 				PlayerOut* playerOut = static_cast<PlayerOut*>(messages.front());

@@ -413,7 +413,6 @@ PlayerOut * PlayerOut::Unpack(MessageHeader header, uint32_t length, uint8_t * p
 #endif
 	// Unpack player id (UINT_16)
 	uint16_t playerID = UnpackUINT16_T(payload, 0);
-//		std::cout << "Message.cpp: Played id: " << playerID << " had disappeared" << std::endl;
 
 	return new PlayerOut(header, playerID);
 }

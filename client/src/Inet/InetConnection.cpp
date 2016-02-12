@@ -403,21 +403,6 @@ vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type, GAME_MESSA
 	return msgs;
 }
 
-
-vector<GameUpdate*> InetConnection::getGameUpdateMessages() {
-	vector<GameUpdate*> lmessages;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
-			if(static_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::GAME_UPDATE){
-				lmessages.push_back(static_cast<GameUpdate*>(messageInbox[it]));
-				messageInbox[it] = messageInbox.back();
-				messageInbox.pop_back();
-			}
-		}
-	}
-	return lmessages;
-}
-
 bool InetConnection::getGameEnding(){
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
 		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
@@ -440,19 +425,6 @@ vector<string> InetConnection::getChatMessages() {
 	return ret;
 }
 
-vector<PlayerDead*> InetConnection::getDeadPayers() {
-	vector<PlayerDead*> lmessages;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
-			if (dynamic_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_DEAD) {
-				lmessages.push_back(static_cast<PlayerDead*>(messageInbox[it]));
-				messageInbox[it] = messageInbox.back();
-				messageInbox.pop_back();
-			}
-		}
-	}
-	return lmessages;
-}
 
 MessageHeader InetConnection::createDummyHeader(uint16_t id, uint32_t gameTime, uint8_t messageType, uint32_t payloadLenght){
 	MessageHeader dummyGameMessageHeader;
