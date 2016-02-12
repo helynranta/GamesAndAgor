@@ -227,11 +227,12 @@ class Exit: public GameMessage {
 	public:
 		// Constructor & Destructor
 		inline Exit(MessageHeader header) : GameMessage(header, GAME_MESSAGE_TYPE::EXIT) {};
+
 		inline ~Exit() {};
+
 		inline int PackSelf(uint8_t * payload) {
-#ifdef MESG_TEST
 			std::cout << "Sending -> EXIT: " << std::endl;
-#endif			
+
 			int bufferPosition = getHeaderSize();
 			PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
 			bufferPosition += addPayloadSize(sizeof(uint8_t));
@@ -460,6 +461,7 @@ class GamePlayer {
 			// Unpack PLAYER_ID
 			uint16_t player_id = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
+			std::cout << "Messages.hpp - GamePlayer::Unpack playerID: " << player_id << std::endl;
 
 			// Unpack OWN_POS_X
 			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
@@ -511,6 +513,8 @@ class GameObject {
 			// Unpack OBJECT_ID
 			uint16_t object_id = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
+
+			std::cout << "Messages.hpp - GameObject::Unpack objectID: " << object_id << std::endl;
 
 			// Unpack OBJECT_POS_X
 			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
