@@ -3,6 +3,7 @@
 
 #include "Inet/Messages.hpp"
 #include "Inet/MessageAck.hpp"
+#include "Inet/InetConnection.hpp"
 
 IMessage::IMessage() {
 }
@@ -358,6 +359,8 @@ int Move::PackSelf(uint8_t * payload) {
 	// insert POS_X to buffer
 	PackUINT16ToPayload(posX, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
+	std::cout << "Messages.cpp - Move::PackSelf - POS_X: " << posX <<  std::endl;
+
 
 	// insert POX_Y to buffer
 	PackUINT16ToPayload(posY, payload, bufferPosition);
@@ -373,7 +376,7 @@ int Move::PackSelf(uint8_t * payload) {
 
 
 	//bufferPosition += addPayloadSize(sizeof(uint8_t));
-	bufferPosition = CreateHeader(this, payload);
+	CreateHeader(this, payload);
 	//	std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
 	return bufferPosition;
 }
