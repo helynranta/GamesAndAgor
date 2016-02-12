@@ -625,7 +625,7 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 			printf("\n\n\nCouldn't find the player to whom the msg should be resent\n\n\n");
 			tmp = ack;
 			ack = ack->pNext;
-			removeAck(ackList, tmp->toPlayerID);
+			removeAck(ackList, tmp->packetID);
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
@@ -740,5 +740,7 @@ void signalHandler(int signo){
 void checkTimeOut(Game *pGame){
 	Player *p = pGame->sPlayers;
 
-	for(; p!=NULL; p = p->pNext){}
+	for(; p!=NULL; p = p->pNext){
+
+	}
 }
