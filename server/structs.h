@@ -59,6 +59,7 @@ typedef struct Player {
 	uint16_t ID;
 	char nick[12];
 	uint32_t lastPacket; // player's game time (game time of last movement packet)
+	uint32_t lastServerTime;
 	uint16_t location[2];  // | X ¦ Y |
 	uint16_t direction[2];  // | X ¦ Y |
 	uint32_t scale;

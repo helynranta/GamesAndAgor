@@ -224,6 +224,10 @@ int server(char* port) {
 
 
 							switch (packet.msgType) {
+                p = getPlayer(packet.ID, game.sPlayers);
+                if(p != NULL){
+                  p->lastServerTime = game.gameTime;
+                }
 
 								// Game message packet
 								case GAME_MESSAGE:

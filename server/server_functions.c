@@ -296,11 +296,11 @@ void newPlayer(Game *game, struct Packet packet){
 
   //memcpy(p->nick, packet.nick, 12);
   // randomLocation(p->location);
-	p->location[0]=(uint16_t)100;
-	p->location[1]=(uint16_t)100;
+	p->location[0]=(uint16_t)1000;
+	p->location[1]=(uint16_t)1000;
 
-	p->direction[0]=(uint16_t)0;
-	p->direction[1]=(uint16_t)0;
+	p->direction[0]=(uint16_t)5;
+	p->direction[1]=(uint16_t)10;
 
   /* Set initial values */
   p->scale = 1;
@@ -309,7 +309,8 @@ void newPlayer(Game *game, struct Packet packet){
   p->ping = 0;
   p->nearPlayers = NULL;
   p->nearObjects = NULL;
-	p->lastPacket = game->gameTime;
+	p->lastPacket = 0;
+	p->lastServerTime = game->gameTime;
 
   /* Add new player to the list */
   append2ListPlayer(&game->sPlayers, p);
@@ -613,6 +614,8 @@ int checkNick(char *nick,Player *pPlayer){
 /* line 139 ack for help */
 void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 	Ack *ack = *ackList;
+	Ack *tmp = NULL;
+
 	Player *p = NULL;
 
 	while(ack != NULL) {
@@ -620,6 +623,9 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 
 		if(p == NULL) {
 			printf("\n\n\nCouldn't find the player to whom the msg should be resent\n\n\n");
+			tmp = ack;
+			ack = ack->pNext;
+			removeAck(ackList, tmp->packetID);
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
@@ -728,5 +734,13 @@ void signalHandler(int signo){
 	if(signo == SIGINT){
 		printf("\nSignal interrupt\n");
 		exitFlag = 1;
+	}
+}
+
+void checkTimeOut(Game *pGame){
+	Player *p = pGame->sPlayers;
+
+	for(; p!=NULL; p = p->pNext){
+
 	}
 }

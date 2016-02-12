@@ -100,7 +100,6 @@ public:
     vector<Message*> getMessagesOfType(MESSAGE_TYPE, GAME_MESSAGE_TYPE);
 
     vector<GameUpdate*> getGameUpdateMessages();
-    vector<PlayerOut*> getPLayerOutMessages();
     vector<string> getChatMessages();
     vector<PlayerDead*> getDeadPayers();
     bool getGameEnding();
