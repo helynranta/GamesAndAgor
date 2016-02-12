@@ -305,7 +305,7 @@ void newPlayer(Game *game, struct Packet packet){
 	p->direction[1]=(uint16_t)10;
 
   /* Set initial values */
-  p->scale = 100;
+  p->scale = PLA_SIZE;
   p->points = 0;
   p->state = JOINING;
   p->ping = 0;
