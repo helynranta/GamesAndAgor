@@ -738,11 +738,11 @@ void signalHandler(int signo){
 void checkTimeOut(Game *pGame, char *msgBuffer, int socket, socklen_t addrlen){
 	Player *p1 = pGame->sPlayers, *p2 = NULL, *tmp = NULL;
 	int pl=0;
-	memset(msgBuffer, '\0', BUFFERSIZE);
 	while(p1 != NULL){
 		if((pGame->gameTime - p1->lastServerTime) > 15000){
 			p1->state = OUT;
 			for(p2 = pGame->sPlayers; p2!=NULL; p2=p2->pNext){
+				memset(msgBuffer, '\0', BUFFERSIZE);
 				if(p2->state != OUT && p2->state != JOINING){
 					pl = msgPacker(msgBuffer, pGame, p2->ID, GAME_MESSAGE, PLAYER_OUT, p1->ID,0);
 					if(pl>0){
@@ -753,6 +753,9 @@ void checkTimeOut(Game *pGame, char *msgBuffer, int socket, socklen_t addrlen){
 			tmp = p1;
 			p1 = p1->pNext;
 			removePlayer(&pGame->sPlayers, tmp->ID);
+		}
+		else{
+			p1 = p1->pNext;
 		}
 	}
 }
