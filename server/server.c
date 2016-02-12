@@ -34,7 +34,7 @@ int server(char* port) {
 	long time1, time2;
   int plLength;
 
-  struct timespec tStart = {0,0}, tNow = {0,0};
+  struct timeval tStart, tNow;
 
   struct addrinfo hints = { .ai_flags = AI_PASSIVE,	/* Get addresses suitable for bind */
                             .ai_family = PF_UNSPEC,
@@ -161,13 +161,13 @@ int server(char* port) {
     Player *p = NULL;
     int nickStatus;
 
-    clock_gettime(CLOCK_MONOTONIC, &tStart);
+    gettimeofday(&tStart, NULL);
 		while (!exitFlag) {
-      clock_gettime(CLOCK_MONOTONIC, &tNow);
+      gettimeofday(&tNow, NULL);
       game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
-          round((tNow.tv_nsec-tStart.tv_nsec)/1000000));
+          round((tNow.tv_usec-tStart.tv_usec)/1000));
 
-      // printf("%d\n", gameTime);
+      printf("%d\n", game.gameTime);
       p = NULL;
 
 
