@@ -267,11 +267,11 @@ void InetConnection::UnpackGameMessageSubType(Message* unpackedMessage) {
 		break;
 	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
 		//std::cout << "============== GOT PLAYER_DEAD ==============" << std::endl;
-		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+		messageInbox.push_back(dynamic_cast<PlayerDead*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::PLAYER_OUT:
-		//std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
-		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+//		std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<PlayerOut*>(unpackedMessage));
 		break;
 	}
 }
@@ -401,22 +401,6 @@ vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type, GAME_MESSA
 		}
 	}
 	return msgs;
-}
-
-vector<PlayerOut*> InetConnection::getPLayerOutMessages() {
-	vector<PlayerOut*> lmessages;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::ACK) {
-			if(static_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_OUT){
-				lmessages.push_back(static_cast<PlayerOut*>(messageInbox[it]));
-				messageInbox[it] = messageInbox.back();
-				messageInbox.pop_back();
-			}
-		}
-	}
-	std::cout << "InetConnection.cpp - exitings acks size: " << lmessages.size() << std::endl;
-
-	return lmessages;
 }
 
 

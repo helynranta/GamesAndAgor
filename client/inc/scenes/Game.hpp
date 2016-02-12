@@ -18,8 +18,8 @@ class Game : public Scene {
 private:
     // player circle
     Player* m_player;
-    vector<Player> m_enemies;
-    vector<Player> m_statics;
+    vector<Circle*> m_enemies;
+    map<int, Circle*> m_statics;
     Chat* chat = nullptr;
 public:
     inline Game () : Scene() {}

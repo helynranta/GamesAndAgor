@@ -77,7 +77,11 @@ void TestMessagesLoop() {
 	while (loopCounter < 1000) {
 		std::cout << "==================================== LOOP START ====================================" << std::endl;
 		connection->update();
-		if (testStates != TEST_STATES::GAME_RUNNING) {
+		if (testStates == TEST_STATES::JOINING ||
+				testStates == TEST_STATES::JOINING_ACK ||
+				testStates == TEST_STATES::NICKING ||
+				testStates == TEST_STATES::NICKING_ACK
+				) {
 			vector<Message*> vmsgs = connection->getMessagesOfType(MESSAGE_TYPE::ACK);
 			if (vmsgs.size() > 0) {
 				for (auto& a : vmsgs) {
@@ -128,8 +132,6 @@ void TestMessagesLoop() {
 				testStates = TEST_STATES::EXITING_GAME;
 				printGameStateAsString();
 				Exit exitMessage = Exit(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::GAME_MESSAGE, 0));
-				cout << "Main.cpp - Exit: " << exitMessage.getMessageHeaderUserID() << endl;
-				cout << "Main.cpp - Exit: " << connection->getID() << endl;
 				memset(testBuffer, 0, BUFFER_SIZE);
 				int messageSize = exitMessage.PackSelf(testBuffer);
 				connection ->send(testBuffer, messageSize);
@@ -158,11 +160,10 @@ void TestMessagesLoop() {
 		}
 
 		if(testStates == TEST_STATES::EXITING_GAME_ACK){
-			std::vector<PlayerOut*> playerOuts = connection->getPLayerOutMessages();
-			std::cout << "Main.cpp - EXITING_ACK: BOOBS" << std::endl;
-			if(playerOuts.size() > 0){
+			std::vector<Message*> messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_OUT);
+			if(messages.size() > 0){
 				std::cout << "Main.cpp - EXITING: Game ended by user" << std::endl;
-				PlayerOut* playerOut = playerOuts.front();
+				PlayerOut* playerOut = static_cast<PlayerOut*>(messages.front());
 				PlayerOutAck playerOutAck = PlayerOutAck(connection->createDummyHeader(playerOut->getMessageHeaderUserID(), playerOut->getGameMessageType(), MESSAGE_TYPE::ACK, 0), playerOut->getMessageHeaderUserID());
 				// Send three messages so most likely at least one will get there
 				memset(testBuffer, 0, BUFFER_SIZE);
@@ -181,11 +182,12 @@ void TestMessagesLoop() {
 }
 
 int main(void) {
-
+/*
 #ifdef MESG_TEST
 	TestMessagesLoop();
 	return 0;
 #endif
+*/
 	std::cout << "Starting game" << std::endl;
 	Engine* engine = new Engine();
 	engine->addScenes( { { "Game", new Game() }, { "NickDialog", new NickDialog() }, { "IPDialog", new IPDialog() } });
