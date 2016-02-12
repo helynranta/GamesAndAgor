@@ -96,7 +96,7 @@ void Game::handleMessages(void) {
         vector<GameObject*> objs = u->getGameObjects();
         //cout << objs.size() << endl;
         vector<GamePlayer*> players = u->getGamePlayers();
-        cout << players.size() << endl;
+        cout << "Game.cpp - Number of players: " << players.size() << endl;
     }
 }
 void Game::draw(void) {
