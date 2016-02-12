@@ -231,7 +231,7 @@ class Exit: public GameMessage {
 		inline int PackSelf(uint8_t * payload) {
 #ifdef MESG_TEST
 			std::cout << "Sending -> EXIT: " << std::endl;
-#endif			
+#endif
 			int bufferPosition = getHeaderSize();
 			PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
 			bufferPosition += addPayloadSize(sizeof(uint8_t));
@@ -429,7 +429,7 @@ class Ping : public  Message {
 		}
 
 		inline void Update(){};
-		
+
 		int PackSelf(uint8_t * payload);
 
 		static inline Ping * Unpack(MessageHeader header, uint32_t bufferPosition, uint8_t * payload) {
@@ -488,8 +488,6 @@ class GamePlayer {
 			return 14;
 		}
 
-
-	private:
 		uint16_t playerID;
 		uint16_t pos_x;
 		uint16_t pos_y;

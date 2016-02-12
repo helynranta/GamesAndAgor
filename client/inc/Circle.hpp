@@ -17,9 +17,9 @@ struct Color {
 
 class Circle {
 protected:
-    // local 
-    float m_x = 1000;
-    float m_y = 1000;
+    // local
+    float m_x = 999;
+    float m_y = 999;
     float m_r = 40;
     // server given attributes
     float m_sx = 1000;
@@ -27,14 +27,17 @@ protected:
     Vector2d m_dir;
     float m_st = 0;
     float m_sr = 100;
-    string nick = ""; 
+    string nick = "";
 
     SDL_Rect m_destRect = {int(m_x), int(m_y), int(m_r*2), int(m_r*2)};
-    Color color;
-
     bool isStatic = true;
+    Color color;
 public:
-    inline Circle (const string& n, bool s = true) : nick(n), isStatic(s) {;}
+    inline Circle (const string& n, bool s = true) : nick(n), isStatic(s) {
+        color.r = rand()%255;
+        color.g = rand()%255;
+        color.b = rand()%255;
+    }
     inline Circle (int x, int y, int r) : m_x(x), m_y(y), m_r(r) {}
     virtual ~Circle () {;}
 

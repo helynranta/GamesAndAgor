@@ -33,6 +33,11 @@ void Game::update(float dt) {
     //Engine::camera->setPos(m_player->getX(), m_player->getY());
     //Engine::camera->setScale(float(m_player->getR())/100);
     m_player->update(dt);
+
+    for(auto& it : drawables) {
+        it->update();
+    }
+
     updateChat();
     handleMessages();
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
@@ -83,33 +88,53 @@ void Game::updateChat(void) {
 }
 void Game::handleMessages(void) {
     // handle game update messages
+    GameUpdate* u = nullptr;
     static vector<Message*> update;
     update.clear();
     update = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::GAME_UPDATE);
     if(update.size()>0) {
-        GameUpdate* u = reinterpret_cast<GameUpdate*>(update.front());
+        u = reinterpret_cast<GameUpdate*>(update.front());
         if(u == nullptr) cerr << "update cast failed" << endl;
         m_player->setSPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
         m_player->setDir(u->getDirX(), u->getDirX());
-        delete u;
         vector<GameObject*> objs = u->getGameObjects();
-        cout << "Game.cpp - Number of static objects: " << objs.size() << endl;
+        //cout << "Game.cpp - Number of static objects: " << objs.size() << endl;
         vector<GamePlayer*> players = u->getGamePlayers();
-        cout << "Game.cpp - Number of players: " << players.size() << endl;
+        drawables.clear();
+        if(players.size()) {
+            // for each player in list
+            for(auto& pit : players) {
+                uint16_t id = pit->playerID;
+                Circle* player = nullptr;
+                for(auto& e : m_enemies) {
+                    if(e.first == id) {
+                        //cout << "player already created" << endl;
+                        player = e.second;
+                    }
+                }
+                if(player == nullptr) {
+                    cout << "new player" << id << endl;
+                    player = new Circle(to_string(id), false);
+                    m_enemies.insert({id, player});
+                }
+                player->setSPos(pit->pos_x, pit->pos_y, SDL_GetTicks());
+                player->setDir(pit->dir_x, pit->dir_y);
+                drawables.push_back(player);
+            }
+        }
     }
+    if(u != nullptr) delete u;
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;
-    // draw all "enemies"
-    for(auto& circle : m_enemies) {
-        Color c = circle->getColor();
-        l_ppos = Engine::camera->transformToWorldCordinates(circle->getDestRect());
-        SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), c.r, c.g, c.b);
-        SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
-        gui->getText(circle->getNick())->setPos(l_ppos.x+l_ppos.w/3.0f, l_ppos.y+l_ppos.h/2.4f)->show();
-        gui->getText(circle->getNick())->setScale(0.5f/Engine::camera->getScale());
-    }
     // draw player
+    for(auto& it : drawables) {
+        Color l_c = it->getColor();
+        l_ppos = Engine::camera->transformToWorldCordinates(it->getDestRect());
+        SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), l_c.r, l_c.g, l_c.b);
+        SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
+    }
+
     l_ppos = Engine::camera->transformToWorldCordinates(m_player->getDestRect());
     SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), 150, 150, 50);
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos );
@@ -121,7 +146,7 @@ void Game::end(void) {
     delete chat;
     delete m_player;
     for(auto& it : m_statics) delete it.second;
-    for(auto& it : m_enemies) delete it;
+    for(auto& it : m_enemies) delete it.second;
     m_statics.clear();
     m_enemies.clear();
 }
