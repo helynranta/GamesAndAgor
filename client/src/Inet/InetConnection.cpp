@@ -270,11 +270,11 @@ void InetConnection::UnpackGameMessageSubType(Message* unpackedMessage) {
 		break;
 	case GAME_MESSAGE_TYPE::PLAYER_DEAD:
 		//std::cout << "============== GOT PLAYER_DEAD ==============" << std::endl;
-		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+		messageInbox.push_back(dynamic_cast<PlayerDead*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::PLAYER_OUT:
-		//std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
-		messageInbox.push_back(dynamic_cast<Points*>(unpackedMessage));
+//		std::cout << "============== GOT PLAYER_OUT ==============" << std::endl;
+		messageInbox.push_back(dynamic_cast<PlayerOut*>(unpackedMessage));
 		break;
 	}
 }
@@ -294,7 +294,7 @@ void InetConnection::UnpackAckMessageSubtype(Message* unpackedMessage) {
 		messageInbox.push_back(dynamic_cast<GameUpdate*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::EXIT:
-		//std::cout << "============== GOT EXIT ACK ==============" << std::endl;
+		std::cout << "============== GOT EXIT ACK ==============" << std::endl;
 		messageInbox.push_back(dynamic_cast<ExitAck*>(unpackedMessage));
 		break;
 	case GAME_MESSAGE_TYPE::RESTART:
@@ -335,7 +335,7 @@ int InetConnection::checkUDPConnections() {
 	Message* unpackedMessage = nullptr;
 	switch (select(socketudp + 1, &socket_fds, NULL, NULL, &timeout)) {
 		case -1:
-			std::cout << strerror(errno) << std::endl;
+			std::cout << "CheckUDPConnection error: " << strerror(errno) << std::endl;
 			disconnect();
 			return false;
 		case 0:
@@ -405,19 +405,6 @@ vector<Message*> InetConnection::getMessagesOfType(MESSAGE_TYPE type, GAME_MESSA
 	}
 	return msgs;
 }
-vector<GameUpdate*> InetConnection::getGameUpdateMessages() {
-	vector<GameUpdate*> lmessages;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
-			if(static_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::GAME_UPDATE){
-				lmessages.push_back(static_cast<GameUpdate*>(messageInbox[it]));
-				messageInbox[it] = messageInbox.back();
-				messageInbox.pop_back();
-			}
-		}
-	}
-	return lmessages;
-}
 
 bool InetConnection::getGameEnding(){
 	for (unsigned int it = 0; it < messageInbox.size(); it++) {
@@ -441,19 +428,6 @@ vector<string> InetConnection::getChatMessages() {
 	return ret;
 }
 
-vector<PlayerDead*> InetConnection::getDeadPayers() {
-	vector<PlayerDead*> lmessages;
-	for (unsigned int it = 0; it < messageInbox.size(); it++) {
-		if (messageInbox[it]->getMessageType() == MESSAGE_TYPE::GAME_MESSAGE) {
-			if (dynamic_cast<GameMessage*>(messageInbox[it])->getGameMessageType() == GAME_MESSAGE_TYPE::PLAYER_DEAD) {
-				lmessages.push_back(static_cast<PlayerDead*>(messageInbox[it]));
-				messageInbox[it] = messageInbox.back();
-				messageInbox.pop_back();
-			}
-		}
-	}
-	return lmessages;
-}
 
 MessageHeader InetConnection::createDummyHeader(uint16_t id, uint32_t gameTime, uint8_t messageType, uint32_t payloadLenght){
 	MessageHeader dummyGameMessageHeader;

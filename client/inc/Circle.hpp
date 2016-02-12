@@ -1,9 +1,13 @@
 #ifndef _CIRCLE_HPP
 #define _CIRCLE_HPP
 
-#include "SDL2/SDL.h"
+#include <string>
 
+#include "SDL2/SDL.h"
+#include "core/Vector2d.hpp"
 #include "core/Camera.hpp"
+
+using namespace std;
 
 struct Color {
     int r = 0;
@@ -13,16 +17,24 @@ struct Color {
 
 class Circle {
 protected:
-    float m_x = 0;
-    float m_y = 0;
-    float m_sx = 0;
-    float m_sy = 0;
+    // local 
+    float m_x = 1000;
+    float m_y = 1000;
+    float m_r = 40;
+    // server given attributes
+    float m_sx = 1000;
+    float m_sy = 1000;
+    Vector2d m_dir;
     float m_st = 0;
-    float m_r = 100;
+    float m_sr = 100;
+    string nick = ""; 
+
     SDL_Rect m_destRect = {int(m_x), int(m_y), int(m_r*2), int(m_r*2)};
     Color color;
+
+    bool isStatic = true;
 public:
-    inline Circle () {;}
+    inline Circle (const string& n, bool s = true) : nick(n), isStatic(s) {;}
     inline Circle (int x, int y, int r) : m_x(x), m_y(y), m_r(r) {}
     virtual ~Circle () {;}
 
@@ -32,8 +44,17 @@ public:
     /* GETTERS */
     inline int getX () const { return m_x; }
     inline int getY () const { return m_y; }
+    inline int getSX () const { return m_sx; }
+    inline int getSY () const { return m_sy; }
     inline int getR () const { return m_r; }
-    inline void setPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
+
+    inline Vector2d getDir() const { return m_dir; }
+    inline const string& getNick() const { return nick; }
+
+    inline void setSPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
+    inline void setDir (int x, int y) {m_dir.x = x; m_dir.y = y;}
+    inline void setR (int r) { m_r = r; }
+
     inline const SDL_Rect& getDestRect() const { return m_destRect; }
 
     inline void scale(float x) {

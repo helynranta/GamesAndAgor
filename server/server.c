@@ -27,11 +27,14 @@ return 0;
 
 
 int server(char* port) {
+  signal(SIGINT, signalHandler);
   int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes, tmpPlayerID;
 	fd_set readset, master;
-	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
+	struct timeval tvSelect, tvUpdate1, tvUpdate2;
 	long time1, time2;
   int plLength;
+
+  struct timeval tStart, tNow;
 
   struct addrinfo hints = { .ai_flags = AI_PASSIVE,	/* Get addresses suitable for bind */
                             .ai_family = PF_UNSPEC,
@@ -45,9 +48,8 @@ int server(char* port) {
   char recvbuffer[SIZE] = { 0 };
 	char sendbuffer[SIZE] = {0};
   char tcpbuffer[SIZE] = {0};
-	tv.tv_usec = 1000000;
-	tv.tv_sec = 0;
-  int yes = 1;
+	int yes = 1;
+  int tavut;
 
   socklen_t addrlen = 0;
   unsigned int optval = 0;
@@ -71,6 +73,7 @@ int server(char* port) {
         perror("socket()");
         return -1;
       }
+
 
       //Try to bind to this address
       if (bind(socketfd,iter->ai_addr, iter->ai_addrlen) < 0 ) {
@@ -154,17 +157,21 @@ int server(char* port) {
 
 		/* Create a game */
 		Game game;
-		game.sPlayers=NULL;
-		game.sObjects=NULL;
-		game.sAcks=NULL;
-		game.nPlayers = 0;
+    gameInit(&game);
 		int tavut = -2;
     Player *p = NULL;
     int nickStatus;
-		while (1) {
+
+    gettimeofday(&tStart, NULL);
+		while (!exitFlag) {
+      gettimeofday(&tNow, NULL);
+      game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
+          round((tNow.tv_usec-tStart.tv_usec)/1000));
+
       p = NULL;
 
-			// Refresh select() set
+
+			// Refresh select() setmake
 			//FD_ZERO(&readset);
 			//FD_SET(socketfd, &readset);
 			readset = master; // /* Copy master fd_set, so that won't change*/
@@ -218,6 +225,10 @@ int server(char* port) {
 
 
 							switch (packet.msgType) {
+                p = getPlayer(packet.ID, game.sPlayers);
+                if(p != NULL){
+                  p->lastServerTime = game.gameTime;
+                }
 
 								// Game message packet
 								case GAME_MESSAGE:
@@ -246,7 +257,7 @@ int server(char* port) {
 
 											}*/
                       /** Tämä oli ennen, nyt tuo ylempimake  **/
-                      newPlayer(&game.sPlayers, packet, game.nPlayers);
+                      newPlayer(&game, packet);
                       game.nPlayers++;
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
                       //if(plLength < 0) printf("Payload length error\n");
@@ -292,8 +303,6 @@ int server(char* port) {
 											break;
 
 										case EXIT:
-											//printf("Player exits the game!\n");
-
 											// Set player as OUT
 											p = getPlayer(packet.ID, game.sPlayers);
                       if(p == NULL) {
@@ -302,21 +311,19 @@ int server(char* port) {
                       }
 											p->state = OUT;
 
-											// Send ACK to player
-											plLength = msgPacker(sendbuffer, &game, packet.ID, ACK, EXIT, packet.ID, 0);
-											sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
-
-											// Inform other clients
+											// Send player out to clients
 											Player *pPla = game.sPlayers;
 											while (pPla != NULL) {
 												// Don't send to exiting player
-												if (pPla->ID != packet.ID) {
-													plLength = msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
-													sendto(socketfd, sendbuffer, plLength, 0, &pPla->address, addrlen);
-													pPla = pPla->pNext;
-												}
+												plLength = msgPacker(sendbuffer, &game, pPla->ID, GAME_MESSAGE, PLAYER_OUT, packet.ID, 0);
+												sendto(socketfd, sendbuffer, plLength, 0, &pPla->address, addrlen);
+                        pPla = pPla->pNext;
+
 											}
+
                       removePlayer(&game.sPlayers, packet.ID);
+
+                      printf("Player exit!\n");
 
 											break;
 									}
@@ -434,7 +441,7 @@ int server(char* port) {
 
 
 				/* If eough time has passed send game update */
-				if ((time2 - time1) >= 500) {
+				if ((time2 - time1) >= 100) {
 					//printf("Game update!\n");
 					gettimeofday(&tvUpdate1, NULL);
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
@@ -454,7 +461,7 @@ int server(char* port) {
         informTheDead(&game, sendbuffer, socketfd, addrlen);
         /* respawn dead players */
         respawnPlayers(game.sPlayers);
-
+        gameDestructor(&game);
 			}
 
 			// UPD activity
@@ -476,6 +483,7 @@ int server(char* port) {
     //printf("Server: Invalid port. Choose something between 1024 - 65000\n");
     return -1;
   }
+
 
   return 0;
 }

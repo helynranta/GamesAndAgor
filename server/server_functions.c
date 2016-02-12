@@ -18,9 +18,9 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	for(;i<100;i++){
+	/*for(;i<100;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
-	}
+	}*/
 }
 
 void ComputeNearParticles(Player *sPlayers, Object **sObjects){
@@ -115,6 +115,8 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 	long loc2[] = {(long)location2[0], (long)location2[1]};
 	long sca1 = (long)scale1;
 	long sca2 = (long)scale2;
+
+	//printf("sca1: %d sca2: %d\n",sca1, sca2 );
 
 	float range = sca1/PLA_SIZE, eucl = 0;
 	float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
@@ -285,33 +287,35 @@ void removePlayer(Player **pList, uint32_t playerID){
     }
 }
 
-void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
+void newPlayer(Game *game, struct Packet packet){
 	Player *p = NULL;
   if (!(p = calloc(1,sizeof(Player))))
     perror("Calloc");
 
   /* Get uid, nick, address from packet */
-  p->ID = nPlayers+1;
+  p->ID = game->nPlayers+1;
   p->address = packet.senderAddr;
 
   //memcpy(p->nick, packet.nick, 12);
   // randomLocation(p->location);
-	p->location[0]=(uint16_t)100;
-	p->location[1]=(uint16_t)100;
+	p->location[0]=(uint16_t)1000;
+	p->location[1]=(uint16_t)1000;
 
-	p->direction[0]=(uint16_t)0;
-	p->direction[1]=(uint16_t)0;
+	p->direction[0]=(uint16_t)5;
+	p->direction[1]=(uint16_t)10;
 
   /* Set initial values */
-  p->scale = 1;
+  p->scale = 100;
   p->points = 0;
   p->state = JOINING;
   p->ping = 0;
   p->nearPlayers = NULL;
   p->nearObjects = NULL;
+	p->lastPacket = 0;
+	p->lastServerTime = game->gameTime;
 
   /* Add new player to the list */
-  append2ListPlayer(pList, p);
+  append2ListPlayer(&game->sPlayers, p);
 }
 
 void respawnPlayers(Player *pPlayer){
@@ -387,7 +391,6 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 }
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
-	printf("Packing game MSG\n");
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
 	Near *pNear = NULL;
 	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
@@ -410,7 +413,6 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 			}
 			return ind;
     	case GAME_UPDATE:
-			printf("Packing game update\n");
 			/* FIND CORRESPONDING PLAYER */
 			pPlayer = getPlayer(toPlayerID, pPlayer);
 			if(pPlayer == NULL){
@@ -497,7 +499,6 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 
 	switch (msgSubType) {
 		case JOIN:
-			printf("PACKING ACK JOIN\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 
@@ -508,7 +509,6 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 
 			return ind;
 		case NICK:
-			printf("PACKING ACK NICK\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 			return ind;
@@ -612,6 +612,8 @@ int checkNick(char *nick,Player *pPlayer){
 /* line 139 ack for help */
 void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 	Ack *ack = *ackList;
+	Ack *tmp = NULL;
+
 	Player *p = NULL;
 
 	while(ack != NULL) {
@@ -619,6 +621,9 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 
 		if(p == NULL) {
 			printf("\n\n\nCouldn't find the player to whom the msg should be resent\n\n\n");
+			tmp = ack;
+			ack = ack->pNext;
+			removeAck(ackList, tmp->packetID);
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
@@ -721,4 +726,33 @@ void gameDestructor(Game *pGame){
 	clearListObject(&pGame->sObjects);
 
 	// All the memory has been freed
+}
+
+void signalHandler(int signo){
+	if(signo == SIGINT){
+		printf("\nSignal interrupt\n");
+		exitFlag = 1;
+	}
+}
+
+void checkTimeOut(Game *pGame, char *msgBuffer, int socket, socklen_t addrlen){
+	Player *p1 = pGame->sPlayers, *p2 = NULL, *tmp = NULL;
+	int pl=0;
+
+	while(p1 != NULL){
+		if((pGame->gameTime - p1->lastServerTime) > 15000){
+			p1->state = OUT;
+			for(p2 = pGame->sPlayers; p2!=NULL; p2=p2->pNext){
+				if(p2->state != OUT && p2->state != JOINING){
+					pl = msgPacker(msgBuffer, pGame, p2->ID, GAME_MESSAGE, PLAYER_OUT, p1->ID,0);
+					if(pl>0){
+						sendto(socket, msgBuffer, pl, 0, &p2->address, addrlen);
+					}
+				}
+			}
+			tmp = p1;
+			p1 = p1->pNext;
+			removePlayer(&pGame->sPlayers, tmp->ID);
+		}
+	}
 }
