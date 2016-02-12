@@ -229,7 +229,9 @@ class Exit: public GameMessage {
 		inline Exit(MessageHeader header) : GameMessage(header, GAME_MESSAGE_TYPE::EXIT) {};
 		inline ~Exit() {};
 		inline int PackSelf(uint8_t * payload) {
+#ifdef MESG_TEST
 			std::cout << "Sending -> EXIT: " << std::endl;
+#endif			
 			int bufferPosition = getHeaderSize();
 			PackUINT8ToPayload(static_cast<uint8_t>(getGameMessageType()), payload, bufferPosition);
 			bufferPosition += addPayloadSize(sizeof(uint8_t));
