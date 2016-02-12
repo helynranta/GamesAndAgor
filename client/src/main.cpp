@@ -60,7 +60,7 @@ void TestMessagesLoop() {
 	InetConnection * connection = new InetConnection();
 	connection->init();
 	
-//	connection->setIP("157.24.108.48");
+//	connection->setIP("157.24.55.212");
 	connection->setIP("127.0.0.1");
 	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
@@ -126,13 +126,26 @@ void TestMessagesLoop() {
 
 		if (testStates == TEST_STATES::GAME_RUNNING) {
 
+			Move move = Move(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::PLAYER_MOVEMENT, 0),
+					0,
+					140 + loopCounter,
+					120 + loopCounter,
+					1,
+					2);
+
+			memset(testBuffer, 0, BUFFER_SIZE);
+			int moveLenght = move.PackSelf(testBuffer);
+			std::cout << "Main.cpp - Move - length: " << moveLenght << std::endl;
+
+			connection->send(testBuffer, moveLenght);
+
 			if (connection->getGameEnding()) {
 				testStates = TEST_STATES::GAME_ENDING;
 				printGameStateAsString();
 				continue;
 			}
 
-			if(loopCounter == 6){
+			if(loopCounter == 200){
 				testStates = TEST_STATES::EXITING_GAME;
 				printGameStateAsString();
 				Exit exitMessage = Exit(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::GAME_MESSAGE, 0));
@@ -188,12 +201,12 @@ void TestMessagesLoop() {
 }
 
 int main(void) {
-/*
+
 #ifdef MESG_TEST
 	TestMessagesLoop();
 	return 0;
 #endif
-*/
+
 	std::cout << "Starting game" << std::endl;
 	Engine* engine = new Engine();
 	engine->addScenes( { { "Game", new Game() }, { "NickDialog", new NickDialog() }, { "IPDialog", new IPDialog() } });
