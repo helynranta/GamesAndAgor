@@ -334,10 +334,8 @@ int server(char* port) {
 
 								// Ack packet
 								case ACK:
-									//printf("Ack packet received!\n");
-                  /* When Player has sent ACK::NICK, then player can receive
-                     game updates */
-                  //printf("ACKTYPE = %d \n", packet.ACKTYPE);
+									/* Handle ack */
+
                   if(packet.ACKTYPE == NICK) {
 
                     p = getPlayer(packet.ID, game.sPlayers);
@@ -348,7 +346,18 @@ int server(char* port) {
                     p->state = ALIVE;
                     printf("Player is now ALIVE\n" );
                   }
-									/* Handle ack */
+
+                  else if(packet.ACKTYPE == PLAYER_DEAD) {
+
+                    p = getPlayer(packet.ID, game.sPlayers);
+                    if(p == NULL) {
+                      printf("Couldn't find Player id %d from ACK::PLAYER_DEAD packet\n", packet.ID);
+                      break;
+                    }
+                    /* TODO: REMOVE COMMENTS when implementation has changed */
+                    //respawnPlayers(p);
+                  }
+
 									/* remove ack from server's own ack list */
 									removeAck(&game.sAcks, packet.ackID);
 

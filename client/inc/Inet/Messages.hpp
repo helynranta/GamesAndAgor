@@ -430,7 +430,7 @@ class Ping : public  Message {
 		}
 
 		inline void Update(){};
-		
+
 		int PackSelf(uint8_t * payload);
 
 		static inline Ping * Unpack(MessageHeader header, uint32_t bufferPosition, uint8_t * payload) {
@@ -490,8 +490,6 @@ class GamePlayer {
 			return 14;
 		}
 
-
-	private:
 		uint16_t playerID;
 		uint16_t pos_x;
 		uint16_t pos_y;
