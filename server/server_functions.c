@@ -285,13 +285,13 @@ void removePlayer(Player **pList, uint32_t playerID){
     }
 }
 
-void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
+void newPlayer(Game *game, struct Packet){
 	Player *p = NULL;
   if (!(p = calloc(1,sizeof(Player))))
     perror("Calloc");
 
   /* Get uid, nick, address from packet */
-  p->ID = nPlayers+1;
+  p->ID = game->nPlayers+1;
   p->address = packet.senderAddr;
 
   //memcpy(p->nick, packet.nick, 12);
@@ -309,9 +309,10 @@ void newPlayer(Player **pList, struct Packet packet, uint16_t nPlayers){
   p->ping = 0;
   p->nearPlayers = NULL;
   p->nearObjects = NULL;
+	p->lastPacket = game->gameTime;
 
   /* Add new player to the list */
-  append2ListPlayer(pList, p);
+  append2ListPlayer(game->pList, p);
 }
 
 void respawnPlayers(Player *pPlayer){

@@ -255,7 +255,7 @@ int server(char* port) {
 
 											}*/
                       /** Tämä oli ennen, nyt tuo ylempimake  **/
-                      newPlayer(&game.sPlayers, packet, game.nPlayers);
+                      newPlayer(&game, packet);
                       game.nPlayers++;
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
                       //if(plLength < 0) printf("Payload length error\n");
