@@ -17,6 +17,9 @@ void Game::awake(void) {
     //m_enemies[0].init();
     //gui->addText(m_enemies[0].getNick(), new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
     gui->addText(m_player->getNick(), new GUIText());
+
+    gui->addText("player-pos", new GUIText());
+    gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 30);
 }
 void Game::update(float dt) {
     // this is how camera behaves in real gameplay
@@ -26,6 +29,7 @@ void Game::update(float dt) {
     updateChat();
     handleMessages();
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
+    gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
 }
 void Game::updateChat(void) {
     // stop input from player if chat is active
@@ -46,7 +50,6 @@ void Game::updateChat(void) {
         // clear old text and activate
         gui->getInput("chat")->setText("");
         chat->Activate();
-        return;
     }
     // send new chat message
     else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && (gui->getInput("chat")->getText()).size()) {
@@ -57,7 +60,6 @@ void Game::updateChat(void) {
         Engine::connection->sendTCP(gui->getInput("chat")->getText());
         // clear input
         gui->getInput("chat")->setText("");
-        return;
     }
     // if input is empty and return is pressed, close chat window
     else if(Engine::input->isKeyPressed(SDLK_RETURN) && chat->isActive() == true && !(gui->getInput("chat")->getText()).size()) {
@@ -68,7 +70,6 @@ void Game::updateChat(void) {
         chat->deActivate();
         // clear input
         gui->getInput("chat")->setText("");
-        return;
     }
 }
 void Game::handleMessages(void) {
@@ -76,9 +77,11 @@ void Game::handleMessages(void) {
     update.clear();
     update = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::GAME_UPDATE);
     if(update.size()>0) {
-        GameUpdate* u = static_cast<GameUpdate*>(update.back());
-        m_player->setPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
-        delete u;       
+        GameUpdate* u = reinterpret_cast<GameUpdate*>(update.front());
+        if(u == nullptr) cerr << "update cast failed" << endl;
+        //m_player->setPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
+        cout <<"recieved "<< u->getPosX() << " " << u->getPosY() << endl;
+        delete u;
     }
 }
 void Game::draw(void) {

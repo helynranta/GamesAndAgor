@@ -62,6 +62,7 @@ void InetConnection::sendTCP(const string& msg) {
 	if(::send(sockettcp, m.c_str(), sizeof(char*)*m.size(), 0)<0) {
 		cerr << strerror(errno) << endl;
 	}
+	cout << "sent chat: "<< m << endl;
 }
 // http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
 bool InetConnection::connectTCP() {
@@ -226,6 +227,7 @@ int InetConnection::checkTCPConnection() {
 				if(strlen(buffer) > 0) {
 					tcpsocketstatus = true;
 					chatmessage.push_back(string(buffer));
+					cout <<"recieved chat:"<<buffer<<endl;
 				}
 			}
 		}
