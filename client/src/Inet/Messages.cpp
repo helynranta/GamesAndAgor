@@ -252,6 +252,10 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	uint16_t dir_y = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
+	// Unpack OWN_SIZE
+	uint32_t size = UnpackUINT32_T(payload, bufferPosition);
+	bufferPosition += sizeof(uint32_t);
+
 	// Unpack PLAYER_COUNT
 	uint8_t number_of_players = UnpackUINT8_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint8_t);
@@ -289,7 +293,7 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 
 
 
-	return new GameUpdate(header, pos_x, pos_y, dir_x, dir_y, number_of_players, number_of_objects, playerObjects, gameObjects);
+	return new GameUpdate(header, pos_x, pos_y, dir_x, dir_y, size, number_of_players, number_of_objects, playerObjects, gameObjects);
 
 }
 
