@@ -309,7 +309,8 @@ void newPlayer(Game *game, struct Packet packet){
   p->ping = 0;
   p->nearPlayers = NULL;
   p->nearObjects = NULL;
-	p->lastPacket = game->gameTime;
+	p->lastPacket = 0;
+	p->lastServerTime = game->gameTime;
 
   /* Add new player to the list */
   append2ListPlayer(&game->sPlayers, p);
