@@ -22,8 +22,8 @@ protected:
     float m_y = 1000;
     float m_r = 40;
     // server given attributes
-    float m_sx = 0;
-    float m_sy = 0;
+    float m_sx = 1000;
+    float m_sy = 1000;
     Vector2d m_dir;
     float m_st = 0;
     float m_sr = 100;

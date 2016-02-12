@@ -11,7 +11,7 @@ using namespace std;
 class Player : public Circle {
 private:
     /* data */
-    float m_speed = 2.0f;
+    float m_speed = 1.0f;
     bool takeInput = true;
     Move* playermsg = nullptr;
 public:

@@ -93,6 +93,10 @@ void Game::handleMessages(void) {
         m_player->setDir(u->getDirX(), u->getDirX());
         //cout <<"recieved "<< u->getPosX() << " " << u->getPosY() << endl;
         delete u;
+        vector<GameObject*> objs = u->getGameObjects();
+        //cout << objs.size() << endl;
+        vector<GamePlayer*> players = u->getGamePlayers();
+        cout << players.size() << endl;
     }
 }
 void Game::draw(void) {

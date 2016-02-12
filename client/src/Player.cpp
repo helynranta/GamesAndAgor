@@ -8,6 +8,7 @@ void Player::update(float dT) {
     Vector2d l_dir(0.0f, 0.0f);
     if(takeInput) {
         // extend to some more physics stuff?
+        m_speed = 100 / m_r;
         if(Engine::input->isKeyDown(SDLK_a))
             l_dir.x -= dT * m_speed;
         if(Engine::input->isKeyDown(SDLK_d))

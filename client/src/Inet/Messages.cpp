@@ -359,8 +359,9 @@ int Move::PackSelf(uint8_t * payload) {
 	// insert POS_X to buffer
 	PackUINT16ToPayload(posX, payload, bufferPosition);
 	bufferPosition += addPayloadSize(sizeof(uint16_t));
+#ifdef MESG_TEST
 	std::cout << "Messages.cpp - Move::PackSelf - POS_X: " << posX <<  std::endl;
-
+#endif
 
 	// insert POX_Y to buffer
 	PackUINT16ToPayload(posY, payload, bufferPosition);
