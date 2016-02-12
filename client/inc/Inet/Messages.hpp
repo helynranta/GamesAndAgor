@@ -238,6 +238,9 @@ class Exit: public GameMessage {
 			CreateHeader(this, payload);
 			return bufferPosition;
 		}
+
+		inline static Exit * Unpack(MessageHeader, uint32_t, uint8_t*){return nullptr;};
+
 		int Ack(uint8_t * payload);
 };
 
@@ -295,17 +298,20 @@ class PlayerDead: public GameMessage {
 			playerID = static_cast<uint8_t>(id);
 		};
 
-		inline ~PlayerDead() {};
+		inline ~PlayerDead() {
+		};
 
 		int PackSelf(uint8_t * payload);
 
 		static PlayerDead* Unpack(MessageHeader header, uint32_t length, uint8_t* payload);
-	private:
-		uint16_t playerID;
+
 		inline uint16_t getPlayerID() {
 			return playerID;
-		}
-		;
+		};
+
+	private:
+		uint16_t playerID;
+
 };
 
 // =========  PLAYER_OUT =========  //

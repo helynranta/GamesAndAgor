@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <random>
+
 
 #include "Engine.hpp"
 #include "Inet/InetConnection.hpp"
@@ -52,6 +54,14 @@ void printGameStateAsString(){
 	std::cout << "Entering state: " << stateAsString << std::endl;
 }
 
+int uliuli (){
+    std::mt19937 rng;
+    rng.seed(std::random_device()());
+    std::uniform_int_distribution<std::mt19937::result_type> dist6(1,10000); // distribution in range [1, 6]
+
+    return dist6(rng);
+}
+
 void TestMessagesLoop(string ip_addr) {
 	cout << "USING MESSAGE TEST LOOP" << endl;
 	testStates = TEST_STATES::JOINING;
@@ -61,7 +71,6 @@ void TestMessagesLoop(string ip_addr) {
 	connection->init();
 	
 	connection->setIP(ip_addr);
-//	connection->setIP("127.0.0.1");
 	connection->connectUDP();
 	uint8_t testBuffer[BUFFER_SIZE];
 	MessageHeader dummyGameMessageHeader = connection->createDummyHeader(0, 123123, MESSAGE_TYPE::GAME_MESSAGE, 0);
@@ -102,7 +111,8 @@ void TestMessagesLoop(string ip_addr) {
 						memset(testBuffer, 0, BUFFER_SIZE);
 
 						if (testStates == TEST_STATES::NICKING) {
-							Nick * nick = new Nick(headerForNick, "Oskar");
+							cout << uliuli() << endl;
+							Nick * nick = new Nick(headerForNick, "Oskar" + uliuli());
 							messageLenght = nick->PackSelf(testBuffer);
 							connection->send(testBuffer, messageLenght);
 							testStates = TEST_STATES::NICKING_ACK;
@@ -155,18 +165,26 @@ void TestMessagesLoop(string ip_addr) {
 				printGameStateAsString();
 			}
 
+			messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_DEAD);
+		if (messages.size() > 0) {
+			PlayerDead* playerDeadMessage = static_cast<PlayerDead*>(messages.front());
+			memset(testBuffer, 0, BUFFER_SIZE);
+			std::cout << "Main.cpp - PlayerDead - ID: " << playerDeadMessage->getPlayerID() << std::endl;
+		}
+
+
 
 			messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE);
 			if (messages.size() > 0) {
 				for (auto& update : messages) {
 					GameUpdate* gamemessage = static_cast<GameUpdate*>(update);
 					memset(testBuffer, 0, BUFFER_SIZE);
-//					std::cout << "Main.cpp - GameUpdate - Pos_X: " << gamemessage->getPosX() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << gamemessage->getPosY() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - Dir_X: " << gamemessage->getDirX() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
-//					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Pos_X: " << gamemessage->getPosX() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Pox_Y: " << gamemessage->getPosY() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Dir_X: " << gamemessage->getDirX() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
+					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
 				}
 			}
 		}
