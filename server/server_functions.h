@@ -13,9 +13,11 @@
 #include <netdb.h>
 #include <sys/time.h>
 #include <time.h>
+#include <signal.h>
 // #define PAYLOAD_INDEX
 
-
+/* Global for the signal handler */
+static int exitFlag = 0;
 
 void gameInit(Game *pGame);
 void ComputeNearParticles(Player *sPlayers, Object **sObjects);
@@ -54,3 +56,4 @@ int statPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType);
 Player *getPlayer(uint16_t playerID, Player *pPlayer);
 void randomLocation(uint16_t *location);
 void gameDestructor(Game *pGame);
+void signalHandler(int signo);

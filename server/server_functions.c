@@ -722,3 +722,10 @@ void gameDestructor(Game *pGame){
 
 	// All the memory has been freed
 }
+
+void signalHandler(int signo){
+	if(signo == SIGINT){
+		printf("\nSignal interrupt\n");
+		exitFlag = 1;
+	}
+}

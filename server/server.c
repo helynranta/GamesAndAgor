@@ -27,6 +27,7 @@ return 0;
 
 
 int server(char* port) {
+  signal(SIGINT, signalHandler);
   int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes, tmpPlayerID;
 	fd_set readset, master;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2, tv;
@@ -161,7 +162,7 @@ int server(char* port) {
 		int tavut = -2;
     Player *p = NULL;
     int nickStatus;
-		while (1) {
+		while (!exitFlag) {
       p = NULL;
 
 			// Refresh select() set
@@ -454,7 +455,7 @@ int server(char* port) {
         informTheDead(&game, sendbuffer, socketfd, addrlen);
         /* respawn dead players */
         respawnPlayers(game.sPlayers);
-
+        gameDestructor(&game);
 			}
 
 			// UPD activity
@@ -476,6 +477,7 @@ int server(char* port) {
     //printf("Server: Invalid port. Choose something between 1024 - 65000\n");
     return -1;
   }
+
 
   return 0;
 }
