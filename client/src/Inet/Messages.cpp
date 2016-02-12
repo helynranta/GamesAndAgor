@@ -277,7 +277,6 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	}
 
 	bufferPosition = 0;
-	std::cout << "Messages.hpp - GameUpdate::Unpack bufferPosition: " << bufferPosition << std::endl;
 
 	std::vector<GamePlayer*> playerObjects;
 	std::vector<GameObject*> gameObjects;

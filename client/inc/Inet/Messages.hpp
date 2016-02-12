@@ -461,7 +461,7 @@ class GamePlayer {
 			// Unpack PLAYER_ID
 			uint16_t player_id = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
-			std::cout << "Messages.hpp - GamePlayer::Unpack playerID: " << player_id << std::endl;
+//			std::cout << "Messages.hpp - GamePlayer::Unpack playerID: " << player_id << std::endl;
 
 			// Unpack OWN_POS_X
 			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
@@ -514,7 +514,7 @@ class GameObject {
 			uint16_t object_id = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			std::cout << "Messages.hpp - GameObject::Unpack objectID: " << object_id << std::endl;
+//			std::cout << "Messages.hpp - GameObject::Unpack objectID: " << object_id << std::endl;
 
 			// Unpack OBJECT_POS_X
 			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
