@@ -167,7 +167,6 @@ int server(char* port) {
       game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
           round((tNow.tv_usec-tStart.tv_usec)/1000));
 
-      printf("%d\n", game.gameTime);
       p = NULL;
 
 
