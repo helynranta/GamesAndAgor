@@ -21,7 +21,7 @@ static int exitFlag = 0;
 
 void gameInit(Game *pGame);
 void ComputeNearParticles(Player *sPlayers, Object **sObjects);
-void eventEatObject(Player *pPla, Object **pObj);
+void eventEatObject(Player *pPla, Object *pObj);
 int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1, uint32_t scale2);
 void eventEatPlayer(Player *eater, Player *eaten);
 void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength, uint32_t packetID, uint16_t toPlayerID);

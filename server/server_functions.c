@@ -18,7 +18,7 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	for(;i<100;i++){
+	for(;i<10;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
 	}
 }
@@ -84,7 +84,7 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 					pPrev->pNext = pObj->pNext;
 					pObj = pPrev; // put pObj back to previous
 				}
-				eventEatObject(p1, &pT);
+				eventEatObject(p1, pT);
 				if(pObj == NULL){break;} // if we just ate the last fucker
 				continue;
 			}
@@ -101,11 +101,15 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 	}
 }
 
-void eventEatObject(Player *pPla, Object **pObj){
+void eventEatObject(Player *pPla, Object *pObj){
+	printf("OBJECT EATEN player size %d\n", pPla->scale);
 	pPla->scale += OBJ_SIZE;
 	pPla->points += OBJ_SIZE;
-	free(*pObj);
-	*pObj = NULL;
+	printf("AFTER LUNCH player size %d\n", pPla->scale);
+
+
+	/* relocate object */
+	randomLocation(pObj->location);
 }
 
 int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
@@ -145,6 +149,7 @@ void eventEatPlayer(Player *eater, Player *eaten){
     eater->scale += floor(eaten->scale/2);
 	eater->points += floor(eaten->scale/2);
     eaten->state = EATEN;
+		printf("Player Eaten\n" );
 }
 
 void addAck2List(Ack **pAckList, char *msg, uint32_t gameTime, int msgLength,
@@ -212,7 +217,9 @@ void newObject(Object **pList, uint32_t *nObjects){
 	if((pNew = calloc(1, sizeof(Object))) == NULL){ perror("calloc");}
 	*nObjects += 1;
 	pNew->ID = *nObjects;
-	randomLocation(pNew->location);
+	//randomLocation(pNew->location);
+	pNew->location[0] = 900;
+	pNew->location[1] = 900;
 	pNew->pNext = NULL;
 	append2ListObject(pList, pNew);
 }
@@ -453,7 +460,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 				;//printf("Ei pelaajia lähellä\n");
 			}
 			else{
-				printf("Pakataan lähellä olevia pelaajia\n");
+				;//printf("Pakataan lähellä olevia pelaajia\n");
 			}
 			for(pNear = pPlayer->nearPlayers; pNear != NULL; pNear = pNear->pNext, nPlayers++){
 				pPla = (Player *)(pNear->pParticle);
