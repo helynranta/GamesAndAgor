@@ -511,18 +511,33 @@ class GameObject {
 			// Unpack OBJECT_ID
 			uint16_t object_id = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
-
 //			std::cout << "Messages.hpp - GameObject::Unpack objectID: " << object_id << std::endl;
 
 			// Unpack OBJECT_POS_X
 			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
+//			std::cout << "Messages.hpp - GameObject::Unpack LocX: " << pos_x << std::endl;
 
 			// Unpack OBJECT_POS_Y
 			uint16_t pos_y = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
+//			std::cout << "Messages.hpp - GameObject::Unpack LocY: " << pos_y << std::endl;
+			std::cout << " " << std::endl;
 
 			return new GameObject(object_id, pos_x, pos_y);
+		}
+
+
+		inline uint16_t getObjectID(){
+			return objectID;
+		}
+
+		inline uint16_t getLocX(){
+			return loc_x;
+		}
+
+		inline uint16_t getLocY(){
+			return loc_y;
 		}
 
 		static inline int getBufferReadSizeInBytes(){
