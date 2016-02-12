@@ -614,6 +614,8 @@ int checkNick(char *nick,Player *pPlayer){
 /* line 139 ack for help */
 void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 	Ack *ack = *ackList;
+	Ack *tmp = NULL;
+
 	Player *p = NULL;
 
 	while(ack != NULL) {
@@ -621,6 +623,9 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 
 		if(p == NULL) {
 			printf("\n\n\nCouldn't find the player to whom the msg should be resent\n\n\n");
+			tmp = ack;
+			ack = ack->pNext;
+			removeAck(ackList, tmp->toPlayerID);
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
