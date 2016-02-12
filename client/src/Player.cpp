@@ -1,7 +1,6 @@
 #include "Player.hpp"
 
 #include "SDL2/SDL.h"
-#include "Engine.hpp"
 #include "core/Vector2d.hpp"
 
 void Player::update(float dT) {
@@ -29,9 +28,15 @@ void Player::update(float dT) {
         l_dir.normalize();
     }
     // do this after PackSelf is implemented
-    //static uint8_t updateBuffer[BUFFER_SIZE];
-    //GamePlayer* playermsg = new GamePlayer(Engine::connection->getID(), m_x, m_y, l_dir.x, l_dir.y, m_r*2);
-    //int messageLength = playermsg->PackSelf(updateBuffer);
-    //Engine::connection->send(playermsg, messageLength);
-    //delete player;
+    static int lastSend = 0;
+    if(lastSend + 200 < SDL_GetTicks()) {
+        uint8_t updateBuffer[BUFFER_SIZE];
+        Move* m = new Move(Engine::connection->createDummyHeader(
+            Engine::connection->getID(), SDL_GetTicks(), MESSAGE_TYPE::PLAYER_MOVEMENT, 10
+        ), 0, m_x, m_y, l_dir.x, l_dir.y);
+        int messageLength = m->PackSelf(updateBuffer);
+        Engine::connection->send(updateBuffer, messageLength);
+        lastSend = SDL_GetTicks();
+        delete m;
+    }
 }
