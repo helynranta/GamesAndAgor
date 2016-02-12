@@ -18,7 +18,7 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	for(;i<10;i++){
+	for(;i<1;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
 	}
 }
