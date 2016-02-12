@@ -18,9 +18,9 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	for(;i<100;i++){
+	/*for(;i<100;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
-	}
+	}*/
 }
 
 void ComputeNearParticles(Player *sPlayers, Object **sObjects){
@@ -115,6 +115,8 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 	long loc2[] = {(long)location2[0], (long)location2[1]};
 	long sca1 = (long)scale1;
 	long sca2 = (long)scale2;
+
+	printf("sca1: %d sca2: %d\n",sca1, sca2 );
 
 	float range = sca1/PLA_SIZE, eucl = 0;
 	float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
@@ -303,7 +305,7 @@ void newPlayer(Game *game, struct Packet packet){
 	p->direction[1]=(uint16_t)10;
 
   /* Set initial values */
-  p->scale = 1;
+  p->scale = 100;
   p->points = 0;
   p->state = JOINING;
   p->ping = 0;
@@ -389,7 +391,6 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 }
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
-	printf("Packing game MSG\n");
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
 	Near *pNear = NULL;
 	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
@@ -412,7 +413,6 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 			}
 			return ind;
     	case GAME_UPDATE:
-			printf("Packing game update\n");
 			/* FIND CORRESPONDING PLAYER */
 			pPlayer = getPlayer(toPlayerID, pPlayer);
 			if(pPlayer == NULL){
@@ -499,7 +499,6 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 
 	switch (msgSubType) {
 		case JOIN:
-			printf("PACKING ACK JOIN\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 
@@ -510,7 +509,6 @@ int ackPacker(char *pPL, Game *pGame, uint16_t toPlayerID, int msgSubType,
 
 			return ind;
 		case NICK:
-			printf("PACKING ACK NICK\n");
 			*(uint8_t*) &pPL[ind] = status;
 			ind += sizeof(uint8_t);
 			return ind;

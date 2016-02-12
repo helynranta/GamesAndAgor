@@ -71,7 +71,6 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       packet.ackID = ntohl(*(uint32_t*)&buf[index]);
       index += sizeof(uint32_t);
       packet.ACKTYPE = *(uint8_t*)&buf[index];
-      printf("ACK TYPE FROM buffer %d \n", *(uint8_t*)&buf[index]);
       index += sizeof(uint8_t);
 
       switch (packet.ACKTYPE) {
@@ -110,6 +109,7 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
 
       packet.posY = ntohs(*(uint16_t*)&buf[index]);
       index += sizeof(uint16_t);
+      printf("packet.y %d\n", packet.posY);
 
       packet.dirX = ntohs(*(uint16_t*)&buf[index]);
       index += sizeof(uint16_t);
@@ -123,7 +123,6 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
 
       /* Send the buffer right back */
       sent = sendto(socket, buf, 256, 0, from, addrlen);
-      printf("STAISTICS_MESSAGE sent: %d\n", sent);
       packet.msgType = STATISTICS_MESSAGE;
       /* Statistics a.k.a ping message */
       /* ping is in milliseconds */
