@@ -451,7 +451,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 
 			/* PACK NEARBY PLAYERS */
 			if (pPlayer->nearPlayers == NULL){
-				printf("Ei pelaajia lähellä\n");
+				;//printf("Ei pelaajia lähellä\n");
 			}
 			else{
 				printf("Pakataan lähellä olevia pelaajia\n");
@@ -472,7 +472,6 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 				ind += sizeof(uint32_t);
 			}
 			*(uint8_t *) &pPL[indNPla] = nPlayers;
-			printf("Near Players: %d\n", nPlayers);
 
 			return ind;
     	case PLAYER_DEAD:  // similar to PLAYER_OUT
@@ -753,6 +752,7 @@ void checkTimeOut(Game *pGame, char *msgBuffer, int socket, socklen_t addrlen){
 			tmp = p1;
 			p1 = p1->pNext;
 			removePlayer(&pGame->sPlayers, tmp->ID);
+			printf("Removed player\n");
 		}
 		else{
 			p1 = p1->pNext;

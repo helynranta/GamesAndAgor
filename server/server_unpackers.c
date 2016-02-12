@@ -105,11 +105,9 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
       /* Get the player's position and direction */
       packet.posX = ntohs(*(uint16_t*)&buf[index]);
       index += sizeof(uint16_t);
-      printf("packet.x: %d\n", packet.posX);
 
       packet.posY = ntohs(*(uint16_t*)&buf[index]);
       index += sizeof(uint16_t);
-      printf("packet.y %d\n", packet.posY);
 
       packet.dirX = ntohs(*(uint16_t*)&buf[index]);
       index += sizeof(uint16_t);

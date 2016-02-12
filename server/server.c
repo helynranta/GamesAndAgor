@@ -219,16 +219,18 @@ int server(char* port) {
               /* Check for error */
               if(packet.error == 1){
                 printf("Error in received packet\n");
+                continue;
               }
-              printf("SERVERT.C - MEssage type: %d \n", packet.msgType);
               //printf("SERVER.C Subtype: %d \n", packet.subType);
+              p = getPlayer(packet.ID, game.sPlayers);
+              if(p != NULL){
+                p->lastServerTime = game.gameTime;
+              }
+
 
 
 							switch (packet.msgType) {
-                p = getPlayer(packet.ID, game.sPlayers);
-                if(p != NULL){
-                  p->lastServerTime = game.gameTime;
-                }
+
 
 								// Game message packet
 								case GAME_MESSAGE:
@@ -244,7 +246,7 @@ int server(char* port) {
 
 											if (tmpPlayerID != -1) {
 
-												newPlayer(&game.sPlayers, packet, game.nPlayers);
+												newPlayer(&game, packet);
 												msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
 												tavut = sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 												printf("Lähetettiin clientille JOIN ACK: %d\n", tavut);
@@ -252,11 +254,11 @@ int server(char* port) {
 
 											} else {
 
-												msgPacker(sendbuffer, &game, tmpPlayerID, ACK, JOIN, 0,1);
+												msgPacker(sendbuffer, &game, tmpPlayerID, ACK, JOIN, 0,0);
 												sendto(socketfd, sendbuffer, SIZE, 0, &packet.senderAddr, addrlen);
 
 											}*/
-                      /** Tämä oli ennen, nyt tuo ylempimake  **/
+                      /** Tämä oli ennen, nyt tuo ylempimake */
                       newPlayer(&game, packet);
                       game.nPlayers++;
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
