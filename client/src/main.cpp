@@ -187,7 +187,7 @@ void TestMessagesLoop(string ip_addr) {
 //					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
 					vector<GameObject*> gameObjects = gamemessage->getGameObjects();
 					for (auto& gameObject : gameObjects) {
-						std::cout << "Main.cpp - GameUpdate - Object(" << gameObject->getObjectID() << ") posY:" << gameObject->getLocX() << " posY: " << gameObject->getLocY() << std::endl;
+//						std::cout << "Main.cpp - GameUpdate - Object(" << gameObject->getObjectID() << ") posY:" << gameObject->getLocX() << " posY: " << gameObject->getLocY() << std::endl;
 					}
 				}
 			}
