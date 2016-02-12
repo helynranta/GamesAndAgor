@@ -305,7 +305,7 @@ void newPlayer(Game *game, struct Packet packet){
 	p->direction[1]=(uint16_t)10;
 
   /* Set initial values */
-  p->scale = 100;
+  p->scale = PLA_SIZE;
   p->points = 0;
   p->state = JOINING;
   p->ping = 0;
@@ -590,7 +590,7 @@ int checkNick(char *nick,Player *pPlayer){
 	int result = 1;
 
 	while(tmp != NULL){
-		result = strncmp(nick, pPlayer->nick, 12);
+		result = strncmp(nick, tmp->nick, 12);
 		if(result == 0){
 			return 0;
 		}
@@ -738,7 +738,7 @@ void signalHandler(int signo){
 void checkTimeOut(Game *pGame, char *msgBuffer, int socket, socklen_t addrlen){
 	Player *p1 = pGame->sPlayers, *p2 = NULL, *tmp = NULL;
 	int pl=0;
-
+	memset(msgBuffer, '\0', BUFFERSIZE);
 	while(p1 != NULL){
 		if((pGame->gameTime - p1->lastServerTime) > 15000){
 			p1->state = OUT;

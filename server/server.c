@@ -455,12 +455,17 @@ int server(char* port) {
 					}
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
+
+          /* Delete timed out players */
+          checkTimeOut(&game, sendbuffer, socketfd, addrlen);
+
+          /* inform dead players about their death (unfortunate faith) */
+          informTheDead(&game, sendbuffer, socketfd, addrlen);
+
+          /* respawn dead players */
+          respawnPlayers(game.sPlayers);
 				}
 
-        /* inform dead players about their death (unfortunate faith) */
-        informTheDead(&game, sendbuffer, socketfd, addrlen);
-        /* respawn dead players */
-        respawnPlayers(game.sPlayers);
         gameDestructor(&game);
 			}
 
