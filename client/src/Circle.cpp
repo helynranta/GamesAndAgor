@@ -1,14 +1,14 @@
 #include "Circle.hpp"
 
 #include <iostream>
-
+#include <cmath>
 #include "Engine.hpp"
 
 void Circle::init() {}
 void Circle::update() {
 	if(m_r < m_sr) m_r += 1.0f;
 	if(m_r > m_sr) m_r -= 1.0f;
-    m_speed = 200 / m_r;
+    m_speed = 50 / (m_r/100);
 	// if gameobject is not static it should try to move somewhere
 	if(!isStatic) {
 		int dt = (SDL_GetTicks() - (m_st + Engine::connection->getPing()*2))/1000;
@@ -18,6 +18,12 @@ void Circle::update() {
 		// update drawable sphere
 		m_x = (m_x + ((m_sx-m_x)/10));
 		m_y = (m_y + ((m_sy-m_y)/10));
+		// if respawning or something else happened that we are really far away
+		// just jump there
+		if(abs(m_sx-m_x)>50 || abs(m_sy-m_y)) {
+			m_x = m_sx;
+			m_y = m_sy;
+		}
 	}
 	m_destRect = {
 		int(m_x), int(m_y),        		// make center of circle true center of drawed texture

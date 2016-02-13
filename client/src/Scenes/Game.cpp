@@ -95,7 +95,7 @@ void Game::updateChat(void) {
 }
 void Game::handleMessages(void) {
     doGameUpdate();
-    
+
 }
 void Game::doGameUpdate(void) {
     // handle game update messages
@@ -109,6 +109,7 @@ void Game::doGameUpdate(void) {
         if(u == nullptr) cerr << "update cast failed" << endl;
         m_player->setSPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
         m_player->setDir(u->getDirX(), u->getDirX());
+        m_player->setSR(u->getSize());
         vector<GameObject*> objs = u->getGameObjects();
         vector<GamePlayer*> players = u->getGamePlayers();
         drawables.clear();
@@ -152,6 +153,7 @@ void Game::doGameUpdate(void) {
                 // set pos and dir and place to drawable objects
                 player->setSPos(pit->pos_x, pit->pos_y, SDL_GetTicks());
                 player->setDir(pit->dir_x, pit->dir_y);
+                player->setSR(pit->size);
                 drawables.push_back(player);
             }
         }
