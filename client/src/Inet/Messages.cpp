@@ -269,7 +269,7 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 //	std::cout << "Messages.hpp - GameUpdate::Unpack players: " << unsigned(number_of_players) << std::endl;
 //	std::cout << "Messages.hpp - GameUpdate::Unpack objects: " << number_of_objects << std::endl;
 
-	uint8_t * remainingPayload;
+	uint8_t * remainingPayload = 0;
 	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
 	if( remainingPayloadSize > 0) {
 		remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadSize));

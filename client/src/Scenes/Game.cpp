@@ -147,6 +147,7 @@ void Game::doGameUpdate(void) {
                 player->setSPos(pit->pos_x, pit->pos_y, SDL_GetTicks());
                 player->setDir(pit->dir_x, pit->dir_y);
                 player->setSR(pit->size);
+                //cout << int(pit->size) <<endl;
                 drawables.push_back(player);
             }
         }

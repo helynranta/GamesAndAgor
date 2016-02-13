@@ -30,21 +30,21 @@ enum GAME_MESSAGE_TYPE {
 };
 
 inline uint32_t UnpackUINT32_T(uint8_t * payload, int bufferPosition) {
-	uint32_t uint32Variable;
+	uint32_t uint32Variable = 0;
 	memcpy(&uint32Variable, &payload[bufferPosition], sizeof(uint32_t));
 	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 	return ntohl(uint32Variable);
 }
 
 inline uint16_t UnpackUINT16_T(uint8_t * payload, int bufferPosition) {
-	uint16_t uint16Variable;
+	uint16_t uint16Variable = 0;
 	memcpy(&uint16Variable, &payload[bufferPosition], sizeof(uint16_t));
 	// std::cout << "Location pointer: " << bufferPosition << std::endl;
 	return ntohs(uint16Variable);
 }
 
 inline uint8_t UnpackUINT8_T(uint8_t * payload, int bufferPosition) {
-	uint8_t uint8Variable;
+	uint8_t uint8Variable = 0;
 	memcpy(&uint8Variable, &payload[bufferPosition], sizeof(uint8_t));
 	return uint8Variable;
 }
@@ -479,8 +479,8 @@ class GamePlayer {
 			uint16_t dir_y = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_DIR_Y
-			uint16_t size = UnpackUINT32_T(payload, bufferPosition);
+			// Unpack SIZE
+			uint32_t size = UnpackUINT32_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint32_t);
 
 			return new GamePlayer(player_id, pos_x, pos_y, dir_x, dir_y, size);
