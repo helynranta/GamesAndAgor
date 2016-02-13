@@ -494,19 +494,19 @@ class GamePlayer {
 			uint16_t player_id = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_POS_X
+			// Unpack POS_X
 			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_POS_Y
+			// Unpack POS_Y
 			uint16_t pos_y = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_DIR_X
+			// Unpack DIR_X
 			uint16_t dir_x = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_DIR_Y
+			// Unpack DIR_Y
 			uint16_t dir_y = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
