@@ -29,7 +29,7 @@ void Player::update(float dT) {
     }
     // do this after PackSelf is implemented
     static uint lastSend = 0;
-    if(lastSend + 20 < SDL_GetTicks()) {
+    if(lastSend + 20 < SDL_GetTicks() && updated) {
         uint8_t updateBuffer[BUFFER_SIZE];
         Move* m = new Move(Engine::connection->createDummyHeader(
             Engine::connection->getID(), SDL_GetTicks(), MESSAGE_TYPE::PLAYER_MOVEMENT, 10

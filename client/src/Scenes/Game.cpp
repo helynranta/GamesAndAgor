@@ -7,14 +7,6 @@
 
 void Game::awake(void) {
     // populate static object list
-    for(int i = 0; i < 100; i++) {
-        Circle* c = new Circle("");
-        m_statics.insert({i, c});
-        c->setColor(80,80,80);
-        c->setSR(40);
-        c->setR(40);
-    }
-
     m_player = new Player(Engine::getNick(), 50, 50, 50);
     //cout << Engine::getNick() << endl;
     gui->addText("ping", new GUIText());
@@ -128,6 +120,7 @@ void Game::doGameUpdate(void) {
                     so = new Circle(to_string(id));
                     so->setColor(80,80,80);
                     so->setSR(40);
+                    so->setR(40);
                     //so->setR(40);
                     m_statics.insert({id, so});
                 }
@@ -164,10 +157,12 @@ void Game::draw(void) {
     SDL_Rect l_ppos;
     // draw player
     for(auto& it : drawables) {
-        Color l_c = it->getColor();
-        l_ppos = Engine::camera->transformToWorldCordinates(it->getDestRect());
-        SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), l_c.r, l_c.g, l_c.b);
-        SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
+        if(it->isUpdated()) {
+            Color l_c = it->getColor();
+            l_ppos = Engine::camera->transformToWorldCordinates(it->getDestRect());
+            SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), l_c.r, l_c.g, l_c.b);
+            SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
+        }
     }
 
     l_ppos = Engine::camera->transformToWorldCordinates(m_player->getDestRect());
