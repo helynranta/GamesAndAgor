@@ -8,7 +8,7 @@ void Circle::init() {}
 void Circle::update() {
 	if(m_r < m_sr) m_r += 1.0f;
 	if(m_r > m_sr) m_r -= 1.0f;
-    m_speed = 10 / (m_r/60)/2;
+    m_speed = 100 / (m_r/60)/2;
 	// if gameobject is not static it should try to move somewhere
 	if(!isStatic) {
 		if(abs(m_sx-m_x)>100 || abs(m_sy-m_y)>100) {

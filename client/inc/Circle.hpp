@@ -32,7 +32,7 @@ protected:
     SDL_Rect m_destRect = {int(m_x), int(m_y), int(m_r*2), int(m_r*2)};
     bool isStatic = true;
     Color color;
-    bool updated = false;
+    bool initialized = false;
 public:
     inline Circle (const string& n, bool s = true) : nick(n) {
         isStatic = s;
@@ -46,7 +46,8 @@ public:
     void init();
     void update();
     void move(int x, int y); // for testing
-    bool isUpdated() {return updated;}
+    bool isInitialized() {return initialized;}
+    void unInitialize() {initialized = false;}
     /* GETTERS */
     inline int getX () const { return m_x; }
     inline int getY () const { return m_y; }
@@ -58,12 +59,12 @@ public:
     inline const string& getNick() const { return nick; }
 
     inline void setSPos (int x, int y, float t) {
-        if(!updated) setPos(x,y);
+        if(!initialized) setPos(x,y);
         m_sx = x; m_sy = y; m_st = t;
-        updated=true;
+        initialized=true;
     }
     inline void setPos (int x, int y) {
-        updated=true; 
+        initialized=true;
         m_x = x; m_y = y;
     }
     inline void setDir (int x, int y) {m_dir.x = x; m_dir.y = y;}

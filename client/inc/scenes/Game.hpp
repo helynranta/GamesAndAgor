@@ -22,7 +22,6 @@ private:
     map<uint16_t, Circle*> m_statics;
 
     vector<Circle*> drawables;
-
     Chat* chat = nullptr;
 public:
     inline Game () : Scene() {}

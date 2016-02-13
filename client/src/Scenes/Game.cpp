@@ -27,6 +27,9 @@ void Game::awake(void) {
     gui->getText("amount-of-statics")->setPos(0, 20);
     // this is test
     Engine::camera->setPos(1000, 1000);
+    gui->addText("main-game-hint", new GUIText());
+    gui->getText("main-game-hint")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 300);
+    gui->getText("main-game-hint")->setText("");
 }
 void Game::update(float dt) {
     m_player->update(dt);
@@ -88,7 +91,25 @@ void Game::updateChat(void) {
 }
 void Game::handleMessages(void) {
     doGameUpdate();
-
+    vector<Message*> msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_DEAD);
+    if(msgs.size()) {
+        PlayerDead* death = dynamic_cast<PlayerDead*>(msgs.back());
+        if(death != nullptr) {
+            m_player->unInitialize();
+            // send ack
+            int id = Engine::connection->getID();
+            uint8_t buffer[BUFFER_SIZE];
+            PlayerDeadAck* ack = new PlayerDeadAck(
+                Engine::connection->createDummyHeader(
+                    id, SDL_GetTicks(), MESSAGE_TYPE::GAME_MESSAGE, 10
+                ), id
+            );
+            int length = ack->PackSelf(buffer);
+            Engine::connection->send(buffer, length);
+            gui->getText("main-game-hint")->setText("You died!");
+            Engine::setTimeout(2000, [&](){gui->getText("main-game-hint")->setText("");});
+        } else cerr << "unable to cast död message" << endl;
+    }
 }
 void Game::doGameUpdate(void) {
     // handle game update messages
@@ -161,7 +182,7 @@ void Game::draw(void) {
     SDL_Rect l_ppos;
     // draw player
     for(auto& it : drawables) {
-        if(it->isUpdated()) {
+        if(it->isInitialized()) {
             Color l_c = it->getColor();
             l_ppos = Engine::camera->transformToWorldCordinates(it->getDestRect());
             SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), l_c.r, l_c.g, l_c.b);
