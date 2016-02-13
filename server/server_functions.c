@@ -18,7 +18,7 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	for(;i<1;i++){
+	for(;i<10000;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
 	}
 }
@@ -217,9 +217,9 @@ void newObject(Object **pList, uint32_t *nObjects){
 	if((pNew = calloc(1, sizeof(Object))) == NULL){ perror("calloc");}
 	*nObjects += 1;
 	pNew->ID = *nObjects;
-	//randomLocation(pNew->location);
-	pNew->location[0] = 900;
-	pNew->location[1] = 900;
+	randomLocation(pNew->location);
+	//pNew->location[0] = 1100;
+	//pNew->location[1] = 1100;
 	pNew->pNext = NULL;
 	append2ListObject(pList, pNew);
 }

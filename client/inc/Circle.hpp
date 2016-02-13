@@ -18,17 +18,17 @@ struct Color {
 class Circle {
 protected:
     // local
-    float m_x = 999;
-    float m_y = 999;
+    float m_x = 1000;
+    float m_y = 1000;
     float m_r = 40;
     // server given attributes
-    float m_sx = 1000;
-    float m_sy = 1000;
+    float m_sx = 900;
+    float m_sy = 900;
     Vector2d m_dir;
     float m_st = 0;
     float m_sr = 100;
     string nick = "";
-
+    float m_speed = 1.0f;
     SDL_Rect m_destRect = {int(m_x), int(m_y), int(m_r*2), int(m_r*2)};
     bool isStatic = true;
     Color color;
@@ -56,9 +56,10 @@ public:
     inline const string& getNick() const { return nick; }
 
     inline void setSPos (int x, int y, float t) { m_sx = x; m_sy = y; m_st = t;}
+    inline void setPos (int x, int y) { m_x = x; m_y = y;}
     inline void setDir (int x, int y) {m_dir.x = x; m_dir.y = y;}
     inline void setR (int r) { m_r = r; }
-
+    inline void setSR (int r) { m_sr = r; }
     inline const SDL_Rect& getDestRect() const { return m_destRect; }
 
     inline void scale(float x) {

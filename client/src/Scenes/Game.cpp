@@ -11,6 +11,7 @@ void Game::awake(void) {
         Circle* c = new Circle("");
         m_statics.insert({i, c});
         c->setColor(80,80,80);
+        c->setSR(40);
         c->setR(40);
     }
 
@@ -34,9 +35,6 @@ void Game::awake(void) {
     Engine::camera->setPos(1000, 1000);
 }
 void Game::update(float dt) {
-    // this is how camera behaves in real gameplay
-    //Engine::camera->setPos(m_player->getX(), m_player->getY());
-    //Engine::camera->setScale(float(m_player->getR())/100);
     m_player->update(dt);
 
     for(auto& it : drawables) {
@@ -48,6 +46,10 @@ void Game::update(float dt) {
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
     gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
     gui->getText("player-pos-server")->setText("("+std::to_string(m_player->getSX())+","+std::to_string(m_player->getSY())+")");
+
+    // this is how camera behaves in real gameplay
+    Engine::camera->setPos(m_player->getX(), m_player->getY());
+    Engine::camera->setScale(float(m_player->getR())/100);
 
 }
 void Game::updateChat(void) {
@@ -92,13 +94,18 @@ void Game::updateChat(void) {
     }
 }
 void Game::handleMessages(void) {
+    doGameUpdate();
+    
+}
+void Game::doGameUpdate(void) {
     // handle game update messages
     GameUpdate* u = nullptr;
     static vector<Message*> update;
     update.clear();
     update = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::GAME_UPDATE);
-    if(update.size()>0) {
-        u = reinterpret_cast<GameUpdate*>(update.front());
+    // do latest
+    if(update.size()) {
+        u = reinterpret_cast<GameUpdate*>(update.back());
         if(u == nullptr) cerr << "update cast failed" << endl;
         m_player->setSPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
         m_player->setDir(u->getDirX(), u->getDirX());
@@ -116,11 +123,15 @@ void Game::handleMessages(void) {
                 // if didnt find then just create (this should never happen with static objects)
                 if(so == nullptr) {
                     cerr << "Had to create new static object: " << id << " (id)" << endl;
+                    cout << "pos" << oit->getLocX() << ","<<oit->getLocY() << endl;
                     so = new Circle(to_string(id));
+                    so->setColor(80,80,80);
+                    so->setSR(40);
+                    //so->setR(40);
                     m_statics.insert({id, so});
                 }
                 // set pos and dir and place to drawable objects
-                so->setSPos(oit->getLocX(), oit->getLocY(), SDL_GetTicks());
+                so->setPos(oit->getLocX(), oit->getLocY());
                 drawables.push_back(so);
             }
         }

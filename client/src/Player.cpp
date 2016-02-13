@@ -7,8 +7,6 @@ void Player::update(float dT) {
     Circle::update();
     Vector2d l_dir(0.0f, 0.0f);
     if(takeInput) {
-        // extend to some more physics stuff?
-        m_speed = 100 / m_r;
         if(Engine::input->isKeyDown(SDLK_a))
             l_dir.x -= dT * m_speed;
         if(Engine::input->isKeyDown(SDLK_d))
@@ -17,6 +15,7 @@ void Player::update(float dT) {
             l_dir.y += dT * m_speed;
         if(Engine::input->isKeyDown(SDLK_s))
             l_dir.y -= dT * m_speed;
+
         m_sx += l_dir.x;
         m_sy += l_dir.y;
 

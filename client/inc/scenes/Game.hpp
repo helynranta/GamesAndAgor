@@ -35,6 +35,7 @@ public:
     void update(float dt);
     void updateChat(void);
     void handleMessages(void);
+    void doGameUpdate(void);
     // end
     void end(void);
     // generic drawing function
