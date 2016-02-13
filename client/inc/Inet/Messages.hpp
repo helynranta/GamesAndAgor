@@ -478,6 +478,16 @@ class GamePlayer {
 			size = pSize;
 		};
 
+		inline uint16_t getPosX(){ return pos_x; };
+
+		inline uint16_t getPosY(){ return pos_y; };
+
+		inline uint16_t getDirX(){ return dir_x; };
+
+		inline uint16_t getDirY(){ return dir_y; };
+
+		inline uint32_t getSize(){ return size; };
+
 		static inline GamePlayer* Unpack(uint8_t * payload, int bufferPosition ){
 
 			// Unpack PLAYER_ID
