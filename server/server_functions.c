@@ -474,7 +474,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 				ind += sizeof(uint16_t);
 				*(uint16_t *) &pPL[ind] = htons(pPla->direction[1]);
 				ind += sizeof(uint16_t);
-				*(uint32_t *) &pPL[ind] = htons(pPla->scale);
+				*(uint32_t *) &pPL[ind] = htonl(pPla->scale);
 				ind += sizeof(uint32_t);
 			}
 			*(uint8_t *) &pPL[indNPla] = nPlayers;
