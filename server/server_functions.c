@@ -72,6 +72,7 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 		}
 
 		// Calculate distances to each object
+		pObj = *sObjects;
 		while(pObj != NULL){
 			isIn = isWithinRange(p1->location, pObj->location, p1->scale,OBJ_SIZE);
 			if(isIn < 0){ // EAT OBJECT
