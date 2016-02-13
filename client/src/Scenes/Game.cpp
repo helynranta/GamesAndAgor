@@ -7,7 +7,12 @@
 
 void Game::awake(void) {
     // populate static object list
-    for(int i = 0; i < 100; i++) m_statics.insert({i, new Circle("")});
+    for(int i = 0; i < 100; i++) {
+        Circle* c = new Circle("");
+        m_statics.insert({i, c});
+        c->setColor(80,80,80);
+        c->setR(40);
+    }
 
     m_player = new Player(Engine::getNick(), 50, 50, 50);
     //cout << Engine::getNick() << endl;
@@ -98,25 +103,42 @@ void Game::handleMessages(void) {
         m_player->setSPos(u->getPosX(), u->getPosY(), SDL_GetTicks());
         m_player->setDir(u->getDirX(), u->getDirX());
         vector<GameObject*> objs = u->getGameObjects();
-        //cout << "Game.cpp - Number of static objects: " << objs.size() << endl;
         vector<GamePlayer*> players = u->getGamePlayers();
         drawables.clear();
+        if(objs.size()) {
+            //cout << "Game.cpp - Number of static objects: " << objs.size() << endl;
+            for(auto& oit : objs) {
+                uint16_t id = oit->getObjectID();
+                Circle* so = nullptr; // "static object", many innovative name much wow
+                // try to find in map, if found then use that
+                auto o = m_statics.find(id);
+                if(o != m_statics.end()) so = o->second;
+                // if didnt find then just create (this should never happen with static objects)
+                if(so == nullptr) {
+                    cerr << "Had to create new static object: " << id << " (id)" << endl;
+                    so = new Circle(to_string(id));
+                    m_statics.insert({id, so});
+                }
+                // set pos and dir and place to drawable objects
+                so->setSPos(oit->getLocX(), oit->getLocY(), SDL_GetTicks());
+                drawables.push_back(so);
+            }
+        }
         if(players.size()) {
             // for each player in list
             for(auto& pit : players) {
                 uint16_t id = pit->playerID;
                 Circle* player = nullptr;
-                for(auto& e : m_enemies) {
-                    if(e.first == id) {
-                        //cout << "player already created" << endl;
-                        player = e.second;
-                    }
-                }
+                // try to find in map, if found then use that
+                auto e = m_enemies.find(id);
+                if(e != m_enemies.end()) player = e->second;
+                // if didnt find then just create
                 if(player == nullptr) {
                     cout << "new player" << id << endl;
                     player = new Circle(to_string(id), false);
                     m_enemies.insert({id, player});
                 }
+                // set pos and dir and place to drawable objects
                 player->setSPos(pit->pos_x, pit->pos_y, SDL_GetTicks());
                 player->setDir(pit->dir_x, pit->dir_y);
                 drawables.push_back(player);

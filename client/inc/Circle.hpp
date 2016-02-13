@@ -33,7 +33,8 @@ protected:
     bool isStatic = true;
     Color color;
 public:
-    inline Circle (const string& n, bool s = true) : nick(n), isStatic(s) {
+    inline Circle (const string& n, bool s = true) : nick(n) {
+        isStatic = s;
         color.r = rand()%255;
         color.g = rand()%255;
         color.b = rand()%255;
@@ -65,6 +66,7 @@ public:
         if(m_r < 10) m_r = 10;
     }
     inline const Color& getColor() const {return color;}
+    inline void setColor(int x, int y, int z) {color.r = x; color.g = y; color.b = z;}
 };
 
 #endif
