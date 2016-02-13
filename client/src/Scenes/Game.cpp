@@ -21,8 +21,10 @@ void Game::awake(void) {
 
     gui->addText("player-pos", new GUIText());
     gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 20);
-    gui->addText("player-pos-server", new GUIText());
-    gui->getText("player-pos-server")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 50);
+
+
+    gui->addText("amount-of-statics", new GUIText());
+    gui->getText("amount-of-statics")->setPos(0, 20);
     // this is test
     Engine::camera->setPos(1000, 1000);
 }
@@ -37,7 +39,6 @@ void Game::update(float dt) {
     handleMessages();
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
     gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
-    gui->getText("player-pos-server")->setText("("+std::to_string(m_player->getSX())+","+std::to_string(m_player->getSY())+")");
 
     // this is how camera behaves in real gameplay
     Engine::camera->setPos(m_player->getX(), m_player->getY());
@@ -105,6 +106,8 @@ void Game::doGameUpdate(void) {
         vector<GameObject*> objs = u->getGameObjects();
         vector<GamePlayer*> players = u->getGamePlayers();
         drawables.clear();
+        gui->getText("amount-of-statics")->setText("Amount of objs: "+to_string(objs.size()));
+
         if(objs.size()) {
             //cout << "Game.cpp - Number of static objects: " << objs.size() << endl;
             for(auto& oit : objs) {
