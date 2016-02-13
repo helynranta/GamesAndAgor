@@ -28,7 +28,7 @@ void Game::awake(void) {
     // this is test
     Engine::camera->setPos(1000, 1000);
     gui->addText("main-game-hint", new GUIText());
-    gui->getText("main-game-hint")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 300);
+    gui->getText("main-game-hint")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 100);
     gui->getText("main-game-hint")->setText("");
 }
 void Game::update(float dt) {
@@ -107,7 +107,9 @@ void Game::handleMessages(void) {
             int length = ack->PackSelf(buffer);
             Engine::connection->send(buffer, length);
             gui->getText("main-game-hint")->setText("You died!");
-            Engine::setTimeout(2000, [&](){gui->getText("main-game-hint")->setText("");});
+            Engine::setTimeout(2000, [this](){
+                gui->getText("main-game-hint")->setText(" ");
+            });
         } else cerr << "unable to cast död message" << endl;
     }
 }
