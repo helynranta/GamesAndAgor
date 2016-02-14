@@ -32,8 +32,12 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 	// Clear the previous Near lists of players
 	//printf("CNP\n");
 	for(p1 = sPlayers; p1 != NULL; p1 = p1->pNext){
+		printf(">clearListNearPlayers\n");
 		clearListNear(&(p1->nearPlayers));
+		printf("clearListNearPlayers>\n");
+		printf(">clearListNearObjects\n");
 		clearListNear(&(p1->nearObjects));
+		printf("clearListNearObjects>\n");
 	}
 
 	// Go through each player
@@ -73,21 +77,11 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 
 		// Calculate distances to each object
 		pObj = *sObjects;
+		printf("entering while\n");
 		while(pObj != NULL){
 			isIn = isWithinRange(p1->location, pObj->location, p1->scale,OBJ_SIZE);
 			if(isIn < 0){ // EAT OBJECT
-				pT = pObj;
-				if(pPrev == NULL){ // if first in the list
-					pObj = pObj->pNext;
-					*sObjects = pObj;
-				}
-				else{ // put previous' pNext to point to pObj's pNext
-					pPrev->pNext = pObj->pNext;
-					pObj = pPrev; // put pObj back to previous
-				}
-				eventEatObject(p1, pT);
-				if(pObj == NULL){break;} // if we just ate the last fucker
-				continue;
+				eventEatObject(p1, pObj);
 			}
 			else if (isIn > 0){
 				if(!(temp = calloc(1,sizeof(Near))))
@@ -96,9 +90,9 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 				append2ListNear(&(p1->nearObjects), temp);
 				temp = NULL;
 			}
-			pPrev = pObj;
 			pObj = pObj->pNext; // UPDATE pObj
 		}
+		printf("Exiting while\n");
 	}
 }
 
@@ -619,7 +613,7 @@ void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen, int type){
 		pPla = pPla->pNext;
 	}
 	printf("SENDING POINT ENDED\n");
-	
+
 }
 
 void informTheDead(Game *game, char *buf, int socket, socklen_t addrlen) {
