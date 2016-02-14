@@ -32,8 +32,20 @@ void InetConnection::destroy(void) {
 	for (auto& it : messages) {
 		delete it;
 	}
-	// empty whole vector
 	messages.clear();
+	for(auto it : messageInbox) {
+		delete it;
+	}
+	messageInbox.clear();
+	for(auto it : m_outgoing) {
+		delete it;
+	}
+	m_outgoing.clear();
+	// empty whole vector
+
+	if (res != nullptr) freeaddrinfo(res);
+	if (iter != nullptr) freeaddrinfo(iter);
+
 }
 
 bool InetConnection::sendChatMessage(const string& message) {
@@ -166,8 +178,8 @@ bool InetConnection::disconnect() {
 	if(m_state != ConnectionState::DISCONNECTED) {
 		uint8_t buffer[BUFFER_SIZE];
 		Exit* exit = new Exit(createDummyHeader(id, SDL_GetTicks(), MESSAGE_TYPE::GAME_MESSAGE, 32));
-		int length = exit->PackSelf(buffer);
-		send(buffer, length);
+		int exitlength = exit->PackSelf(buffer);
+		send(buffer, exitlength);
 	}
 
 	if (res != nullptr) freeaddrinfo(res);
