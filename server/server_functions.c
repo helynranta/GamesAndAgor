@@ -18,7 +18,7 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	for(;i<10000;i++){
+	for(;i<1000;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
 	}
 }
@@ -339,6 +339,7 @@ void respawnPlayer(Player *pPlayer, Player *pList){
 
 
 	}
+	pPlayer->scale = PLA_SIZE;
 	pPlayer->state = ALIVE;
 }
 
