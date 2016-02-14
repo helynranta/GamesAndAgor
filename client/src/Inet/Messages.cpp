@@ -352,8 +352,8 @@ Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload
 		readByteCount += sizeof(char)*12;
 		pointScoreObject->player_nicks.push_back(player_nick);
 
-		readByteCount += sizeof(uint16_t);
-		memcpy(&player_id, payload, sizeof(uint16_t));
+		readByteCount += sizeof(uint32_t);
+		memcpy(&player_id, payload, sizeof(uint32_t));
 		pointScoreObject->player_points.push_back(ntohl(player_point));
 
 		readByteCount += sizeof(uint32_t);
