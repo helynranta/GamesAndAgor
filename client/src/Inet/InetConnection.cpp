@@ -9,7 +9,18 @@
 vector<Message*> messages;
 
 InetConnection::InetConnection() {}
-InetConnection::~InetConnection() {}
+
+InetConnection::~InetConnection() {
+	for(uint32_t i = 0; i < messageInbox.size(); i++){
+		delete messageInbox[i];
+	}
+	messageInbox.clear();
+
+	for(uint32_t i = 0; i < m_outgoing.size(); i++){
+		delete m_outgoing[i];
+	}
+	m_outgoing.clear();
+}
 void InetConnection::init(void) {
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
@@ -196,7 +207,7 @@ void InetConnection::calculatePing() {
 	}
 }
 int InetConnection::checkTCPConnection() {
-// if connecting tcp
+	// if connecting tcp
 	char buffer[BUFFER_SIZE];
 	memset(buffer, '\0', BUFFER_SIZE);
 	if(m_state == ConnectionState::DISCONNECTED) return 0;
@@ -348,7 +359,7 @@ int InetConnection::checkUDPConnections() {
 						pings.push_back(SDL_GetTicks() - header->gameTime);
 					}
 					return false;
-				}
+				} else serverTime = header->gameTime - getPing();
 
 				unpackedMessage = MessageFactory::getInstance().getMessageByType(header, payloadBuffer);
 				break;

@@ -18,7 +18,7 @@
 #include "Inet/MessageAck.hpp"
 
 // Defines if we really want to start the game or just use simple game loop to test messages
-//#define MESG_TEST = 0
+#define MESG_TEST = 0
 
 
 using namespace std;
@@ -64,6 +64,7 @@ private:
     vector<int> pings;
     uint16_t id = -1;
     uint lastServerUpdate = 0;
+    float serverTime = 0;
 protected:
     /* protected data */
 
@@ -84,7 +85,7 @@ public:
 
     vector<Message*> messages;
     void init();
-
+    inline float getServerTime() { return serverTime; }
     void destroy();
     inline uint getLastServerUpdate() { return lastServerUpdate; }
     inline const ConnectionState& getState() const { return m_state; }
