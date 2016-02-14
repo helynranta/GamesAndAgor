@@ -2,8 +2,8 @@
 #define NOT_OK 0
 #define PLIND 11 // Payload index location
 #include "server_functions.h"
-#define MAX_GAME_X (uint16_t)(pow(2,16)-1) //max x location
-#define MAX_GAME_Y (uint16_t)(pow(2,16)-1) //max y location
+#define MAX_GAME_X (uint16_t)(pow(2,14)-1) //max x location
+#define MAX_GAME_Y (uint16_t)(pow(2,14)-1) //max y location
 
 void gameInit(Game *pGame){
 	int i=0;
