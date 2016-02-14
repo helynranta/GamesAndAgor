@@ -32,18 +32,29 @@ void Game::awake(void) {
     gui->getText("main-game-hint")->setText("");
 }
 void Game::update(float dt) {
+    // if server suddenly is unresponsive, halt the whole game
+    if(Engine::connection->getState() == ConnectionState::TIMING_OUT) {
+        uint t = uint(12000 - (SDL_GetTicks() - Engine::connection->getLastServerUpdate()))/1000;
+        gui->getText("main-game-hint")->setText("Game timing out in "+to_string(t));
+        if(t > 12000) {
+            Engine::connection->disconnect();
+            Engine::startScene("IPDialog");
+        }
+        return;
+    }
+    // otherwise start by getting input from player
     m_player->update(dt);
-
+    // then update everyone elses positions
     for(auto& it : drawables) {
         it->update();
     }
-
+    // update all messages from server
     updateChat();
     handleMessages();
+    // print ping and player position for player
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
     gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
-
-    // this is how camera behaves in real gameplay
+    // this is how camera behaves in real gameplay (now in use)
     Engine::camera->setPos(m_player->getX(), m_player->getY());
     Engine::camera->setScale(float(m_player->getR())/100);
 
