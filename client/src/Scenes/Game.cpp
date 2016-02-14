@@ -163,6 +163,20 @@ void Game::handleMessages(void) {
 
     }
     msgs.clear();
+    // someone dropped out
+    msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_OUT);
+    if(msgs.size()) {
+        for(auto& mis : msgs) {
+            PlayerOut* out = dynamic_cast<PlayerOut*>(mis);
+            if(out != nullptr) {
+                auto mapit = m_enemies.find(out->getPlayerID());
+                if(mapit != m_enemies.end())
+                    chat->addLog(mapit->second->getNick()+" left the game");
+                else
+                    chat->addLog("Player id "+to_string(out->getPlayerID())+" left the game");
+            } else cerr << "unable to cast out message" << endl;
+        }
+    }
 }
 void Game::doGameUpdate(void) {
     // handle game update messages
@@ -240,6 +254,18 @@ void Game::draw(void) {
             l_ppos = Engine::camera->transformToWorldCordinates(it->getDestRect());
             SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), l_c.r, l_c.g, l_c.b);
             SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
+            // if we got name of this player already
+            if(it->getNick().size()) {
+                // if gui object has not been created
+                if(gui->getText("nick:"+it->getNick()) == nullptr) {
+                    gui->addText("nick:"+it->getNick(), new GUIText());
+                    gui->getText(it->getNick())->setText(it->getNick());
+                    gui->getText(it->getNick())->setAlign(TEXT_ALIGN::CENTER_XY);
+                }
+                // put text to its rightfull place
+                gui->getText("nick:"+it->getNick())->setPos(l_ppos.x+l_ppos.w/3, l_ppos.y+l_ppos.h/2.4)->show();
+                gui->getText("nick:"+it->getNick())->setScale(0.5f/Engine::camera->getScale());
+            }
         }
     }
 
@@ -247,7 +273,7 @@ void Game::draw(void) {
     SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), 150, 150, 50);
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos );
     gui->getText(m_player->getNick())->setPos(l_ppos.x+l_ppos.w/3, l_ppos.y+l_ppos.h/2.4)->show();
-
+    gui->getText(m_player->getNick())->setScale(0.5f/Engine::camera->getScale());
 }
 void Game::end(void) {
     // free memory
