@@ -612,6 +612,7 @@ void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen, int type){
 
 		/* Pack msg */
 		plLength = msgPacker(buf, game, pPla->ID, GAME_MESSAGE, type, 0, 0);
+		printf("plLength %d type: %d \n", plLength, type);
 		/* Send msg */
 		sent = sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
 		/* Move on to the next player */

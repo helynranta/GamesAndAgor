@@ -33,6 +33,7 @@ int server(char* port) {
 	struct timeval tvSelect, tvUpdate1, tvUpdate2;
 	long time1, time2;
   int plLength;
+  uint32_t gameLength = 300000;
 
   struct timeval tStart, tNow;
 
@@ -163,7 +164,7 @@ int server(char* port) {
     uint32_t pointUpdatet = 0;
 
     gettimeofday(&tStart, NULL);
-		while (!exitFlag && game.gameTime < 300000) {
+		while (!exitFlag && game.gameTime < gameLength) {
       gettimeofday(&tNow, NULL);
       game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
           round((tNow.tv_usec-tStart.tv_usec)/1000));
@@ -489,9 +490,11 @@ int server(char* port) {
 				}
 
         /* send final points */
+        printf("Läheteään final points\n" );
         sendPoints(&game, sendbuffer, socketfd, addrlen, GAME_END);
-
+        printf("Final pointsit lähetetty\n" );
         gameDestructor(&game);
+        printf("Game destructed\n" );
 			}
 
 			// UPD activity
