@@ -307,9 +307,9 @@ void newPlayer(Game *game, struct Packet packet){
   p->address = packet.senderAddr;
 
   //memcpy(p->nick, packet.nick, 12);
-  // randomLocation(p->location);
-	p->location[0]=(uint16_t)1000;
-	p->location[1]=(uint16_t)1000;
+  randomLocation(p->location);
+	// p->location[0]=(uint16_t)1000;
+	// p->location[1]=(uint16_t)1000;
 
 	p->direction[0]=(uint16_t)5;
 	p->direction[1]=(uint16_t)10;
