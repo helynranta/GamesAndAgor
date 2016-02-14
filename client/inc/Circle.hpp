@@ -54,6 +54,7 @@ public:
     inline int getSX () const { return m_sx; }
     inline int getSY () const { return m_sy; }
     inline int getR () const { return m_r; }
+    inline int getSR () const { return m_sr; }
     inline bool isObjStatic() {return isStatic;}
 
     inline Vector2d getDir() const { return m_dir; }
