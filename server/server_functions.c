@@ -130,10 +130,8 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 	deltaY = abs(loc1[1] - loc2[1]) + floor(sca2/2);
 	deltaX = abs(loc1[0] - loc2[0]) + floor(sca2/2);
 
-	/* Euclidean distance */
-    eucl = sqrt(pow(deltaX,2) + pow(deltaY,2));
-		//printf("deltaX: %ld\t rangeX: %f\n", deltaX, rangeX);
-		//printf("deltaY: %ld\t rangeY: %f\n", deltaY, rangeY);
+	/* Euclidean distance between players */
+  eucl = sqrt(pow(abs(loc1[1] - loc2[1]),2) + pow(abs(loc1[0] - loc2[0]),2));
 
 	if (eucl <  sca1 && sca1 > sca2)
         return -1;
