@@ -683,7 +683,7 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
-		printf("Sended %d \n", *(uint8_t*)&ack->msg[11]);
+		//printf("Sended %d \n", *(uint8_t*)&ack->msg[11]);
 		ack = ack->pNext;
 	}
 }
