@@ -104,7 +104,7 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 
 void eventEatObject(Player *pPla, Object *pObj){
 	printf("OBJECT EATEN player size %d\n", pPla->scale);
-	k = GROWTH_FACTOR
+	int k = GROWTH_FACTOR;
 	pPla->scale += k*floor(OBJ_SIZE/pPla->scale);
 	pPla->points += OBJ_SIZE;
 	printf("AFTER LUNCH player size %d\n", pPla->scale);
