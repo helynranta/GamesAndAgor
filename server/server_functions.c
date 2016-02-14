@@ -608,21 +608,24 @@ void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen, int type){
 	Player *pPla = game->sPlayers;
 	int sent = 0;
 	int plLength;
+	printf("SENDING POINTS START\n");
 	while(pPla != NULL){
 
 		/* Pack msg */
 		plLength = msgPacker(buf, game, pPla->ID, GAME_MESSAGE, type, 0, 0);
-		printf("plLength %d type: %d \n", plLength, type);
 		/* Send msg */
 		sent = sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
 		/* Move on to the next player */
 		pPla = pPla->pNext;
 	}
+	printf("SENDING POINT ENDED\n");
+	
 }
 
 void informTheDead(Game *game, char *buf, int socket, socklen_t addrlen) {
 	Player *p = game->sPlayers;
 	int plLength;
+	printf("Informing the dead\n");
 
 	while(p != NULL) {
 		if(p->state == EATEN) {
@@ -633,6 +636,7 @@ void informTheDead(Game *game, char *buf, int socket, socklen_t addrlen) {
 		}
 		p = p->pNext;
 	}
+	printf("Informing the dead ENDED\n");
 }
 
 
@@ -670,6 +674,7 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 	Ack *tmp = NULL;
 
 	Player *p = NULL;
+	printf("STARTED RESEND \n");
 
 	while(ack != NULL) {
 		p = getPlayer(ack->toPlayerID, players);
@@ -681,10 +686,12 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 			removeAck(ackList, tmp->packetID);
 			continue;
 		}
+		printf("sending lost msg\n" );
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
-		//printf("Sended %d \n", *(uint8_t*)&ack->msg[11]);
+		printf("SSended lost msg\n");
 		ack = ack->pNext;
 	}
+	printf("ALL RESENT SENT\n");
 }
 
 // get sockaddr, IPv4 or IPv6:
