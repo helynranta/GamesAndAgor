@@ -356,7 +356,7 @@ int server(char* port) {
                       printf("Couldn't find Player id %d from ACK::PLAYER_DEAD packet\n", packet.ID);
                       break;
                     }
-                    respawnPlayer(p);
+                    respawnPlayer(p, &game.sPlayers);
                   }
 
 									/* remove ack from server's own ack list */

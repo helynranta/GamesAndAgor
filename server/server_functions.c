@@ -328,11 +328,33 @@ void newPlayer(Game *game, struct Packet packet){
   append2ListPlayer(&game->sPlayers, p);
 }
 
-void respawnPlayer(Player *pPlayer){
-		if(pPlayer->state == DEAD){
+void respawnPlayer(Player *pPlayer, Player *pList){
+	int isIn = 1;
+	printf("respawn");
+	if(pPlayer->state == EATEN){
+		while(isIn){
 			randomLocation(pPlayer->location);
-			pPlayer->state = ALIVE;
+			// is inside other player
+			isIn = isInside(pPlayer, pList);
 		}
+
+
+	}
+	pPlayer->state = ALIVE;
+}
+
+int isInside(Player *p1, Player *pList){
+	Player *p = NULL;
+	long dist = 0, range = 0;
+	for(p = pList; p!= NULL; p = p->pNext){
+		if(p1->ID == p->ID) {continue;}
+		dist = floor(sqrt(pow(p->location[0]-p1->location[0],2) + pow(p->location[1]-p1->location[1],2)));
+		range = p->scale + 2*PLA_SIZE;
+
+		/* if too near other player */
+		if(dist < range){ return 1; }
+	}
+	return 0;
 }
 
 int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, uint8_t msgSubType, uint16_t outPlayerID, int status){
@@ -559,8 +581,8 @@ Player *getPlayer(uint16_t playerID, Player *pPlayer){
 }
 
 void randomLocation(uint16_t *location){
-    location[0] = (uint16_t)rand() % MAX_GAME_X;
-    location[1] = (uint16_t)rand() % MAX_GAME_Y;
+    location[0] = (uint16_t) rand() % MAX_GAME_X;
+    location[1] = (uint16_t) rand() % MAX_GAME_Y;
 }
 
 /* ltr to blame from the code below */

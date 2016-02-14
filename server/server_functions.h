@@ -36,7 +36,8 @@ void clearListPlayer(Player **pList);
 void clearListObject(Object **pList);
 void removePlayer(Player **pList, uint32_t playerID);
 void newPlayer(Game *game, struct Packet);
-void respawnPlayer(Player *pPlayer);
+void respawnPlayer(Player *pPlayer, Player *pList);
+int isInside(Player *p1, Player *pList);
 
 /* ltr did this, blame me if something bad happens */
 void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen);
