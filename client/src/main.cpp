@@ -63,7 +63,7 @@ int uliuli (){
 }
 
 void releaseVector(vector<Message*> vector){
-	for(int i = 0; i < vector.size(); i++){
+	for(uint32_t i = 0; i < vector.size(); i++){
 		delete vector[i];
 	}
 	vector.clear();

@@ -381,114 +381,6 @@ class PlayerOut: public GameMessage {
 
 };
 
-class GameUpdate: public GameMessage {
-	public:
-		inline GameUpdate(MessageHeader header, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint32_t pSize, uint8_t pNumber_of_players,
-				uint16_t pNnumber_of_objects,
-				std::vector<GamePlayer*> pPlayers,
-				std::vector<GameObject*> pObjects) :
-				GameMessage(header, GAME_MESSAGE_TYPE::GAME_UPDATE) {
-			pos_x = pPos_x;
-			pos_y = pPos_y;
-			dir_x = pDir_x;
-			dir_y = pDir_y;
-			size = pSize;
-
-			number_of_players = pNumber_of_players;
-			number_of_objects = pNnumber_of_objects;
-			players = pPlayers;
-			objects = pObjects;
-		};
-
-		inline ~GameUpdate() {};
-
-		int PackSelf(uint8_t * payload);
-
-		static GameUpdate * Unpack(MessageHeader, uint32_t, uint8_t*);
-
-		inline uint16_t getPosX(){ return pos_x; };
-
-		inline uint16_t getPosY(){ return pos_y; };
-
-		inline uint16_t getDirX(){ return dir_x; };
-
-		inline uint16_t getDirY(){ return dir_y; };
-
-		inline uint32_t getSize(){ return size; };
-
-		inline uint8_t getNumberOfPlayers() {
-			return number_of_players;
-		};
-
-		inline uint16_t getNumberOfObjects() {
-			return number_of_objects;
-		};
-
-		inline std::vector<GamePlayer*> getGamePlayers(){
-			return players;
-		}
-
-		inline std::vector<GameObject*> getGameObjects(){
-			return objects;
-		}
-
-	private:
-		uint16_t pos_x;
-		uint16_t pos_y;
-		uint16_t dir_x;
-		uint16_t dir_y;
-		uint32_t size;
-		uint8_t number_of_players;
-		uint16_t number_of_objects;
-		std::vector<GamePlayer*> players;
-		std::vector<GameObject*> objects;
-
-};
-
-class Move : public Message {
-	public:
-		inline Move(MessageHeader header, uint8_t pEventType, uint16_t pPosX, uint16_t pPosY ,uint16_t pDirX ,uint16_t pDirY) : Message(header, MESSAGE_TYPE::PLAYER_MOVEMENT) {
-				eventType = pEventType;
-				posX = pPosX;
-				posY = pPosY;
-				dirX = pDirX;
-				dirY = pDirY;
-		}
-
-		inline void Update(){};
-
-		int PackSelf(uint8_t * payload);
-
-	private:
-		uint8_t eventType;
-		uint16_t posX;
-		uint16_t posY;
-		uint16_t dirX;
-		uint16_t dirY;
-};
-
-class Ping : public  Message {
-	public:
-		inline Ping(MessageHeader header, uint16_t pPing) : Message(header, MESSAGE_TYPE::STATISTICS_MESSAGE) {
-			ping = pPing;
-		}
-
-		inline void Update(){};
-
-		int PackSelf(uint8_t * payload);
-
-		static inline Ping * Unpack(MessageHeader header, uint32_t bufferPosition, uint8_t * payload) {
-
-			// Unpack CURRENT_PING
-			uint16_t currentPING = UnpackUINT16_T(payload, bufferPosition);
-			bufferPosition += sizeof(uint16_t);
-
-			return new Ping(header, currentPING);
-		}
-	private :
-		uint16_t ping;
-};
-
 class GamePlayer {
 	public:
 		inline GamePlayer(uint16_t pPlayerID, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint32_t pSize) {
@@ -597,6 +489,125 @@ class GameObject {
 		uint16_t objectID;
 		uint16_t loc_x;
 		uint16_t loc_y;
+};
+
+
+class GameUpdate: public GameMessage {
+	public:
+		inline GameUpdate(MessageHeader header, uint16_t pPos_x, uint16_t pPos_y, uint16_t pDir_x, uint16_t pDir_y, uint32_t pSize, uint8_t pNumber_of_players,
+				uint16_t pNnumber_of_objects,
+				std::vector<GamePlayer*> pPlayers,
+				std::vector<GameObject*> pObjects) :
+				GameMessage(header, GAME_MESSAGE_TYPE::GAME_UPDATE) {
+			pos_x = pPos_x;
+			pos_y = pPos_y;
+			dir_x = pDir_x;
+			dir_y = pDir_y;
+			size = pSize;
+
+			number_of_players = pNumber_of_players;
+			number_of_objects = pNnumber_of_objects;
+			players = pPlayers;
+			objects = pObjects;
+		};
+
+		inline ~GameUpdate() {
+			for(uint32_t i = 0; i < players.size(); i++){
+				delete players[i];
+			}
+			players.clear();
+
+			for(uint32_t i = 0; i < objects.size(); i++){
+				delete objects[i];
+			}
+			objects.clear();
+		};
+
+		int PackSelf(uint8_t * payload);
+
+		static GameUpdate * Unpack(MessageHeader, uint32_t, uint8_t*);
+
+		inline uint16_t getPosX(){ return pos_x; };
+
+		inline uint16_t getPosY(){ return pos_y; };
+
+		inline uint16_t getDirX(){ return dir_x; };
+
+		inline uint16_t getDirY(){ return dir_y; };
+
+		inline uint32_t getSize(){ return size; };
+
+		inline uint8_t getNumberOfPlayers() {
+			return number_of_players;
+		};
+
+		inline uint16_t getNumberOfObjects() {
+			return number_of_objects;
+		};
+
+		inline std::vector<GamePlayer*> getGamePlayers(){
+			return players;
+		}
+
+		inline std::vector<GameObject*> getGameObjects(){
+			return objects;
+		}
+
+	private:
+		uint16_t pos_x;
+		uint16_t pos_y;
+		uint16_t dir_x;
+		uint16_t dir_y;
+		uint32_t size;
+		uint8_t number_of_players;
+		uint16_t number_of_objects;
+		std::vector<GamePlayer*> players;
+		std::vector<GameObject*> objects;
+
+};
+
+class Move : public Message {
+	public:
+		inline Move(MessageHeader header, uint8_t pEventType, uint16_t pPosX, uint16_t pPosY ,uint16_t pDirX ,uint16_t pDirY) : Message(header, MESSAGE_TYPE::PLAYER_MOVEMENT) {
+				eventType = pEventType;
+				posX = pPosX;
+				posY = pPosY;
+				dirX = pDirX;
+				dirY = pDirY;
+		}
+
+		inline void Update(){};
+
+		int PackSelf(uint8_t * payload);
+
+	private:
+		uint8_t eventType;
+		uint16_t posX;
+		uint16_t posY;
+		uint16_t dirX;
+		uint16_t dirY;
+};
+
+class Ping : public  Message {
+	public:
+		inline Ping(MessageHeader header, uint16_t pPing) : Message(header, MESSAGE_TYPE::STATISTICS_MESSAGE) {
+			ping = pPing;
+		}
+
+		inline void Update(){};
+
+		int PackSelf(uint8_t * payload);
+
+		static inline Ping * Unpack(MessageHeader header, uint32_t bufferPosition, uint8_t * payload) {
+
+			// Unpack CURRENT_PING
+			uint16_t currentPING = UnpackUINT16_T(payload, bufferPosition);
+			bufferPosition += sizeof(uint16_t);
+
+			return new Ping(header, currentPING);
+		}
+	private :
+		uint16_t ping;
 };
 
 class MessageFactory {
