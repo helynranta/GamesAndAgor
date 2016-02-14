@@ -18,7 +18,7 @@ void gameInit(Game *pGame){
 	pGame->pingID = 0;
 
 	// make static objects
-	for(;i<1;i++){
+	for(;i<10000;i++){
 		newObject(&pGame->sObjects, &pGame->nObjects);
 	}
 }
@@ -72,6 +72,7 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 		}
 
 		// Calculate distances to each object
+		pObj = *sObjects;
 		while(pObj != NULL){
 			isIn = isWithinRange(p1->location, pObj->location, p1->scale,OBJ_SIZE);
 			if(isIn < 0){ // EAT OBJECT
@@ -123,7 +124,7 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 	//printf("sca1: %d sca2: %d\n",sca1, sca2 );
 
 	float range = sca1/PLA_SIZE, eucl = 0;
-	float rangeY = range * SCREEN_X, rangeX = range * SCREEN_Y;
+	float rangeX = range * SCREEN_X, rangeY = range * SCREEN_Y;
 
 
 	// RECTANGLE
@@ -217,9 +218,9 @@ void newObject(Object **pList, uint32_t *nObjects){
 	if((pNew = calloc(1, sizeof(Object))) == NULL){ perror("calloc");}
 	*nObjects += 1;
 	pNew->ID = *nObjects;
-	//randomLocation(pNew->location);
-	pNew->location[0] = 900;
-	pNew->location[1] = 900;
+	randomLocation(pNew->location);
+	//pNew->location[0] = 1100;
+	//pNew->location[1] = 1100;
 	pNew->pNext = NULL;
 	append2ListObject(pList, pNew);
 }
@@ -482,7 +483,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 				ind += sizeof(uint16_t);
 				*(uint16_t *) &pPL[ind] = htons(pPla->direction[1]);
 				ind += sizeof(uint16_t);
-				*(uint32_t *) &pPL[ind] = htons(pPla->scale);
+				*(uint32_t *) &pPL[ind] = htonl(pPla->scale);
 				ind += sizeof(uint32_t);
 			}
 			*(uint8_t *) &pPL[indNPla] = nPlayers;

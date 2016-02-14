@@ -154,7 +154,7 @@ void TestMessagesLoop(string ip_addr) {
 				continue;
 			}
 
-			if(loopCounter == 1000){
+			if(loopCounter == 20){
 				testStates = TEST_STATES::EXITING_GAME;
 				printGameStateAsString();
 				Exit exitMessage = Exit(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::GAME_MESSAGE, 0));
@@ -185,9 +185,15 @@ void TestMessagesLoop(string ip_addr) {
 //					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
 //					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
 //					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
+					vector<GamePlayer*> gamePlayers = gamemessage->getGamePlayers();
+					for (auto& gamePlayer : gamePlayers) {
+						std::cout << "Main.cpp - GameUpdate - Players(" << ") posX:" << gamePlayer->getPosX() << " posY: " << gamePlayer->getPosY() << " size:" << gamePlayer->getSize()  << std::endl;
+
+					}
+
 					vector<GameObject*> gameObjects = gamemessage->getGameObjects();
 					for (auto& gameObject : gameObjects) {
-//						std::cout << "Main.cpp - GameUpdate - Object(" << gameObject->getObjectID() << ") posY:" << gameObject->getLocX() << " posY: " << gameObject->getLocY() << std::endl;
+//						std::cout << "Main.cpp - GameUpdate - Object(" << gameObject->getObjectID() << ") posX:" << gameObject->getLocX() << " posY: " << gameObject->getLocY() << std::endl;
 					}
 				}
 			}

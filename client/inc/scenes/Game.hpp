@@ -22,7 +22,6 @@ private:
     map<uint16_t, Circle*> m_statics;
 
     vector<Circle*> drawables;
-
     Chat* chat = nullptr;
 public:
     inline Game () : Scene() {}
@@ -35,6 +34,7 @@ public:
     void update(float dt);
     void updateChat(void);
     void handleMessages(void);
+    void doGameUpdate(void);
     // end
     void end(void);
     // generic drawing function

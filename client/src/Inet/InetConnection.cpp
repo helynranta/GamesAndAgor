@@ -66,7 +66,6 @@ void InetConnection::sendTCP(const string& msg) {
 }
 // http://stackoverflow.com/questions/17769964/linux-sockets-non-blocking-connect
 bool InetConnection::connectTCP() {
-
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -172,6 +171,11 @@ int InetConnection::update() {
 	checkTCPConnection();
 	dataProsessed = checkUDPConnections();
 	calculatePing();
+
+	if(lastServerUpdate + 3000 < SDL_GetTicks()) {
+		m_state = ConnectionState::TIMING_OUT;
+	}
+
 	return dataProsessed;
 }
 //uint InetConnection::lastChecked = 0;
@@ -223,6 +227,7 @@ int InetConnection::checkTCPConnection() {
 					tcpsocketstatus = true;
 					chatmessage.push_back(string(buffer));
 					cout <<"recieved chat:"<<buffer<<endl;
+					lastServerUpdate = SDL_GetTicks();
 				}
 			}
 		}
@@ -337,7 +342,7 @@ int InetConnection::checkUDPConnections() {
 			uint8_t payloadBuffer[BUFFER_SIZE];
 			if (FD_ISSET(socketudp, &socket_fds)) {
 				Message::UnpackHeader(socketudp, header, payloadBuffer);
-
+				lastServerUpdate = SDL_GetTicks();
 				if (header->payload_length < 1){
 					if(getMessageTypeAsString(header->message_type) == "STATISTICS_MESSAGE") {
 						pings.push_back(SDL_GetTicks() - header->gameTime);

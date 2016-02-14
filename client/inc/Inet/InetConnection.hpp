@@ -18,12 +18,12 @@
 #include "Inet/MessageAck.hpp"
 
 // Defines if we really want to start the game or just use simple game loop to test messages
-//#define MESG_TEST = 0
+#define MESG_TEST = 0
 
 
 using namespace std;
 
-enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, REFUSED, TIMED_OUT, EXITING };
+enum ConnectionState { DISCONNECTED, CONNECTING, CONNECTED, REFUSED, TIMING_OUT, TIMED_OUT, EXITING };
 
 class InetConnection {
 friend class Engine;
@@ -63,6 +63,7 @@ private:
     vector<string> chatmessage;
     vector<int> pings;
     uint16_t id = -1;
+    uint lastServerUpdate = 0;
 protected:
     /* protected data */
 
@@ -85,6 +86,7 @@ public:
     void init();
 
     void destroy();
+    inline uint getLastServerUpdate() { return lastServerUpdate; }
     inline const ConnectionState& getState() const { return m_state; }
     inline void setState(ConnectionState state) { m_state = state; }
     inline const int getPing() {
