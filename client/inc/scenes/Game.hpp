@@ -23,6 +23,8 @@ private:
     vector<Circle*> drawables;
     Chat* chat = nullptr;
     bool running = true;
+    map<int, string> m_points;
+    bool pointsChanged = false;
 public:
     inline Game () : Scene() {}
     inline ~Game () {}

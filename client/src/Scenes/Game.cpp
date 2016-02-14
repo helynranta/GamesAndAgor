@@ -164,12 +164,15 @@ void Game::handleMessages(void) {
         // implement when ready
         Points* p = dynamic_cast<Points*>(msgs.back());
         if(p != nullptr) {
+            m_points.clear();
             for(uint it = 0; it < (p->player_ids).size(); it++) {
                 auto mit = m_enemies.find(p->player_ids[it]);
                 if(mit != m_enemies.end()) {
                     mit->second->setNick(p->player_nicks[it]);
                 }
+                m_points.insert({p->player_points[it], p->player_nicks[it]});
             }
+            pointsChanged = true;
         } else cerr << "unable to cast points message" << endl;
 
     }
@@ -259,7 +262,17 @@ void Game::draw(void) {
     // draw background
     l_ppos = Engine::camera->transformToWorldCordinates({8191/2,8191/2,8191,8191});
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/bg.png"), NULL, &l_ppos);
-
+    if(pointsChanged) {
+        int i = -1;
+        for(auto& it : m_points) {
+            string id = "scoreboard"+to_string(i++);
+            if(gui->getText(id) == nullptr) gui->addText(id, new GUIText());
+            gui->getText(id)->setText(
+                to_string(m_points.size() - i)+": "+to_string(it.first)+" "+it.second
+            )->setPos(800, 600-i*24)->setAlign(TEXT_ALIGN::OVER_RIGHT);
+        }
+        pointsChanged = false;
+    }
     for(auto it : m_enemies) {
         if(gui->getText("nick:"+it.second->getNick()) != nullptr) {
             gui->getText("nick:"+it.second->getNick())->hide();
