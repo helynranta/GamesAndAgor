@@ -151,11 +151,16 @@ void Game::handleMessages(void) {
     if(msgs.size()) {
         cout << "got some points" << endl;
         // implement when ready
-        /*Points* p = dynamic_cast<Points*>(msgs.back());
+        Points* p = dynamic_cast<Points*>(msgs.back());
         if(p != nullptr) {
-            map<int, int> pm = p->getPoints();
+            for(uint it = 0; it < (p->player_ids).size(); it++) {
+                auto mit = m_enemies.find(p->player_ids[it]);
+                if(mit != m_enemies.end()) {
+                    mit->second->setNick(p->player_nicks[it]);
+                }
+            }
         } else cerr << "unable to cast points message" << endl;
-        */
+
     }
     msgs.clear();
 }
