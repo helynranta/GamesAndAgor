@@ -133,8 +133,11 @@ void Game::handleMessages(void) {
         GameEnd* end = dynamic_cast<GameEnd*>(msgs.back());
         if(end != nullptr) {
             Points* p = end->getPoints();
-
-            gui->getText("main-game-hint")->setText("Game ended, someone won");
+            uint winner = 0;
+            for(uint it = 0; it < (p->player_ids).size(); it++) {
+                if(p->player_points[winner] < p->player_points[it]) winner = it;
+            }
+            gui->getText("main-game-hint")->setText("Game ended,"+p->player_nicks[winner]+" won");
             // just wait a sec and then jump right back to menu
             Engine::setTimeout(2000, [this]() {
                 Engine::connection->disconnect();
