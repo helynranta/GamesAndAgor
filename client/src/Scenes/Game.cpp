@@ -53,11 +53,11 @@ void Game::update(float dt) {
     handleMessages();
     // print ping and player position for player
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
-    gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
+    //gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
+    gui->getText("player-pos")->setText("R: "+to_string(m_player->getSR()));
     // this is how camera behaves in real gameplay (now in use)
     Engine::camera->setPos(m_player->getX(), m_player->getY());
     Engine::camera->setScale(float(m_player->getR())/100);
-
 }
 void Game::updateChat(void) {
     // stop input from player if chat is active
@@ -205,8 +205,6 @@ void Game::doGameUpdate(void) {
                 if(o != m_statics.end()) so = o->second;
                 // if didnt find then just create (this should never happen with static objects)
                 if(so == nullptr) {
-                    cerr << "Had to create new static object: " << id << " (id)" << endl;
-                    cout << "pos" << oit->getLocX() << ","<<oit->getLocY() << endl;
                     so = new Circle(to_string(id));
                     so->setColor(80,80,80);
                     so->setSR(40);
@@ -246,7 +244,11 @@ void Game::doGameUpdate(void) {
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;
-    // draw player
+    for(auto it : m_enemies) {
+        if(gui->getText("nick:"+it.second->getNick()) != nullptr) {
+            gui->getText("nick:"+it.second->getNick())->hide();
+        }
+    }
     for(auto& it : drawables) {
         if(it->isInitialized()) {
             Color l_c = it->getColor();
@@ -263,8 +265,7 @@ void Game::draw(void) {
                 }
                 // put text to its rightfull place
                 gui->getText("nick:"+it->getNick())->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
-                gui->getText("nick:"+it->getNick())->setScale(Engine::camera->getScale()/2)->setAlign(TEXT_ALIGN::CENTER_XY);;
-
+                gui->getText("nick:"+it->getNick())->setScale(it->getR()/200.0f)->setAlign(TEXT_ALIGN::CENTER_XY);;
             }
         }
     }
@@ -273,7 +274,7 @@ void Game::draw(void) {
     SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), 150, 150, 50);
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos );
     gui->getText(m_player->getNick())->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
-    gui->getText(m_player->getNick())->setScale(Engine::camera->getScale()/2)->setAlign(TEXT_ALIGN::CENTER_XY);
+    gui->getText(m_player->getNick())->setScale(m_player->getR()/200.0f)->setAlign(TEXT_ALIGN::CENTER_XY);
 }
 void Game::end(void) {
     // free memory

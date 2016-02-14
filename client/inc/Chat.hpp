@@ -29,16 +29,20 @@ public:
 	}
 
 	inline const void addLog(const string& msg) {
+		// pubblecum solution for recieving dublicate messages
+		if(msg == dynamic_cast<GUIText*>(chatlog.back())->getText()) return;
+
 		gui->addText("chatlog"+to_string(++msg_index), new GUIText());
 		chatlog.push_back(
-			gui->getText("chatlog"+to_string(msg_index))->setText(msg)->setAlign(TEXT_ALIGN::OVER)
+				gui->getText("chatlog"+to_string(msg_index))
+				->setText(msg)->setAlign(TEXT_ALIGN::OVER)
 			);
 		if(m_isActive) Activate();
 		else deActivate();
 		// if chatlog has more than entries remove first
 		if(chatlog.size() > 15) {
 			gui->removeText("chatlog"+to_string(msg_index-15));
-		} 
+		}
 		updatePos();
 	}
 	inline const void updatePos() {
@@ -52,14 +56,14 @@ public:
 	inline const void Activate() {
 		for(auto& it : chatlog) it->show();
 		gui->getInput("chat")->show();
-		gui->getInput("chat")->setActive(true); 
-		m_isActive = true; 
+		gui->getInput("chat")->setActive(true);
+		m_isActive = true;
 	}
 	inline const void deActivate() {
 		for(auto& it : chatlog) it->hide();
 		gui->getInput("chat")->hide();
-		gui->getInput("chat")->setActive(false);    
-		m_isActive = false; 
+		gui->getInput("chat")->setActive(false);
+		m_isActive = false;
 	}
 };
 
