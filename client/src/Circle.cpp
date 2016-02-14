@@ -10,7 +10,7 @@ void Circle::update() {
 	if(m_r > m_sr) m_r -= 2.0f;
 	// if gameobject is not static it should try to move somewhere
 	if(!isStatic) {
-		m_speed = 20 / (m_r/60)/2;
+		m_speed = (1-(log(m_sr/100.0f)/log(1024)))*5.0f;
 		if(abs(m_sx-m_x)>100 || abs(m_sy-m_y)>100) {
 			m_x = m_sx;
 			m_y = m_sy;
