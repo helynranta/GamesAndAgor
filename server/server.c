@@ -164,7 +164,7 @@ int server(char* port) {
     uint32_t pointUpdatet = 0;
 
     gettimeofday(&tStart, NULL);
-		while (!exitFlag && game.gameTime < 10000) {
+		while (!exitFlag && game.gameTime < 180000) {
       gettimeofday(&tNow, NULL);
       game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
           round((tNow.tv_usec-tStart.tv_usec)/1000));
