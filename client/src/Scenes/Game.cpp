@@ -156,7 +156,6 @@ void Game::handleMessages(void) {
                 auto mit = m_enemies.find(p->player_ids[it]);
                 if(mit != m_enemies.end()) {
                     mit->second->setNick(p->player_nicks[it]);
-                    //cout << p->player_nicks[it] << endl;
                 }
             }
         } else cerr << "unable to cast points message" << endl;
@@ -245,7 +244,11 @@ void Game::doGameUpdate(void) {
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;
-    // draw player
+    for(auto it : m_enemies) {
+        if(gui->getText("nick:"+it.second->getNick()) != nullptr) {
+            gui->getText("nick:"+it.second->getNick())->hide();
+        }
+    }
     for(auto& it : drawables) {
         if(it->isInitialized()) {
             Color l_c = it->getColor();
@@ -262,7 +265,7 @@ void Game::draw(void) {
                 }
                 // put text to its rightfull place
                 gui->getText("nick:"+it->getNick())->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
-                gui->getText("nick:"+it->getNick())->setScale(Engine::camera->getScale()/2)->setAlign(TEXT_ALIGN::CENTER_XY);;
+                gui->getText("nick:"+it->getNick())->setScale(it->getR()/200.0f)->setAlign(TEXT_ALIGN::CENTER_XY);;
             }
         }
     }
@@ -271,7 +274,7 @@ void Game::draw(void) {
     SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), 150, 150, 50);
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos );
     gui->getText(m_player->getNick())->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
-    gui->getText(m_player->getNick())->setScale(Engine::camera->getScale()/2)->setAlign(TEXT_ALIGN::CENTER_XY);
+    gui->getText(m_player->getNick())->setScale(m_player->getR()/200.0f)->setAlign(TEXT_ALIGN::CENTER_XY);
 }
 void Game::end(void) {
     // free memory
