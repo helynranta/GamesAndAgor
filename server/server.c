@@ -462,7 +462,7 @@ int server(char* port) {
           //printf("game update sent\n" );
 
           /* send points */
-          sendPoints(&game, sendbuffer, socketfd, addrlen);
+          sendPoints(&game, sendbuffer, socketfd, addrlen, POINTS);
 
           /* Resend lost msgs */
           resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
@@ -485,7 +485,7 @@ int server(char* port) {
 				}
 
         /* send final points */
-        sendPoints(&game, sendbuffer, socketfd, addrlen);
+        sendPoints(&game, sendbuffer, socketfd, addrlen, GAME_END);
 
         gameDestructor(&game);
 			}
