@@ -340,12 +340,14 @@ Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload
 		uint16_t playerID = UnpackUINT16_T(payload, bufferPosition);
 		bufferPosition += sizeof(uint16_t);
 		pointScoreObject->player_ids.push_back(playerID);
+
 		// Unpack PLAYER_NICK (Char 12)
 		char nickAsChars[12];
 		memset(nickAsChars, '\0', 12);
 		bufferPosition += 12;
 		string playerNick(nickAsChars);
 		pointScoreObject->player_nicks.push_back(playerNick);
+
 		// Unpack PLAYER_POINTS (UINT_16)
 		uint32_t playerPoints = UnpackUINT32_T(payload, bufferPosition);
 		bufferPosition += sizeof(uint32_t);
