@@ -460,7 +460,7 @@ int server(char* port) {
 					/* Send game update to everyone */
 					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
           //printf("game update sent\n" );
-          
+
           /* send points */
           sendPoints(&game, sendbuffer, socketfd, addrlen);
 
@@ -483,6 +483,9 @@ int server(char* port) {
           /*TODO: Move this to ACK::PLAYER_DEADm on receive respawn */
           //respawnPlayers(game.sPlayers);
 				}
+
+        /* send final points */
+        sendPoints(&game, sendbuffer, socketfd, addrlen);
 
         gameDestructor(&game);
 			}

@@ -401,6 +401,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
+	char testName[12];
 	Near *pNear = NULL;
 	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
 	Object *pObj = NULL;
@@ -415,7 +416,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 	switch (msgSubType) {
 		case GAME_END:  // similar to POINTS
 		case POINTS:
-			// Go through the list of players, add the IDs and points to buffer
+			// Go through the list of players, add the IDs, nick, and points to buffer
 			//*(uint16_t*) &pPL[ind] = htons(pGame->nPlayers); ltr to blame, have to calculate by hand
 			ind += sizeof(uint16_t);
 			for(; pPlayer != NULL; pPlayer = pPlayer->pNext, playerCount++){
@@ -586,6 +587,7 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 /* Sends points to everyone */
 void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen){
 	Player *pPla = game->sPlayers;
+	int sent = 0;
 	int plLength;
 	while(pPla != NULL){
 
@@ -593,7 +595,8 @@ void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen){
 		plLength = msgPacker(buf, game, pPla->ID, GAME_MESSAGE, POINTS, 0, 0);
 		/* Send msg */
 		printf("Sended points to player ID: %d\n", pPla->ID);
-		sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
+		sent = sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
+		printf("Sent %d bytes\n", sent);
 		/* Move on to the next player */
 		pPla = pPla->pNext;
 	}
@@ -661,6 +664,7 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
+		printf("Sended %d \n", *(uint8_t*)&ack->msg[11]);
 		ack = ack->pNext;
 	}
 }
