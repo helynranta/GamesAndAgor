@@ -46,7 +46,7 @@ public:
                         Engine::setNick(gui->getInput("nick")->getText());
                         // revert inputs back
                         gui->getText("hint")->setText("Enter username:");
-                        gui->getInput("nick")->setText("");
+                        gui->getInput("nick")->setText("")->show();
                         // ack the ack
                         messageLength = ack->PackSelf(nickbuffer);
                         Engine::connection->send(nickbuffer, messageLength);
@@ -61,7 +61,9 @@ public:
             }
         }
     }
-    inline void end() {}
+    inline void end() {
+
+    }
     inline void draw() {}
 };
 

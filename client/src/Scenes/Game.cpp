@@ -6,14 +6,13 @@
 #include <time.h> // time
 
 void Game::awake(void) {
+    running = true;
     // populate static object list
     m_player = new Player(Engine::getNick(), 50, 50, 50);
     //cout << Engine::getNick() << endl;
     gui->addText("ping", new GUIText());
     chat = new Chat(gui);
-
     srand(time(NULL));
-    //m_enemies.emplace_back(Player("enemy", rand()&255,rand()%255,rand()%255));
     m_player->init();
     //m_enemies[0].init();
     //gui->addText(m_enemies[0].getNick(), new GUIText(Engine::window->getRenderer(), Engine::R->getFont("res/fonts/OpenSans.ttf")));
@@ -42,6 +41,7 @@ void Game::update(float dt) {
         }
         return;
     }
+    if(!running) return;
     // otherwise start by getting input from player
     m_player->update(dt);
     // then update everyone elses positions
@@ -143,6 +143,7 @@ void Game::handleMessages(void) {
                 Engine::connection->disconnect();
                 Engine::startScene("IPDialog");
             });
+            running = false;
         } else cerr << "unable to cast end message" << endl;
     }
     msgs.clear();
@@ -244,11 +245,9 @@ void Game::doGameUpdate(void) {
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;
-
     // draw background
-    l_ppos = Engine::camera->transformToWorldCordinates({32766/2,32766/2,32766,32766});
+    l_ppos = Engine::camera->transformToWorldCordinates({16383/2,16383/2,16383,16383});
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/bg.png"), NULL, &l_ppos);
-
 
     for(auto it : m_enemies) {
         if(gui->getText("nick:"+it.second->getNick()) != nullptr) {
@@ -280,14 +279,15 @@ void Game::draw(void) {
     SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), 150, 150, 50);
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos );
     gui->getText(m_player->getNick())->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
-    gui->getText(m_player->getNick())->setScale(m_player->getR()/200.0f)->setAlign(TEXT_ALIGN::CENTER_XY);
+    gui->getText(m_player->getNick())->setScale(Engine::camera->getScale()/2.0f)->setAlign(TEXT_ALIGN::CENTER_XY);
 }
 void Game::end(void) {
     // free memory
     delete chat;
     delete m_player;
-    for(auto& it : m_statics) delete it.second;
-    for(auto& it : m_enemies) delete it.second;
+
     m_statics.clear();
     m_enemies.clear();
+    drawables.clear();
+    gui->empty();
 }

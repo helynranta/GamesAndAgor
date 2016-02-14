@@ -7,16 +7,7 @@ GUI::GUI (SDL_Renderer* r) : m_renderer(r) {
     //    std::cout << "GUI was initialized with camera pointer leading to NULL" << std::endl;
 }
 GUI::~GUI () {
-    for ( auto& it : m_GUITexts )
-    {
-        delete it.second;
-    }
-    m_GUITexts.empty();
-    for ( auto& it : m_GUIInputs )
-    {
-        delete it.second;
-    }
-    m_GUIInputs.empty();
+    empty();
 }
 void GUI::draw() {
     for ( auto& it : m_GUITexts) {
@@ -33,4 +24,16 @@ void GUI::update() {
     for ( auto& it : m_GUITexts) {
         it.second->update();
     }
+}
+void GUI::empty() {
+    for ( auto& it : m_GUITexts )
+    {
+        if(it.second != nullptr) delete it.second;
+    }
+    m_GUITexts.clear();
+    for ( auto& it : m_GUIInputs )
+    {
+        if(it.second != nullptr) delete it.second;
+    }
+    m_GUIInputs.clear();
 }

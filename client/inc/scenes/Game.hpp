@@ -20,9 +20,9 @@ private:
     Player* m_player;
     map<uint16_t, Circle*> m_enemies;
     map<uint16_t, Circle*> m_statics;
-
     vector<Circle*> drawables;
     Chat* chat = nullptr;
+    bool running = true;
 public:
     inline Game () : Scene() {}
     inline ~Game () {}
