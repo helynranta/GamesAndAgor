@@ -421,6 +421,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 				ind += sizeof(uint16_t);
 				memcpy(&pPL[ind], pPlayer->nick, 12);
 				pPL[ind+11] = '\0';
+				ind += 12;
 				*(uint32_t*) &pPL[ind] = htonl(pPlayer->points);
 				ind += sizeof(uint32_t);
 			}
