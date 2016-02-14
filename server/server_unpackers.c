@@ -87,7 +87,6 @@ struct Packet unpackPacket(char *buf, struct sockaddr *from, int socket, socklen
         case POINTS:
         case PLAYER_DEAD:
         case PLAYER_OUT:
-          printf("PLAYER_OUT ACK\n" );
           return packet;
           break;
         case PING:

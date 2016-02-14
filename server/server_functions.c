@@ -330,7 +330,7 @@ void newPlayer(Game *game, struct Packet packet){
 void respawnPlayer(Player *pPlayer, Player *pList){
 	int isIn = 1;
 	printf("respawn");
-	if(pPlayer->state == EATEN){
+	if(pPlayer->state == DEAD){
 		while(isIn){
 			randomLocation(pPlayer->location);
 			// is inside other player
