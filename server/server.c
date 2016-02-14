@@ -161,6 +161,7 @@ int server(char* port) {
 		int tavut = -2;
     Player *p = NULL;
     int nickStatus;
+    uint32_t pointUpdatet = 0;
 
     gettimeofday(&tStart, NULL);
 		while (!exitFlag && game.gameTime < 180000) {
@@ -461,8 +462,12 @@ int server(char* port) {
 					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
           //printf("game update sent\n" );
 
-          /* send points */
-          sendPoints(&game, sendbuffer, socketfd, addrlen, POINTS);
+          /* send points every 1 second */
+          if((game.gameTime - pointUpdatet) > 1000){
+            sendPoints(&game, sendbuffer, socketfd, addrlen, POINTS);
+            pointUpdatet = game.gameTime;
+          }
+
 
           /* Resend lost msgs */
           resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
