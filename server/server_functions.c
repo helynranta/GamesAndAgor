@@ -586,6 +586,7 @@ void sendGameUpdate(Game *game, char *buf, int socket, socklen_t addrlen){
 /* Sends points to everyone */
 void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen){
 	Player *pPla = game->sPlayers;
+	int sent = 0;
 	int plLength;
 	while(pPla != NULL){
 
@@ -593,7 +594,8 @@ void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen){
 		plLength = msgPacker(buf, game, pPla->ID, GAME_MESSAGE, POINTS, 0, 0);
 		/* Send msg */
 		printf("Sended points to player ID: %d\n", pPla->ID);
-		sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
+		sent = sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
+		printf("Sent %d bytes\n", sent);
 		/* Move on to the next player */
 		pPla = pPla->pNext;
 	}
@@ -661,6 +663,7 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
+		printf("Sended %d \n", *(uint8_t*)&ack->msg[11]);
 		ack = ack->pNext;
 	}
 }
