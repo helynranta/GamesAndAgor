@@ -127,11 +127,11 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 
 	// RECTANGLE
-	deltaY = abs(loc1[1] - loc2[1]) + floor(sca2/2);
-	deltaX = abs(loc1[0] - loc2[0]) + floor(sca2/2);
+	deltaY = labs(loc1[1] - loc2[1]) + floor(sca2/2);
+	deltaX = labs(loc1[0] - loc2[0]) + floor(sca2/2);
 
 	/* Euclidean distance between players */
-  eucl = sqrt(pow(abs(loc1[1] - loc2[1]),2) + pow(abs(loc1[0] - loc2[0]),2));
+  eucl = sqrt(pow(labs(loc1[1] - loc2[1]),2) + pow(labs(loc1[0] - loc2[0]),2));
 
 	if (eucl <  sca1 && sca1 > sca2)
         return -1;
@@ -421,7 +421,6 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
-	char testName[12];
 	Near *pNear = NULL;
 	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
 	Object *pObj = NULL;

@@ -28,7 +28,7 @@ return 0;
 
 int server(char* port) {
   signal(SIGINT, signalHandler);
-  int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes, tmpPlayerID;
+  int socketfd = -1, activity, fdmax, listener = -2, newfd, nbytes;
 	fd_set readset, master;
 	struct timeval tvSelect, tvUpdate1, tvUpdate2;
 	long time1, time2;
@@ -49,7 +49,6 @@ int server(char* port) {
 	char sendbuffer[SIZE] = {0};
   char tcpbuffer[SIZE] = {0};
 	int yes = 1;
-  int tavut;
 
   socklen_t addrlen = 0;
   unsigned int optval = 0;
@@ -356,7 +355,7 @@ int server(char* port) {
                       printf("Couldn't find Player id %d from ACK::PLAYER_DEAD packet\n", packet.ID);
                       break;
                     }
-                    respawnPlayer(p, &game.sPlayers);
+                    respawnPlayer(p, game.sPlayers);
                   }
 
 									/* remove ack from server's own ack list */
