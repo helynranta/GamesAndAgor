@@ -27,8 +27,8 @@ void Circle::update() {
 		// dont let m_x and m_y get over uint16_t boundaries
 		if(m_sx < m_sr) m_sx = m_sr;
 		if(m_sy < m_sr) m_sy = m_sr;
-		if(m_sx > 16383-m_sr) m_sx = 16383-m_sr;
-		if(m_sy > 16383-m_sr) m_sy = 16383-m_sr;
+		if(m_sx > 8191-m_sr) m_sx = 8191-m_sr;
+		if(m_sy > 8191-m_sr) m_sy = 8191-m_sr;
 	}
 	m_destRect = {
 		int(m_x), int(m_y),        		// make center of circle true center of drawed texture

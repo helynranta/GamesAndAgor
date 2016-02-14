@@ -196,7 +196,7 @@ void InetConnection::calculatePing() {
 	}
 }
 int InetConnection::checkTCPConnection() {
-// if connecting tcp
+	// if connecting tcp
 	char buffer[BUFFER_SIZE];
 	memset(buffer, '\0', BUFFER_SIZE);
 	if(m_state == ConnectionState::DISCONNECTED) return 0;
@@ -348,7 +348,7 @@ int InetConnection::checkUDPConnections() {
 						pings.push_back(SDL_GetTicks() - header->gameTime);
 					}
 					return false;
-				}
+				} else serverTime = header->gameTime - getPing();
 
 				unpackedMessage = MessageFactory::getInstance().getMessageByType(header, payloadBuffer);
 				break;
