@@ -46,6 +46,7 @@ void checkEaten(Game *pGame, int udpFD, socklen_t addrlen);
 int sendAllTCP(int socket, char *buf, int *length);
 void resendMsg(int socket, socklen_t addrlen, Ack **ackList,Player *players);
 void informTheDead(Game *game, char *buf, int socket, socklen_t addrlen);
+void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen);
 
 
 /* PACKING FUNCTIONS */

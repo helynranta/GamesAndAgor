@@ -163,7 +163,7 @@ int server(char* port) {
     int nickStatus;
 
     gettimeofday(&tStart, NULL);
-		while (!exitFlag) {
+		while (!exitFlag && game.gameTime < 180000) {
       gettimeofday(&tNow, NULL);
       game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
           round((tNow.tv_usec-tStart.tv_usec)/1000));
@@ -460,10 +460,16 @@ int server(char* port) {
 					/* Send game update to everyone */
 					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
           //printf("game update sent\n" );
+          
+          /* send points */
+          sendPoints(&game, sendbuffer, socketfd, addrlen);
 
           /* Resend lost msgs */
           resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
 					}
+
+
+
 					gettimeofday(&tvUpdate2, NULL);
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
 
