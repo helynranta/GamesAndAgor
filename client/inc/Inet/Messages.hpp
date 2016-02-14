@@ -290,11 +290,9 @@ class Points: public GameMessage {
 
 		static Points * Unpack(MessageHeader, uint32_t, uint8_t*);
 
-		inline map<int, int> getPoints() {return pointsMap;}
-	private:
-		std::vector<int> player_ids;
-		std::vector<int> player_points;
-		map<int, int> pointsMap;
+		vector<int> player_ids;
+		vector<string> player_nicks;
+		vector<int> player_points;
 };
 
 // =========  GAME_END =========  //

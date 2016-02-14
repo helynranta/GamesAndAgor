@@ -342,20 +342,25 @@ Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload
 	for (int i = 0; i < player_count; i++) {
 		uint16_t player_id;
 		uint32_t player_point;
+		string player_nick;
 
 		memcpy(&player_id, payload, sizeof(uint16_t));
 		readByteCount += sizeof(uint16_t);
 		pointScoreObject->player_ids.push_back(ntohs(player_id));
-		readByteCount += sizeof(uint16_t);
 
+		memcpy(&player_nick, payload, sizeof(char)*12);
+		readByteCount += sizeof(char)*12;
+		pointScoreObject->player_nicks.push_back(player_nick);
+
+		readByteCount += sizeof(uint16_t);
 		memcpy(&player_id, payload, sizeof(uint16_t));
 		pointScoreObject->player_points.push_back(ntohl(player_point));
+
 		readByteCount += sizeof(uint32_t);
 		#ifdef MESG_TEST
-			std::cout << "Message.cpp: Player " << player_id << " got " << player_point << " points." << std::endl;
+			std::cout << "Message.cpp: Player " << player_id << " got " <<
+			": " << player_nick << " got" << player_point << " points." << std::endl;
 		#endif
-
-		pointScoreObject->pointsMap.insert({player_id, player_point});
 	}
 	return pointScoreObject;
 }
