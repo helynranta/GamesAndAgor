@@ -402,7 +402,7 @@ int Move::PackSelf(uint8_t * payload) {
 
 	CreateHeader(this, payload);
 	#ifdef MESG_TEST
-		std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
+//		std::cout << "Whole message size: " << bufferPosition << " and shit: " << this->getPayloadSize() << std::endl;
 	#endif
 	return bufferPosition;
 }
