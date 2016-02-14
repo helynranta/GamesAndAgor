@@ -62,6 +62,14 @@ int uliuli (){
     return dist6(rng);
 }
 
+void releaseVector(vector<Message*> vector){
+	for(int i = 0; i < vector.size(); i++){
+		delete vector[i];
+	}
+	vector.clear();
+}
+
+
 void TestMessagesLoop(string ip_addr) {
 	cout << "USING MESSAGE TEST LOOP" << endl;
 	testStates = TEST_STATES::JOINING;
@@ -92,7 +100,6 @@ void TestMessagesLoop(string ip_addr) {
 				testStates == TEST_STATES::NICKING ||
 				testStates == TEST_STATES::NICKING_ACK
 				) {
-
 
 
 			messages = connection->getMessagesOfType(MESSAGE_TYPE::ACK);
@@ -130,6 +137,7 @@ void TestMessagesLoop(string ip_addr) {
 						printGameStateAsString();
 					}
 				}
+				releaseVector(messages);
 				continue;
 			}
 		}
@@ -166,11 +174,12 @@ void TestMessagesLoop(string ip_addr) {
 			}
 
 			messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_DEAD);
-		if (messages.size() > 0) {
-			PlayerDead* playerDeadMessage = static_cast<PlayerDead*>(messages.front());
-			memset(testBuffer, 0, BUFFER_SIZE);
-			std::cout << "Main.cpp - PlayerDead - ID: " << playerDeadMessage->getPlayerID() << std::endl;
-		}
+			if (messages.size() > 0) {
+				PlayerDead* playerDeadMessage = static_cast<PlayerDead*>(messages.front());
+				memset(testBuffer, 0, BUFFER_SIZE);
+				std::cout << "Main.cpp - PlayerDead - ID: " << playerDeadMessage->getPlayerID() << std::endl;
+				releaseVector(messages);
+			}
 
 
 
@@ -185,27 +194,30 @@ void TestMessagesLoop(string ip_addr) {
 //					std::cout << "Main.cpp - GameUpdate - Dir_Y: " << gamemessage->getDirY() << std::endl;
 //					std::cout << "Main.cpp - GameUpdate - NumberOfObjects: " << gamemessage->getNumberOfObjects() << std::endl;
 //					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
-					vector<GamePlayer*> gamePlayers = gamemessage->getGamePlayers();
-					for (auto& gamePlayer : gamePlayers) {
+//					vector<GamePlayer*> gamePlayers = gamemessage->getGamePlayers();
+//					for (auto& gamePlayer : gamePlayers) {
 //						std::cout << "Main.cpp - GameUpdate - Players(" << ") posX:" << gamePlayer->getPosX() << " posY: " << gamePlayer->getPosY() << " size:" << gamePlayer->getSize()  << std::endl;
 
-					}
+//					}
 
-					vector<GameObject*> gameObjects = gamemessage->getGameObjects();
-					for (auto& gameObject : gameObjects) {
+//					vector<GameObject*> gameObjects = gamemessage->getGameObjects();
+//					for (auto& gameObject : gameObjects) {
 //						std::cout << "Main.cpp - GameUpdate - Object(" << gameObject->getObjectID() << ") posX:" << gameObject->getLocX() << " posY: " << gameObject->getLocY() << std::endl;
-					}
+//					}
 				}
+				releaseVector(messages);
 			}
 		}
+
 		messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::POINTS);
 		if (messages.size() > 0) {
 			for (auto& update : messages) {
 				Points* pointsMessage = static_cast<Points*>(update);
-//				std::cout << "Main.cpp - GameUpdate - Points: ID:" << pointsMessage->getPlayerIDs().front() <<
-//						" nick: " << pointsMessage->getPlayerNicks().front() <<
-//						" points:" << pointsMessage->getPlayerPoints().front() << std::endl;
+				std::cout << "Main.cpp - GameUpdate - Points: ID:" << pointsMessage->getPlayerIDs().front() <<
+						" nick: " << pointsMessage->getPlayerNicks().front() <<
+						" points:" << pointsMessage->getPlayerPoints().front() << std::endl;
 			}
+			releaseVector(messages);
 		}
 
 		if (testStates == TEST_STATES::GAME_ENDING) {
@@ -230,6 +242,7 @@ void TestMessagesLoop(string ip_addr) {
 				connection->send(testBuffer, messageSize);
 				connection->send(testBuffer, messageSize);
 				connection->send(testBuffer, messageSize);
+				releaseVector(messages);
 				exit(0);
 			}
 		}
