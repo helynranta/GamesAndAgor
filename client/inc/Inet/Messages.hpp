@@ -300,7 +300,7 @@ class Points: public GameMessage {
 // =========  GAME_END =========  //
 class GameEnd: public GameMessage {
 	public:
-		// Constructor & Destructor
+		// Constructor & Deconstructor
 		inline GameEnd(MessageHeader header, Points* pPoints) :
 				GameMessage(header, GAME_MESSAGE_TYPE::GAME_END) {
 			points = pPoints;
