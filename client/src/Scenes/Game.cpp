@@ -53,8 +53,8 @@ void Game::update(float dt) {
     handleMessages();
     // print ping and player position for player
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
-    //gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
-    gui->getText("player-pos")->setText("R: "+to_string(m_player->getSR()));
+    gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
+    //gui->getText("player-pos")->setText("R: "+to_string(m_player->getSR()));
     // this is how camera behaves in real gameplay (now in use)
     Engine::camera->setPos(m_player->getX(), m_player->getY());
     Engine::camera->setScale(float(m_player->getR())/100);
@@ -244,6 +244,12 @@ void Game::doGameUpdate(void) {
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;
+
+    // draw background
+    l_ppos = Engine::camera->transformToWorldCordinates({32766/2,32766/2,32766,32766});
+    SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/bg.png"), NULL, &l_ppos);
+
+
     for(auto it : m_enemies) {
         if(gui->getText("nick:"+it.second->getNick()) != nullptr) {
             gui->getText("nick:"+it.second->getNick())->hide();

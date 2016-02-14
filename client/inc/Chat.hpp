@@ -30,8 +30,9 @@ public:
 
 	inline const void addLog(const string& msg) {
 		// pubblecum solution for recieving dublicate messages
-		if(msg == dynamic_cast<GUIText*>(chatlog.back())->getText()) return;
-
+		if(chatlog.size()>0){
+			if(msg == dynamic_cast<GUIText*>(chatlog.back())->getText()) return;
+		}
 		gui->addText("chatlog"+to_string(++msg_index), new GUIText());
 		chatlog.push_back(
 				gui->getText("chatlog"+to_string(msg_index))
