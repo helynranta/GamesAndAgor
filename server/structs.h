@@ -17,7 +17,7 @@
 #define SCREEN_Y 600
 #define OBJ_SIZE 40
 #define PLA_SIZE 100
-#define GROWTH_FACTOR 15
+#define GROWTH_FACTOR 5
 
 
 /*
