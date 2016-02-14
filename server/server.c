@@ -165,6 +165,7 @@ int server(char* port) {
 
     gettimeofday(&tStart, NULL);
 		while (!exitFlag && game.gameTime < gameLength) {
+      printf("Game-looppi alkaa\n");
       gettimeofday(&tNow, NULL);
       game.gameTime = (uint32_t)((tNow.tv_sec-tStart.tv_sec)*1000 +
           round((tNow.tv_usec-tStart.tv_usec)/1000));
@@ -262,7 +263,9 @@ int server(char* port) {
                       /** Tämä oli ennen, nyt tuo ylempimake */
                       newPlayer(&game, packet);
                       game.nPlayers++;
+                      printf(">msgPacker\n");
                       plLength = msgPacker(sendbuffer, &game, game.nPlayers, ACK, JOIN, 0,1);
+                      printf("msgPacker>\n");
                       //if(plLength < 0) printf("Payload length error\n");
                       tavut = sendto(socketfd, sendbuffer, plLength, 0, &packet.senderAddr, addrlen);
                       printf("Lähetettiin clientille JOIN ACK: \n");
@@ -339,8 +342,9 @@ int server(char* port) {
 									/* Handle ack */
 
                   if(packet.ACKTYPE == NICK) {
-
+                    printf(">getPlayer345\n");
                     p = getPlayer(packet.ID, game.sPlayers);
+                    printf("getPlayer345>\n");
                     if(p == NULL) {
                       printf("Couldn't find Player id %d from ACK::NICK packet\n", packet.ID);
                       break;
@@ -350,18 +354,22 @@ int server(char* port) {
                   }
 
                   else if(packet.ACKTYPE == PLAYER_DEAD) {
-
+                    printf(">getPlayer358\n");
                     p = getPlayer(packet.ID, game.sPlayers);
+                    printf("getPlayer358>\n");
                     if(p == NULL) {
                       printf("Couldn't find Player id %d from ACK::PLAYER_DEAD packet\n", packet.ID);
                       break;
                     }
+                    printf(">respawnPlayer\n");
                     respawnPlayer(p, game.sPlayers);
+                    printf("respawnPlayer>\n");
                   }
 
 									/* remove ack from server's own ack list */
+                  printf(">removeAck\n");
 									removeAck(&game.sAcks, packet.ackID);
-
+                  printf("removeAck>\n");
 									break;
 
 								// Player movement packet
@@ -370,7 +378,9 @@ int server(char* port) {
 									/* Do game functions:
 									calculate nearby objects etc. */
 									/* update player's position */
+                  printf(">getPlayer382\n");
 									p = getPlayer(packet.ID, game.sPlayers);
+                  printf("getPlayer382>\n");
                   if(p == NULL) {
                     //printf("Couldn't get player, case PLAYER_MOVEMENT\n");
                     break;
@@ -447,8 +457,9 @@ int server(char* port) {
 					}
 				}
 				/* Do game functions */
+        printf(">ComputeNearParticles\n");
 				ComputeNearParticles(game.sPlayers, &game.sObjects);
-
+        printf("ComputeNearParticles>\n");
 				/* If player eaten inform the player and others? */
 
 
@@ -459,19 +470,25 @@ int server(char* port) {
 					time1 = tvUpdate1.tv_sec * 1000 + tvUpdate1.tv_usec / 1000;
 
 					/* Send game update to everyone */
+          printf(">sendGameUpdate\n");
 					sendGameUpdate(&game, sendbuffer, socketfd, addrlen);
+          printf("sendGameUpdate>\n");
           //printf("game update sent\n" );
 
           /* send points every 1 second */
           if((game.gameTime - pointUpdatet) > 1000){
+            printf(">sendPoints\n");
             sendPoints(&game, sendbuffer, socketfd, addrlen, POINTS);
+            printf("sendPoints>\n");
             pointUpdatet = game.gameTime;
           }
 
 
           /* Resend lost msgs */
+          printf(">resendMsg489\n");
           resendMsg(socketfd, addrlen, &game.sAcks, game.sPlayers);
-					}
+          printf("resendMsg489>\n");
+        }
 
 
 
@@ -479,10 +496,15 @@ int server(char* port) {
 					time2 = tvUpdate2.tv_sec * 1000 + tvUpdate2.tv_usec / 1000;
 
           /* Delete timed out players */
+          printf(">checkTimeOut\n");
           checkTimeOut(&game, sendbuffer, socketfd, addrlen);
+          printf("checkTimeOut>\n");
+
 
           /* inform dead players about their death (unfortunate faith) */
+          printf(">informTheDead\n");
           informTheDead(&game, sendbuffer, socketfd, addrlen);
+          printf("informTheDead>\n");
 
           /* respawn dead players */
           /*TODO: Move this to ACK::PLAYER_DEADm on receive respawn */
