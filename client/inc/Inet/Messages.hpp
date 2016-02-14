@@ -9,6 +9,7 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <map>
 
 #define BUFFER_SIZE 15000
 #define HEADER_SIZE 88
@@ -286,9 +287,12 @@ class Points: public GameMessage {
 		int PackSelf(uint8_t * payload);
 
 		static Points * Unpack(MessageHeader, uint32_t, uint8_t*);
+
+		inline map<int, int> getPoints() {return pointsMap;}
 	private:
 		std::vector<int> player_ids;
 		std::vector<int> player_points;
+		map<int, int> pointsMap;
 };
 
 // =========  GAME_END =========  //
@@ -308,7 +312,7 @@ class GameEnd: public GameMessage {
 		inline int PackSelf(uint8_t * payload) {
 			return 0;
 		};
-
+		inline const Points& getPoints() {return *points;}
 	private:
 		Points * points;
 };

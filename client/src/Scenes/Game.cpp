@@ -102,7 +102,9 @@ void Game::updateChat(void) {
 }
 void Game::handleMessages(void) {
     doGameUpdate();
-    vector<Message*> msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_DEAD);
+    vector<Message*> msgs;
+    // handle dying
+    msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::PLAYER_DEAD);
     if(msgs.size()) {
         PlayerDead* death = dynamic_cast<PlayerDead*>(msgs.back());
         if(death != nullptr) {
@@ -123,6 +125,36 @@ void Game::handleMessages(void) {
             });
         } else cerr << "unable to cast död message" << endl;
     }
+    msgs.clear();
+    // handle game end
+    msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::GAME_END);
+    if(msgs.size()) {
+        cout << "game is over" << endl;
+        GameEnd* end = dynamic_cast<GameEnd*>(msgs.back());
+        if(end != nullptr) {
+            Points p = end->getPoints();
+
+            gui->getText("main-game-hint")->setText("Game ended, someone won");
+            // just wait a sec and then jump right back to menu
+            Engine::setTimeout(2000, [this]() {
+                Engine::connection->disconnect();
+                Engine::startScene("IPDialog");
+            });
+        } else cerr << "unable to cast end message" << endl;
+    }
+    msgs.clear();
+    // handle new points messages
+    msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::POINTS);
+    if(msgs.size()) {
+        cout << "got some points" << endl;
+        // implement when ready
+        /*Points* p = dynamic_cast<Points*>(msgs.back());
+        if(p != nullptr) {
+            map<int, int> pm = p->getPoints();
+        } else cerr << "unable to cast points message" << endl;
+        */
+    }
+    msgs.clear();
 }
 void Game::doGameUpdate(void) {
     // handle game update messages
