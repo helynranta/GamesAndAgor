@@ -401,6 +401,7 @@ int msgPacker(char *msgBuffer, Game *pGame, uint16_t toPlayerID, int msgType, ui
 
 int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubType, uint16_t outPlayerID){
 	int ind = 0, nPlayers = 0, nObjects = 0, indNPla, indNObj;
+	char testName[12];
 	Near *pNear = NULL;
 	Player *pPlayer = pGame->sPlayers, *pPla = NULL;
 	Object *pObj = NULL;
@@ -415,7 +416,7 @@ int gameMsgPacker(char *pPL, Game *pGame, uint16_t toPlayerID, uint8_t msgSubTyp
 	switch (msgSubType) {
 		case GAME_END:  // similar to POINTS
 		case POINTS:
-			// Go through the list of players, add the IDs and points to buffer
+			// Go through the list of players, add the IDs, nick, and points to buffer
 			//*(uint16_t*) &pPL[ind] = htons(pGame->nPlayers); ltr to blame, have to calculate by hand
 			ind += sizeof(uint16_t);
 			for(; pPlayer != NULL; pPlayer = pPlayer->pNext, playerCount++){
