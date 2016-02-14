@@ -10,6 +10,8 @@
 #include <iostream>
 #include <cstring>
 
+using namespace std;
+
 #define BUFFER_SIZE 15000
 #define HEADER_SIZE 88
 
@@ -295,11 +297,13 @@ class Points: public GameMessage {
 class GameEnd: public GameMessage {
 	public:
 		// Constructor & Destructor
-		inline GameEnd(MessageHeader header, Points * pPoints) :
-			GameMessage(header, GAME_MESSAGE_TYPE::GAME_END) {
+		inline GameEnd(MessageHeader header, Points* pPoints) :
+				GameMessage(header, GAME_MESSAGE_TYPE::GAME_END) {
 			points = pPoints;
 		};
-		inline ~GameEnd() {};
+		inline ~GameEnd() {
+			delete points;
+		};
 
 		inline static GameEnd * Unpack(MessageHeader header, uint32_t lenght, uint8_t * payload) {
 			return new GameEnd(header, Points::Unpack(header, lenght, payload));
@@ -309,8 +313,12 @@ class GameEnd: public GameMessage {
 			return 0;
 		};
 
+		inline Points* getPoints(){
+			return points;
+		}
+
 	private:
-		Points * points;
+		Points* points;
 };
 
 // =========  PLAYER_DEAD =========  //
