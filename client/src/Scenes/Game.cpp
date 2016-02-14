@@ -149,7 +149,6 @@ void Game::handleMessages(void) {
     // handle new points messages
     msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::POINTS);
     if(msgs.size()) {
-        cout << "got some points" << endl;
         // implement when ready
         Points* p = dynamic_cast<Points*>(msgs.back());
         if(p != nullptr) {
@@ -255,16 +254,17 @@ void Game::draw(void) {
             SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), l_c.r, l_c.g, l_c.b);
             SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos);
             // if we got name of this player already
-            if(it->getNick().size()) {
+            if(it->getNick().size() && !it->isObjStatic()) {
                 // if gui object has not been created
                 if(gui->getText("nick:"+it->getNick()) == nullptr) {
                     gui->addText("nick:"+it->getNick(), new GUIText());
-                    gui->getText(it->getNick())->setText(it->getNick());
-                    gui->getText(it->getNick())->setAlign(TEXT_ALIGN::CENTER_XY);
+                    gui->getText("nick:"+it->getNick())->setText(it->getNick());
+                    gui->getText("nick:"+it->getNick())->setAlign(TEXT_ALIGN::CENTER_XY);
                 }
                 // put text to its rightfull place
-                gui->getText("nick:"+it->getNick())->setPos(l_ppos.x+l_ppos.w/3, l_ppos.y+l_ppos.h/2.4)->show();
-                gui->getText("nick:"+it->getNick())->setScale(0.5f/Engine::camera->getScale());
+                gui->getText("nick:"+it->getNick())->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
+                gui->getText("nick:"+it->getNick())->setScale(Engine::camera->getScale()/2)->setAlign(TEXT_ALIGN::CENTER_XY);;
+
             }
         }
     }
@@ -272,8 +272,8 @@ void Game::draw(void) {
     l_ppos = Engine::camera->transformToWorldCordinates(m_player->getDestRect());
     SDL_SetTextureColorMod(Engine::R->getTexture("res/circle.png"), 150, 150, 50);
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/circle.png"), NULL, &l_ppos );
-    gui->getText(m_player->getNick())->setPos(l_ppos.x+l_ppos.w/3, l_ppos.y+l_ppos.h/2.4)->show();
-    gui->getText(m_player->getNick())->setScale(0.5f/Engine::camera->getScale());
+    gui->getText(m_player->getNick())->setPos(l_ppos.x+l_ppos.w/2, l_ppos.y+l_ppos.h/2)->show();
+    gui->getText(m_player->getNick())->setScale(Engine::camera->getScale()/2)->setAlign(TEXT_ALIGN::CENTER_XY);
 }
 void Game::end(void) {
     // free memory

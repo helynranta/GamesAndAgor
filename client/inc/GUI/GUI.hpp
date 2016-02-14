@@ -42,7 +42,7 @@ public:
         if(it != m_GUITexts.end()) {
             return it->second;
         }
-        else std::cout << "no element found in gui by name " << name << std::endl;
+        else cout << "no element found in gui by name " << name << endl;
         return nullptr;
     }
     inline GUIInput* getInput(const string& name) {
