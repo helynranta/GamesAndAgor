@@ -174,7 +174,7 @@ void TestMessagesLoop(string ip_addr) {
 
 
 
-			messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE);
+			messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::GAME_UPDATE);
 			if (messages.size() > 0) {
 				for (auto& update : messages) {
 					GameUpdate* gamemessage = static_cast<GameUpdate*>(update);
@@ -210,11 +210,11 @@ void TestMessagesLoop(string ip_addr) {
 				std::cout << "Main.cpp - EXITING: Game ended by user" << std::endl;
 				PlayerOut* playerOut = static_cast<PlayerOut*>(messages.front());
 				PlayerOutAck playerOutAck = PlayerOutAck(connection->createDummyHeader(playerOut->getMessageHeaderUserID(), 0, MESSAGE_TYPE::ACK, 0), playerOut->getMessageHeaderUserID());
-				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getAckMessagePackerID() << std::endl;
-				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getGameTime() << std::endl;
-				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getMessageHeaderUserID() << std::endl;
-				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << getSubMessageTypeAsString(playerOutAck.getGameMessageType()) << std::endl;
-				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << getMessageTypeAsString(playerOutAck.getMessageType())<< std::endl;
+//				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getAckMessagePackerID() << std::endl;
+//				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getGameTime() << std::endl;
+//				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << playerOutAck.getMessageHeaderUserID() << std::endl;
+//				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << getSubMessageTypeAsString(playerOutAck.getGameMessageType()) << std::endl;
+//				std::cout << "Main.cpp - EXITING- PlayerOutAck: " << getMessageTypeAsString(playerOutAck.getMessageType())<< std::endl;
 				// Send three messages so most likely at least one will get there
 				memset(testBuffer, 0, BUFFER_SIZE);
 				int messageSize = playerOutAck.PackSelf(testBuffer);

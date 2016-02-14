@@ -57,6 +57,7 @@ public:
 
     inline Vector2d getDir() const { return m_dir; }
     inline const string& getNick() const { return nick; }
+    inline void setNick(const string& n) {nick = n;}
 
     inline void setSPos (int x, int y, float t) {
         if(!initialized) setPos(x,y);

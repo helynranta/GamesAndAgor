@@ -330,37 +330,39 @@ int GameUpdate::PackSelf(uint8_t * payload) {
 //======= POINTS ========//
 Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	Points * pointScoreObject = new Points(header);
-	int readByteCount = 0;
+	int bufferPosition = 0;
 
-	// Unpack player count (UINT_16)
-	uint16_t player_count;
-	memcpy(&player_count, payload, sizeof(uint16_t));
-	//	std::cout << "Message.cpp: Point object count" << player_count << std::endl;
-	readByteCount += sizeof(uint16_t);
+	// Unpack PLAYER_COUNT (UINT_16)
+	uint16_t playerCount = UnpackUINT16_T(payload, bufferPosition);
+	bufferPosition += sizeof(uint16_t);
+
+
+
 
 	// Unpack player id and points to vector(UINT_16 and UINT_32)
-	for (int i = 0; i < player_count; i++) {
-		uint16_t player_id;
-		uint32_t player_point;
-		string player_nick;
+	for (int i = 0; i < playerCount; i++) {
 
-		memcpy(&player_id, payload, sizeof(uint16_t));
-		readByteCount += sizeof(uint16_t);
-		pointScoreObject->player_ids.push_back(ntohs(player_id));
+		// Unpack PLAYER_COUNT (UINT_16)
+		uint16_t playerID = UnpackUINT16_T(payload, bufferPosition);
+		bufferPosition += sizeof(uint16_t);
+		pointScoreObject->player_ids.push_back(playerID);
 
-		memcpy(&player_nick, payload, sizeof(char)*12);
-		readByteCount += sizeof(char)*12;
-		pointScoreObject->player_nicks.push_back(player_nick);
+		// Unpack PLAYER_NICK (Char 12)
+		char nickAsChars[12];
+		memset(&nickAsChars, '\0', 12);
+		memcpy(&nickAsChars, payload, 12);
+		bufferPosition += 12;
+		string playerNick(nickAsChars);
+		pointScoreObject->player_nicks.push_back(playerNick);
 
-		readByteCount += sizeof(uint16_t);
-		memcpy(&player_id, payload, sizeof(uint16_t));
-		pointScoreObject->player_points.push_back(ntohl(player_point));
 
-		readByteCount += sizeof(uint32_t);
-		#ifdef MESG_TEST
-			std::cout << "Message.cpp: Player " << player_id << " got " <<
-			": " << player_nick << " got" << player_point << " points." << std::endl;
-		#endif
+		// Unpack PLAYER_POINTS (UINT_16)
+		uint32_t playerPoints = UnpackUINT32_T(payload, bufferPosition);
+		bufferPosition += sizeof(uint32_t);
+		pointScoreObject->player_points.push_back(playerPoints);
+
+			std::cout << "Message.cpp: Points " << playerID << " got " <<
+			": " << playerNick << " got" << playerPoints << " points." << std::endl;
 	}
 	return pointScoreObject;
 }
