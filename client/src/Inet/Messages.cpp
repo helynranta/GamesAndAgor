@@ -340,21 +340,23 @@ Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload
 		uint16_t playerID = UnpackUINT16_T(payload, bufferPosition);
 		bufferPosition += sizeof(uint16_t);
 		pointScoreObject->player_ids.push_back(playerID);
+
 		// Unpack PLAYER_NICK (Char 12)
 		char nickAsChars[12];
-		memset(&nickAsChars, '\0', 12);
-		memcpy(&nickAsChars, payload, 12);
+		memset(nickAsChars, '\0', 12);
 		bufferPosition += 12;
 		string playerNick(nickAsChars);
 		pointScoreObject->player_nicks.push_back(playerNick);
+
 		// Unpack PLAYER_POINTS (UINT_16)
 		uint32_t playerPoints = UnpackUINT32_T(payload, bufferPosition);
 		bufferPosition += sizeof(uint32_t);
 		pointScoreObject->player_points.push_back(playerPoints);
+
 		#ifdef MESG_TEST
-			std::cout << "Message.cpp: Points " << playerID << " got " <<
-			": " << playerNick << " got" << playerPoints << " points." << std::endl;
+		//		std::cout << "Message.cpp: Points::UnPack ID: " << playerID << " playerNick: " << playerNick << " playerPoints: " << playerPoints << std::endl;
 		#endif
+
 	}
 	return pointScoreObject;
 }

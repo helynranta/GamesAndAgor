@@ -154,7 +154,7 @@ void TestMessagesLoop(string ip_addr) {
 				continue;
 			}
 
-			if(loopCounter == 20){
+			if(loopCounter == 200){
 				testStates = TEST_STATES::EXITING_GAME;
 				printGameStateAsString();
 				Exit exitMessage = Exit(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::GAME_MESSAGE, 0));
@@ -187,7 +187,7 @@ void TestMessagesLoop(string ip_addr) {
 //					std::cout << "Main.cpp - GameUpdate - NumberOfPlayers: " << unsigned(gamemessage->getNumberOfPlayers()) << std::endl;
 					vector<GamePlayer*> gamePlayers = gamemessage->getGamePlayers();
 					for (auto& gamePlayer : gamePlayers) {
-						std::cout << "Main.cpp - GameUpdate - Players(" << ") posX:" << gamePlayer->getPosX() << " posY: " << gamePlayer->getPosY() << " size:" << gamePlayer->getSize()  << std::endl;
+//						std::cout << "Main.cpp - GameUpdate - Players(" << ") posX:" << gamePlayer->getPosX() << " posY: " << gamePlayer->getPosY() << " size:" << gamePlayer->getSize()  << std::endl;
 
 					}
 
@@ -196,6 +196,15 @@ void TestMessagesLoop(string ip_addr) {
 //						std::cout << "Main.cpp - GameUpdate - Object(" << gameObject->getObjectID() << ") posX:" << gameObject->getLocX() << " posY: " << gameObject->getLocY() << std::endl;
 					}
 				}
+			}
+		}
+		messages = connection->getMessagesOfType(MESSAGE_TYPE::GAME_MESSAGE, GAME_MESSAGE_TYPE::POINTS);
+		if (messages.size() > 0) {
+			for (auto& update : messages) {
+				Points* pointsMessage = static_cast<Points*>(update);
+//				std::cout << "Main.cpp - GameUpdate - Points: ID:" << pointsMessage->getPlayerIDs().front() <<
+//						" nick: " << pointsMessage->getPlayerNicks().front() <<
+//						" points:" << pointsMessage->getPlayerPoints().front() << std::endl;
 			}
 		}
 

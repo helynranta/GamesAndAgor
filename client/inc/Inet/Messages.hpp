@@ -282,13 +282,25 @@ class Restart: public GameMessage {
 // =========  POINTS =========  //
 class Points: public GameMessage {
 	public:
-		// Constructor & Destructor
+		// Constructor & Deconstructor
 		inline Points(MessageHeader header) : GameMessage(header, GAME_MESSAGE_TYPE::POINTS) {};
 		inline ~Points() {};
 
 		int PackSelf(uint8_t * payload);
 
 		static Points * Unpack(MessageHeader, uint32_t, uint8_t*);
+
+		inline vector<int> getPlayerIDs(){
+			return player_ids;
+		}
+
+		inline vector<string> getPlayerNicks(){
+			return player_nicks;
+		}
+
+		inline vector<int> getPlayerPoints(){
+			return player_points;
+		}
 
 		vector<int> player_ids;
 		vector<string> player_nicks;
