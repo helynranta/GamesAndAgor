@@ -9,7 +9,18 @@
 vector<Message*> messages;
 
 InetConnection::InetConnection() {}
-InetConnection::~InetConnection() {}
+
+InetConnection::~InetConnection() {
+	for(uint32_t i = 0; i < messageInbox.size(); i++){
+		delete messageInbox[i];
+	}
+	messageInbox.clear();
+
+	for(uint32_t i = 0; i < m_outgoing.size(); i++){
+		delete m_outgoing[i];
+	}
+	m_outgoing.clear();
+}
 void InetConnection::init(void) {
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;

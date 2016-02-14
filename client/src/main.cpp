@@ -162,7 +162,7 @@ void TestMessagesLoop(string ip_addr) {
 				continue;
 			}
 
-			if(loopCounter == 200){
+			if(loopCounter == 100){
 				testStates = TEST_STATES::EXITING_GAME;
 				printGameStateAsString();
 				Exit exitMessage = Exit(connection->createDummyHeader(connection->getID(), 0, MESSAGE_TYPE::GAME_MESSAGE, 0));
