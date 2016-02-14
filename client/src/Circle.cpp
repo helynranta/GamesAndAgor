@@ -12,7 +12,6 @@ void Circle::update() {
 	if(!isStatic) {
 		m_speed = 20 / (m_r/60)/2;
 		if(abs(m_sx-m_x)>100 || abs(m_sy-m_y)>100) {
-			cout << "something should happen" << endl;
 			m_x = m_sx;
 			m_y = m_sy;
 		}

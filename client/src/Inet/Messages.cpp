@@ -331,22 +331,15 @@ int GameUpdate::PackSelf(uint8_t * payload) {
 Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload) {
 	Points * pointScoreObject = new Points(header);
 	int bufferPosition = 0;
-
 	// Unpack PLAYER_COUNT (UINT_16)
 	uint16_t playerCount = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
-
-
-
-
 	// Unpack player id and points to vector(UINT_16 and UINT_32)
 	for (int i = 0; i < playerCount; i++) {
-
 		// Unpack PLAYER_COUNT (UINT_16)
 		uint16_t playerID = UnpackUINT16_T(payload, bufferPosition);
 		bufferPosition += sizeof(uint16_t);
 		pointScoreObject->player_ids.push_back(playerID);
-
 		// Unpack PLAYER_NICK (Char 12)
 		char nickAsChars[12];
 		memset(&nickAsChars, '\0', 12);
@@ -354,15 +347,14 @@ Points * Points::Unpack(MessageHeader header, uint32_t length, uint8_t * payload
 		bufferPosition += 12;
 		string playerNick(nickAsChars);
 		pointScoreObject->player_nicks.push_back(playerNick);
-
-
 		// Unpack PLAYER_POINTS (UINT_16)
 		uint32_t playerPoints = UnpackUINT32_T(payload, bufferPosition);
 		bufferPosition += sizeof(uint32_t);
 		pointScoreObject->player_points.push_back(playerPoints);
-
+		#ifdef MESG_TEST
 			std::cout << "Message.cpp: Points " << playerID << " got " <<
 			": " << playerNick << " got" << playerPoints << " points." << std::endl;
+		#endif
 	}
 	return pointScoreObject;
 }
