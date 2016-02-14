@@ -103,11 +103,9 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 }
 
 void eventEatObject(Player *pPla, Object *pObj){
-	printf("OBJECT EATEN player size %d\n", pPla->scale);
 	int k = GROWTH_FACTOR;
 	pPla->scale += floor(k*OBJ_SIZE/pPla->scale);
 	pPla->points += OBJ_SIZE;
-	printf("AFTER LUNCH player size %d\n", pPla->scale);
 
 
 	/* relocate object */
@@ -149,6 +147,7 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 void eventEatPlayer(Player *eater, Player *eaten){
 		int k = GROWTH_FACTOR;
+		if(eaten->state != ALIVE) return;
     eater->scale += floor(k*eaten->scale/eater->scale);
 		eater->points += eaten->scale;
     eaten->state = EATEN;
