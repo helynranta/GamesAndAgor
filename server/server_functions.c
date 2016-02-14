@@ -103,11 +103,9 @@ void ComputeNearParticles(Player *sPlayers, Object **sObjects){
 }
 
 void eventEatObject(Player *pPla, Object *pObj){
-	printf("OBJECT EATEN player size %d\n", pPla->scale);
 	int k = GROWTH_FACTOR;
 	pPla->scale += floor(k*OBJ_SIZE/pPla->scale);
 	pPla->points += OBJ_SIZE;
-	printf("AFTER LUNCH player size %d\n", pPla->scale);
 
 
 	/* relocate object */
@@ -149,6 +147,7 @@ int isWithinRange(uint16_t location1[2], uint16_t location2[2], uint32_t scale1,
 
 void eventEatPlayer(Player *eater, Player *eaten){
 		int k = GROWTH_FACTOR;
+		if(eaten->state != ALIVE) return;
     eater->scale += floor(k*eaten->scale/eater->scale);
 		eater->points += eaten->scale;
     eaten->state = EATEN;
@@ -616,9 +615,7 @@ void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen, int type){
 		/* Pack msg */
 		plLength = msgPacker(buf, game, pPla->ID, GAME_MESSAGE, type, 0, 0);
 		/* Send msg */
-		printf("Sended points to player ID: %d\n", pPla->ID);
 		sent = sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
-		printf("Sent %d bytes\n", sent);
 		/* Move on to the next player */
 		pPla = pPla->pNext;
 	}
@@ -686,7 +683,7 @@ void resendMsg(int socket, socklen_t addrlen, Ack **ackList, Player *players) {
 			continue;
 		}
 		sendto(socket, ack->msg, ack->msgLength, 0, &p->address, addrlen);
-		printf("Sended %d \n", *(uint8_t*)&ack->msg[11]);
+		//printf("Sended %d \n", *(uint8_t*)&ack->msg[11]);
 		ack = ack->pNext;
 	}
 }
@@ -757,7 +754,6 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	int sent;
 	/* Keep on sending while there's stuff to send */
 	while (total < *length) {
-		printf("Sending to client %d\n", socket);
 		sent = send(socket, buf+total, bytesleft, 0);
 		if(sent == -1) break;
 		total += sent;
