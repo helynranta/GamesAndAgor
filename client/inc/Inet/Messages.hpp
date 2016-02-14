@@ -11,6 +11,8 @@
 #include <cstring>
 #include <map>
 
+using namespace std;
+
 #define BUFFER_SIZE 15000
 #define HEADER_SIZE 88
 
@@ -299,11 +301,13 @@ class Points: public GameMessage {
 class GameEnd: public GameMessage {
 	public:
 		// Constructor & Destructor
-		inline GameEnd(MessageHeader header, Points * pPoints) :
-			GameMessage(header, GAME_MESSAGE_TYPE::GAME_END) {
+		inline GameEnd(MessageHeader header, Points* pPoints) :
+				GameMessage(header, GAME_MESSAGE_TYPE::GAME_END) {
 			points = pPoints;
 		};
-		inline ~GameEnd() {};
+		inline ~GameEnd() {
+			delete points;
+		};
 
 		inline static GameEnd * Unpack(MessageHeader header, uint32_t lenght, uint8_t * payload) {
 			return new GameEnd(header, Points::Unpack(header, lenght, payload));
@@ -312,9 +316,13 @@ class GameEnd: public GameMessage {
 		inline int PackSelf(uint8_t * payload) {
 			return 0;
 		};
-		inline const Points& getPoints() {return *points;}
+
+		inline Points* getPoints(){
+			return points;
+		}
+
 	private:
-		Points * points;
+		Points* points;
 };
 
 // =========  PLAYER_DEAD =========  //
@@ -482,25 +490,35 @@ class GamePlayer {
 			size = pSize;
 		};
 
+		inline uint16_t getPosX(){ return pos_x; };
+
+		inline uint16_t getPosY(){ return pos_y; };
+
+		inline uint16_t getDirX(){ return dir_x; };
+
+		inline uint16_t getDirY(){ return dir_y; };
+
+		inline uint32_t getSize(){ return size; };
+
 		static inline GamePlayer* Unpack(uint8_t * payload, int bufferPosition ){
 
 			// Unpack PLAYER_ID
 			uint16_t player_id = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_POS_X
+			// Unpack POS_X
 			uint16_t pos_x = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_POS_Y
+			// Unpack POS_Y
 			uint16_t pos_y = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_DIR_X
+			// Unpack DIR_X
 			uint16_t dir_x = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 
-			// Unpack OWN_DIR_Y
+			// Unpack DIR_Y
 			uint16_t dir_y = UnpackUINT16_T(payload, bufferPosition);
 			bufferPosition += sizeof(uint16_t);
 

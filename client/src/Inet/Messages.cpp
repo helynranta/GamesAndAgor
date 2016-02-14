@@ -279,12 +279,17 @@ GameUpdate * GameUpdate::Unpack(MessageHeader header, uint32_t length, uint8_t *
 	uint16_t number_of_objects = UnpackUINT16_T(payload, bufferPosition);
 	bufferPosition += sizeof(uint16_t);
 
+	// TODO: Remove this stupid buffer copying. Implementation has changed since design and this kind of design is pointless here.
 	// return remaining of the received message, if there is any
+
 	#ifdef MESG_TEST
 		//	std::cout << "Messages.hpp - GameUpdate::Unpack players: " << unsigned(number_of_players) << std::endl;
 		//	std::cout << "Messages.hpp - GameUpdate::Unpack objects: " << number_of_objects << std::endl;
 	#endif
+
 	uint8_t * remainingPayload = 0;
+
+	////TODO comment
 	int remainingPayloadSize = (length - bufferPosition); // Need to calculate this here. Inside if statement (length - bufferPosition) return some really bizzare values.
 	if( remainingPayloadSize > 0) {
 		remainingPayload = static_cast<uint8_t *>(malloc(remainingPayloadSize));

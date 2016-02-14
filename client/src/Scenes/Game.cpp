@@ -132,7 +132,7 @@ void Game::handleMessages(void) {
         cout << "game is over" << endl;
         GameEnd* end = dynamic_cast<GameEnd*>(msgs.back());
         if(end != nullptr) {
-            Points p = end->getPoints();
+            Points* p = end->getPoints();
 
             gui->getText("main-game-hint")->setText("Game ended, someone won");
             // just wait a sec and then jump right back to menu
