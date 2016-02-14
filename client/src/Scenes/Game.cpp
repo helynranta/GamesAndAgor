@@ -21,6 +21,9 @@ void Game::awake(void) {
     gui->addText("player-pos", new GUIText());
     gui->getText("player-pos")->setAlign(TEXT_ALIGN::CENTER_XY)->setPos(400, 20);
 
+    gui->addText("game-time", new GUIText());
+    gui->getText("game-time")->setAlign(TEXT_ALIGN::RIGHT)->setPos(800, 0);
+    gui->getText("game-time")->setText(" ");
 
     gui->addText("amount-of-statics", new GUIText());
     gui->getText("amount-of-statics")->setPos(0, 20);
@@ -54,6 +57,14 @@ void Game::update(float dt) {
     // print ping and player position for player
     gui->getText("ping")->setText("Ping: "+to_string(Engine::connection->getPing()));
     gui->getText("player-pos")->setText("("+std::to_string(m_player->getX())+","+std::to_string(m_player->getY())+")");
+    // count gametime
+    int serverTime = Engine::connection->getServerTime();
+    string minutes = to_string((5*60*1000 - serverTime)/60000);
+    string seconds = to_string(((5*60*1000 - serverTime)/1000)%60);
+    if(seconds.size() < 2) seconds = '0'+ seconds;
+    if(seconds.size() == 0) seconds = "00";
+    gui->getText("game-time")->setText("Time left -  "+minutes+":"+seconds);
+
     //gui->getText("player-pos")->setText("R: "+to_string(m_player->getSR()));
     // this is how camera behaves in real gameplay (now in use)
     Engine::camera->setPos(m_player->getX(), m_player->getY());
@@ -246,7 +257,7 @@ void Game::doGameUpdate(void) {
 void Game::draw(void) {
     SDL_Rect l_ppos;
     // draw background
-    l_ppos = Engine::camera->transformToWorldCordinates({16383/2,16383/2,16383,16383});
+    l_ppos = Engine::camera->transformToWorldCordinates({8191/2,8191/2,8191,8191});
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/bg.png"), NULL, &l_ppos);
 
     for(auto it : m_enemies) {

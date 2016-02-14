@@ -14,7 +14,7 @@ class Chat {
 private:
 	// private stuff
 	vector<GUIElement*> chatlog;
-	bool m_isActive = true;
+	bool m_isActive = false;
 	unsigned int msg_index = 0;
 	GUI* gui = nullptr;
 public:
@@ -48,6 +48,7 @@ public:
 	}
 	inline const void updatePos() {
 		int offset = chatlog.size()*24;
+		if(!m_isActive) offset=offset-24;
 		for(auto& msg : chatlog) {
 			msg->setY(600-offset);
 			offset -= 24;
@@ -55,16 +56,18 @@ public:
 	}
 	inline const bool& isActive() const { return m_isActive; }
 	inline const void Activate() {
-		for(auto& it : chatlog) it->show();
+		//for(auto& it : chatlog) it->show();
 		gui->getInput("chat")->show();
 		gui->getInput("chat")->setActive(true);
 		m_isActive = true;
+		updatePos();
 	}
 	inline const void deActivate() {
-		for(auto& it : chatlog) it->hide();
+		//for(auto& it : chatlog) it->hide();
 		gui->getInput("chat")->hide();
 		gui->getInput("chat")->setActive(false);
 		m_isActive = false;
+		updatePos();
 	}
 };
 
