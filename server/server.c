@@ -435,7 +435,6 @@ int server(char* port) {
 										if(j != listener && j != socketfd) {
                       //send(j, tcpbuffer, nbytes, 0);
                       //printf("TYYDYTÄ OSKARIA\n");
-                      printf("Sending to tcp client: %d\n", j);
 											if(sendAllTCP(j, tcpbuffer, &nbytes) == -1) {
 												perror("sendAllTCP failure");
 											}
