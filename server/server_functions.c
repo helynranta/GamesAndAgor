@@ -754,16 +754,14 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	int total = 0;
 	int bytesleft = *length;
 
-	int sent = 0;
-	printf("Sending over TCP: %s\n", buf);
-
+	int sent;
 	/* Keep on sending while there's stuff to send */
 	while (total < *length) {
+		printf("Sending to client %d\n", socket);
 		sent = send(socket, buf+total, bytesleft, 0);
 		if(sent == -1) break;
 		total += sent;
 		bytesleft -= sent;
-		printf("?");
 	}
 
 	//*length = total; // tämä kaikki ei
