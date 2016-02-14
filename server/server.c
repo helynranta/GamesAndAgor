@@ -136,7 +136,7 @@ int server(char* port) {
 
 
     memset(&recvbuffer,0,SIZE);
-    printf("Server: Waiting for datagram..\n");
+    printf("Server: Waiting for players..\n");
 
     addrlen = sizeof(client_addr);
     struct sockaddr* client_address = (struct sockaddr*) &client_addr;

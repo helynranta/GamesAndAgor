@@ -616,9 +616,7 @@ void sendPoints(Game *game, char *buf, int socket, socklen_t addrlen, int type){
 		/* Pack msg */
 		plLength = msgPacker(buf, game, pPla->ID, GAME_MESSAGE, type, 0, 0);
 		/* Send msg */
-		printf("Sended points to player ID: %d\n", pPla->ID);
 		sent = sendto(socket, buf, plLength, 0, &pPla->address, addrlen);
-		printf("Sent %d bytes\n", sent);
 		/* Move on to the next player */
 		pPla = pPla->pNext;
 	}
@@ -757,7 +755,6 @@ int sendAllTCP(int socket, char *buf, int *length) {
 	int sent;
 	/* Keep on sending while there's stuff to send */
 	while (total < *length) {
-		printf("Sending to client %d\n", socket);
 		sent = send(socket, buf+total, bytesleft, 0);
 		if(sent == -1) break;
 		total += sent;
