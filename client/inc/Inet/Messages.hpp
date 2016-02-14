@@ -306,7 +306,7 @@ class GameEnd: public GameMessage {
 			points = pPoints;
 		};
 		inline ~GameEnd() {
-			delete points;
+//			delete points;
 		};
 
 		inline static GameEnd * Unpack(MessageHeader header, uint32_t lenght, uint8_t * payload) {
