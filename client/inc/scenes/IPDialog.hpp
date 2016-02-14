@@ -94,7 +94,9 @@ public:
             }
         }
     }
-    inline void end() override {}
+    inline void end() override {
+        gui->empty();
+    }
     inline void draw() override {}
 
 };

@@ -27,6 +27,7 @@ public:
 
     void draw();
     void update();
+
     inline void addText(string name, GUIText* element) {
         if(element != nullptr) {
             m_GUITexts.insert(make_pair(name, element));
@@ -61,6 +62,7 @@ public:
             }
         }
     }
+    void empty();
 };
 
 #endif
