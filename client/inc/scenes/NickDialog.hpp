@@ -14,7 +14,9 @@ private:
 protected:
 public:
     inline NickDialog() {;}
-    inline virtual ~NickDialog() {}
+    inline virtual ~NickDialog() {
+        cout << "NickDialog destructor succesfull" << endl;
+    }
     inline void awake() {
         gui->addText("hint", new GUIText());
         gui->addInput("nick", new GUIInput());

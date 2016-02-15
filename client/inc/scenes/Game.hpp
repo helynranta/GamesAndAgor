@@ -13,6 +13,7 @@
 #include "Player.hpp"
 #include "Chat.hpp"
 
+using namespace std;
 
 class Game : public Scene {
 private:
@@ -27,7 +28,9 @@ private:
     bool pointsChanged = false;
 public:
     inline Game () : Scene() {}
-    inline ~Game () {}
+    inline ~Game () {
+        cout << "Game destructor succesfull" << endl;
+    }
     // game init
     void awake(void);
     // this runs game

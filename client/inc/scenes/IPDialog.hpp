@@ -19,7 +19,9 @@ public:
 
     inline IPDialog () {}
 
-    inline virtual ~IPDialog () { }
+    inline virtual ~IPDialog () {
+        cout << "IPDialog destructor succesfull" << endl;
+    }
 
     inline void awake() override {
         gui->addText("hint", new GUIText());
@@ -95,7 +97,7 @@ public:
         }
     }
     inline void end() override {
-        gui->empty();
+        //gui->empty();
     }
     inline void draw() override {}
 

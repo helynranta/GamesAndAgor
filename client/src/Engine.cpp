@@ -32,6 +32,7 @@ Engine::~Engine() {
 		if(it.second != nullptr) delete it.second;
 	}
 	m_scenes.clear();
+
 	_functions.clear();
 
 	camera->destroy();
@@ -50,6 +51,7 @@ Engine::~Engine() {
 	if(R != nullptr) delete R;
 	if(input != nullptr) delete input;
 	if(window != nullptr) delete window;
+	cout << "Engine destruction succesfull" << endl;
 }
 int Engine::init() {
 	int success = 1;

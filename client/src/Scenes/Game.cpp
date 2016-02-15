@@ -280,8 +280,9 @@ void Game::draw(void) {
     if(pointsChanged) {
         int i = -1;
         static int max_i = 0;
-        if(m_points.size() > max_i) max_i = m_points.size();
-        else if(m_points.size() < max_i) {
+        if(int(m_points.size()) > max_i) 
+            max_i = m_points.size();
+        else if(int(m_points.size()) < max_i) {
             for(int k = int(m_points.size()); k <= max_i; k++) {
                 gui->removeText("scoreboard"+to_string(k));
             }
@@ -340,7 +341,6 @@ void Game::end(void) {
         if(it.second != nullptr) delete it.second;
     }
     m_enemies.clear();
-
     drawables.empty();
     gui->empty();
     cout << "Game end finished" << endl;
