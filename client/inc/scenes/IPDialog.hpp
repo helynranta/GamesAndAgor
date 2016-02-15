@@ -94,10 +94,13 @@ public:
                         break;
                 }
             }
+            for(auto it:msgs) {
+                if(it != nullptr) delete it;
+            }
         }
     }
     inline void end() override {
-        //gui->empty();
+        gui->empty();
     }
     inline void draw() override {}
 
@@ -114,6 +117,7 @@ void startJoinAck() {
     Join * joinMessage = new Join(dummyGameMessageHeader);
     int messageLenght = joinMessage->PackSelf(testBuffer);
     Engine::connection->send(testBuffer, messageLenght);
+    delete joinMessage;
     if(IPDialog::connecting) Engine::setTimeout(1000, startJoinAck);
 }
 

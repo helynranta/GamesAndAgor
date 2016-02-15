@@ -11,6 +11,7 @@ class NickDialog : public Scene {
 private:
     uint8_t nickbuffer[BUFFER_SIZE];
     int messageLength;
+    bool shouldStart = false;
 protected:
 public:
     inline NickDialog() {;}
@@ -33,6 +34,7 @@ public:
             Nick* nick = new Nick(Engine::connection->createDummyHeader(Engine::connection->getID(), SDL_GetTicks(), MESSAGE_TYPE::GAME_MESSAGE, 0), gui->getInput("nick")->getText());
             messageLength = nick->PackSelf(nickbuffer);
             Engine::connection->send(nickbuffer, messageLength);
+            delete nick;
         }
         // check if nick has been acked
         vector<Message*> msgs = Engine::connection->getMessagesOfType(MESSAGE_TYPE::ACK, GAME_MESSAGE_TYPE::NICK);
@@ -52,8 +54,8 @@ public:
                         // ack the ack
                         messageLength = ack->PackSelf(nickbuffer);
                         Engine::connection->send(nickbuffer, messageLength);
+                        shouldStart = true;
                         // start game
-                        Engine::startScene("Game");
                         break;
                     default:
                         gui->getText("hint")->setText("Server had unhandeld error");
@@ -61,7 +63,11 @@ public:
                         break;
                 }
             }
+            for(auto it : msgs) {
+                if(it != nullptr) delete it;
+            }
         }
+        if(shouldStart) Engine::startScene("Game");
     }
     inline void end() {
 

@@ -26,14 +26,14 @@ void GUI::update() {
     }
 }
 void GUI::empty() {
-    for ( auto& it : m_GUITexts )
+    for (auto it : m_GUITexts )
     {
         if(it.second != nullptr) delete it.second;
     }
-    m_GUITexts.empty();
-    for ( auto& it : m_GUIInputs )
+    m_GUITexts.clear();
+    for (auto it : m_GUIInputs )
     {
         if(it.second != nullptr) delete it.second;
     }
-    m_GUIInputs.empty();
+    m_GUIInputs.clear();
 }

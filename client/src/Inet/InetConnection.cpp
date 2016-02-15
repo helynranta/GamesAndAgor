@@ -14,12 +14,10 @@ InetConnection::~InetConnection() {
 	for(uint32_t i = 0; i < messageInbox.size(); i++){
 		if(messageInbox[i] != nullptr) delete messageInbox[i];
 	}
-	messageInbox.clear();
-
 	for(uint32_t i = 0; i < m_outgoing.size(); i++){
 		if(m_outgoing[i] != nullptr) delete m_outgoing[i];
 	}
-	m_outgoing.clear();
+	cout << "Inet destructor successfull" << endl;
 }
 void InetConnection::init(void) {
 	memset(&hints, 0, sizeof hints);
@@ -32,20 +30,17 @@ void InetConnection::destroy(void) {
 	for (auto it : messages) {
 		if (it != nullptr) delete it;
 	}
-	messages.clear();
 	for(auto it : messageInbox) {
 		if (it != nullptr) delete it;
 	}
-	messageInbox.clear();
 	for(auto it : m_outgoing) {
 		if (it != nullptr) delete it;
 	}
-	m_outgoing.clear();
 	// empty whole vector
-
-	if (res != nullptr) freeaddrinfo(res);
-	if (iter != nullptr) freeaddrinfo(iter);
-
+	messages.clear();
+	messageInbox.clear();
+	m_outgoing.clear();
+	cout << "Inet destroy successfull" << endl;
 }
 
 bool InetConnection::sendChatMessage(const string& message) {

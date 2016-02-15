@@ -28,13 +28,7 @@ Engine::Engine() {
 }
 Engine::~Engine() {
 	// close all scenes
-	for (auto it : m_scenes) {
-		if(it.second != nullptr) delete it.second;
-	}
-	m_scenes.clear();
-
 	_functions.clear();
-
 	camera->destroy();
 	R->destroy();
 	input->empty();
@@ -51,6 +45,14 @@ Engine::~Engine() {
 	if(R != nullptr) delete R;
 	if(input != nullptr) delete input;
 	if(window != nullptr) delete window;
+	cout << "Starting to delete all Scenes" << endl;
+	for (auto it : m_scenes) {
+		try {
+			if(it.second != nullptr) delete it.second;
+		} catch (int e) {
+			cerr << "trying to delete scene, failed" << endl;
+		} 
+	}
 	cout << "Engine destruction succesfull" << endl;
 }
 int Engine::init() {
