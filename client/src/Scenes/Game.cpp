@@ -134,7 +134,11 @@ void Game::handleMessages(void) {
             Engine::setTimeout(2000, [this](){
                 gui->getText("main-game-hint")->setText(" ");
             });
+            delete death;
         } else cerr << "unable to cast död message" << endl;
+    }
+    for(auto it : msgs) {
+        if(it!=nullptr) delete it;
     }
     msgs.clear();
     // handle game end
@@ -154,8 +158,13 @@ void Game::handleMessages(void) {
                 Engine::connection->disconnect();
                 Engine::startScene("IPDialog");
             });
+            if(p!=nullptr) delete p;
+            if(end!=nullptr) delete end;
             running = false;
         } else cerr << "unable to cast end message" << endl;
+    }
+    for(auto it : msgs) {
+        if(it!=nullptr) delete it;
     }
     msgs.clear();
     // handle new points messages
@@ -173,8 +182,11 @@ void Game::handleMessages(void) {
                 m_points.insert({p->player_points[it], p->player_nicks[it]});
             }
             pointsChanged = true;
+            if(p!=nullptr) delete p;
         } else cerr << "unable to cast points message" << endl;
-
+    }
+    for(auto it : msgs) {
+        if(it!=nullptr) delete it;
     }
     msgs.clear();
     // someone dropped out
@@ -188,9 +200,14 @@ void Game::handleMessages(void) {
                     chat->addLog(mapit->second->getNick()+" left the game");
                 else
                     chat->addLog("Player id "+to_string(out->getPlayerID())+" left the game");
+                delete out;
             } else cerr << "unable to cast out message" << endl;
         }
     }
+    for(auto it : msgs) {
+        if(it!=nullptr) delete it;
+    }
+    msgs.clear();
 }
 void Game::doGameUpdate(void) {
     // handle game update messages
@@ -255,7 +272,9 @@ void Game::doGameUpdate(void) {
             }
         }
     }
-    if(u != nullptr) delete u;
+    for(auto it : update) {
+        if(it!=nullptr) delete it;
+    }
 }
 void Game::draw(void) {
     SDL_Rect l_ppos;
@@ -307,8 +326,8 @@ void Game::draw(void) {
 }
 void Game::end(void) {
     // free memory
-    delete chat;
-    delete m_player;
+    if(chat!=nullptr)delete chat;
+    if(m_player!=nullptr)delete m_player;
 
     m_statics.clear();
     m_enemies.clear();
