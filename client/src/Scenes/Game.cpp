@@ -6,6 +6,7 @@
 #include <time.h> // time
 
 void Game::awake(void) {
+    cout << "Game Awake" << endl;
     running = true;
     // populate static object list
     m_player = new Player(Engine::getNick(), 50, 50, 50);
@@ -134,7 +135,7 @@ void Game::handleMessages(void) {
             Engine::setTimeout(2000, [this](){
                 gui->getText("main-game-hint")->setText(" ");
             });
-            delete death;
+            if(death!=nullptr) delete death;
         } else cerr << "unable to cast död message" << endl;
     }
     for(auto it : msgs) {
@@ -158,8 +159,6 @@ void Game::handleMessages(void) {
                 Engine::connection->disconnect();
                 Engine::startScene("IPDialog");
             });
-            if(p!=nullptr) delete p;
-            if(end!=nullptr) delete end;
             running = false;
         } else cerr << "unable to cast end message" << endl;
     }
@@ -182,7 +181,6 @@ void Game::handleMessages(void) {
                 m_points.insert({p->player_points[it], p->player_nicks[it]});
             }
             pointsChanged = true;
-            if(p!=nullptr) delete p;
         } else cerr << "unable to cast points message" << endl;
     }
     for(auto it : msgs) {
@@ -200,7 +198,6 @@ void Game::handleMessages(void) {
                     chat->addLog(mapit->second->getNick()+" left the game");
                 else
                     chat->addLog("Player id "+to_string(out->getPlayerID())+" left the game");
-                delete out;
             } else cerr << "unable to cast out message" << endl;
         }
     }
@@ -267,7 +264,6 @@ void Game::doGameUpdate(void) {
                 player->setSPos(pit->pos_x, pit->pos_y, SDL_GetTicks());
                 player->setDir(pit->dir_x, pit->dir_y);
                 player->setSR(pit->size);
-                //cout << int(pit->size) <<endl;
                 drawables.push_back(player);
             }
         }
@@ -329,8 +325,16 @@ void Game::end(void) {
     if(chat!=nullptr)delete chat;
     if(m_player!=nullptr)delete m_player;
 
+    for(auto it : m_statics) {
+        if(it.second != nullptr) delete it.second;
+    }
     m_statics.clear();
+    for(auto it : m_enemies) {
+        if(it.second != nullptr) delete it.second;
+    }
     m_enemies.clear();
-    drawables.clear();
+
+    drawables.empty();
     gui->empty();
+    cout << "Game end finished" << endl;
 }
