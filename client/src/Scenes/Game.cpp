@@ -279,8 +279,15 @@ void Game::draw(void) {
     SDL_RenderCopy(Engine::window->getRenderer(), Engine::R->getTexture("res/bg.png"), NULL, &l_ppos);
     if(pointsChanged) {
         int i = -1;
+        static int max_i = 0;
+        if(m_points.size() > max_i) max_i = m_points.size();
+        else if(m_points.size() < max_i) {
+            for(int k = int(m_points.size()); k <= max_i; k++) {
+                gui->removeText("scoreboard"+to_string(k));
+            }
+        }
         for(auto& it : m_points) {
-            string id = "scoreboard"+to_string(i++);
+            string id = "scoreboard"+to_string(++i);
             if(gui->getText(id) == nullptr) gui->addText(id, new GUIText());
             gui->getText(id)->setText(
                 to_string(m_points.size() - i)+": "+to_string(it.first)+" "+it.second
