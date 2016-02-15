@@ -1,7 +1,8 @@
 Game Design derp
 ============================
 
-Agor.io clone, some1 write abstacr
+Game documentation and protocol  
+https://goo.gl/PLfIP5
 
 ### Engine
 
