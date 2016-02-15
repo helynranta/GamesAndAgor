@@ -28,8 +28,8 @@ Engine::Engine() {
 }
 Engine::~Engine() {
 	// close all scenes
-	for (auto& it : m_scenes) {
-		delete it.second;
+	for (auto it : m_scenes) {
+		if(it.second != nullptr) delete it.second;
 	}
 	m_scenes.clear();
 	_functions.clear();
@@ -45,11 +45,11 @@ Engine::~Engine() {
 	IMG_Quit();
 	SDL_Quit();
 
-	delete connection;
-	delete camera;
-	delete R;
-	delete input;
-	delete window;
+	if(connection != nullptr) delete connection;
+	if(camera != nullptr) delete camera;
+	if(R != nullptr) delete R;
+	if(input != nullptr) delete input;
+	if(window != nullptr) delete window;
 }
 int Engine::init() {
 	int success = 1;
