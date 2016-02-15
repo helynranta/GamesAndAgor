@@ -12,12 +12,12 @@ InetConnection::InetConnection() {}
 
 InetConnection::~InetConnection() {
 	for(uint32_t i = 0; i < messageInbox.size(); i++){
-		delete messageInbox[i];
+		if(messageInbox[i] != nullptr) delete messageInbox[i];
 	}
 	messageInbox.clear();
 
 	for(uint32_t i = 0; i < m_outgoing.size(); i++){
-		delete m_outgoing[i];
+		if(m_outgoing[i] != nullptr) delete m_outgoing[i];
 	}
 	m_outgoing.clear();
 }
@@ -29,16 +29,16 @@ void InetConnection::init(void) {
 }
 void InetConnection::destroy(void) {
 	// delete messages behind pointers
-	for (auto& it : messages) {
-		delete it;
+	for (auto it : messages) {
+		if (it != nullptr) delete it;
 	}
 	messages.clear();
 	for(auto it : messageInbox) {
-		delete it;
+		if (it != nullptr) delete it;
 	}
 	messageInbox.clear();
 	for(auto it : m_outgoing) {
-		delete it;
+		if (it != nullptr) delete it;
 	}
 	m_outgoing.clear();
 	// empty whole vector

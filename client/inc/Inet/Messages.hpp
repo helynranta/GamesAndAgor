@@ -316,7 +316,7 @@ class GameEnd: public GameMessage {
 			points = pPoints;
 		};
 		inline ~GameEnd() {
-			delete points;
+			if(points != nullptr) delete points;
 		};
 
 		inline static GameEnd * Unpack(MessageHeader header, uint32_t lenght, uint8_t * payload) {
@@ -332,7 +332,7 @@ class GameEnd: public GameMessage {
 		}
 
 	private:
-		Points* points;
+		Points* points = nullptr;
 };
 
 // =========  PLAYER_DEAD =========  //
@@ -513,12 +513,12 @@ class GameUpdate: public GameMessage {
 
 		inline ~GameUpdate() {
 			for(uint32_t i = 0; i < players.size(); i++){
-				delete players[i];
+				if(players[i] != nullptr) delete players[i];
 			}
 			players.clear();
 
 			for(uint32_t i = 0; i < objects.size(); i++){
-				delete objects[i];
+				if(objects[i] != nullptr) delete objects[i];
 			}
 			objects.clear();
 		};

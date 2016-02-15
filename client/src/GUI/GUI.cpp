@@ -30,10 +30,10 @@ void GUI::empty() {
     {
         if(it.second != nullptr) delete it.second;
     }
-    m_GUITexts.clear();
+    m_GUITexts.empty();
     for ( auto& it : m_GUIInputs )
     {
         if(it.second != nullptr) delete it.second;
     }
-    m_GUIInputs.clear();
+    m_GUIInputs.empty();
 }
