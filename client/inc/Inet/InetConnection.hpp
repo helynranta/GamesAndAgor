@@ -67,10 +67,9 @@ private:
     float serverTime = 0;
 protected:
     /* protected data */
-
-public:
     InetConnection();
     virtual ~InetConnection();
+public:
     bool sendChatMessage(const string& message);
     bool connectTCP();
     bool connectUDP();
