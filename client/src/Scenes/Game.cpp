@@ -135,7 +135,6 @@ void Game::handleMessages(void) {
             Engine::setTimeout(2000, [this](){
                 gui->getText("main-game-hint")->setText(" ");
             });
-            if(death!=nullptr) delete death;
         } else cerr << "unable to cast död message" << endl;
     }
     for(auto it : msgs) {
@@ -280,7 +279,7 @@ void Game::draw(void) {
     if(pointsChanged) {
         int i = -1;
         static int max_i = 0;
-        if(int(m_points.size()) > max_i) 
+        if(int(m_points.size()) > max_i)
             max_i = m_points.size();
         else if(int(m_points.size()) < max_i) {
             for(int k = int(m_points.size()); k <= max_i; k++) {

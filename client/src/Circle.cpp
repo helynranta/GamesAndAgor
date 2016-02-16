@@ -6,8 +6,8 @@
 
 void Circle::init() {}
 void Circle::update() {
-	if(m_r < m_sr) m_r += 1.0f;
-	if(m_r > m_sr) m_r -= 1.0f;
+	// better resize method
+	if(abs(m_sr-m_x)>0.1) m_r += (m_sr-m_r)/10;
 	// if gameobject is not static it should try to move somewhere
 	if(!isStatic) {
 		m_speed = (1-(log(m_sr/100.0f)/log(1024)))*8.0f;
