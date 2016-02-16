@@ -1,21 +1,30 @@
 Game Design derp
 ============================
 
-Game documentation and protocol  
+Game documentation and Protocol can be found here:  
 https://goo.gl/PLfIP5
 
 ### Engine
 
-Game depends on SDL2, SDL2_image and SDL2_ttf. For possible audio, SDL2_mixer
+Game depends on SDL2, SDL2_image and SDL2_ttf.
 
 Easiest install of depends on apt-get:
-
 ```
 sudo apt-get install libsdl2-2.0-0 \
 libsdl2-image-2.0-0  libsdl2-ttf-2.0-0\
 libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev \
 mesa-utils mesa-common-dev
 ```
+
+### Makefile
+ * make: create objects -if needed- and links program
+ * make remake: recreates all objects, removes bin folder and makes
+ * make run: calls make and the runs bin/program
+ * make clean: cleans objects and makes
+ * make cleaner: removes bin folder, cleans objects and remakes
+
+Makefile has option of either building with static or shared libraries. For classroom 6208 static works, so it is default. If one wants to swap, uncomment line 25 and comment line 27.
+
 ### Folder structure
 
 ```
@@ -33,26 +42,18 @@ client
 +- src          // source files
 |  +- core      // less game specific, more engine
 |  {other sources}
-+- Game.md      // this document!
 +- Makefile
-+- README.md    // ?
++- README.md    //
 ```
 
-### Makefile
- * make: create objects -if needed- and links program
- * make remake: recreates all objects, removes bin folder and makes
- * make run: calls make and the runs bin/program
- * make clean: cleans objects and makes
- * make cleaner: removes bin folder, cleans objects and remakes
+#### References
 
-makefiles has 2 options for linking. first option is linking with shared libraries, and second in linking with static libraries. enable one by uncommenting/commenting proper LIB variable (line 25/27)
+For smaller things or snippets, reference (web link) can be found in code. Major sources of information for client coding are:
 
-### Classes
+[Lazy Foo's Beginning Game Programming v2.0:](http://lazyfoo.net/tutorials/SDL/index.php#Hello SDL) Most of the SDL stuff is learned from here
 
-##### GAME SPECIFIC:
+[TwinklebeadDev SDL2.0 Tutorials:](http://www.willusher.io/pages/sdl2/) Some basic SDL2 stuff, events and ttf  
 
-Game: takes care of main loop, delta time, frames per second and game logic
+[MakingGamesWithBen Advanced C++/Graphics Tutorial:](https://www.youtube.com/watch?v=FxCC9Ces1Yg&list=PLSPw4ASQYyymu3PfG9gxywSPghnSMiOAW) Mostly OpenGl stuff but some of the game engine concepts are adopted from here
 
-Cirle: for all circles (all entitites in game, as they are represented as circles)
-
-Player: kind of circle that player can move
+[Beej's Guide to Network Programming:](http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html) All of the network programming
